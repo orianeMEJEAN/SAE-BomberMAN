@@ -8,4 +8,6 @@ module com.example.BomberMAN {
 
     opens com.example.BomberMAN to javafx.fxml;
     exports com.example.BomberMAN;
+    exports com.example.BomberMAN.GamePlay;
+    opens com.example.BomberMAN.GamePlay to javafx.fxml;
 }
