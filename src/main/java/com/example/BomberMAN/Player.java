@@ -78,14 +78,14 @@ public class Player
 
             sprite.setVisible(false);
 
-            Image gif = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/BomberMan.gif").toExternalForm());
+            Image gif = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/BomberManV2.gif").toExternalForm());
             ImageView gifView = new ImageView(gif);
             gifView.setPreserveRatio(false);
             gifView.setFitWidth(40);
             gifView.setFitHeight(40);
             grid.add(gifView, bombX, bombY);
 
-            Timeline waitGIF = new Timeline(new KeyFrame(Duration.seconds(3), e -> {
+            Timeline waitGIF = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
                 grid.getChildren().remove(gifView);
 
                 new Bomb(bombX, bombY, grid, tiles, this);
