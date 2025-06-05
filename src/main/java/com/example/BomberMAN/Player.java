@@ -24,11 +24,11 @@ public class Player
         this.grid = grid;
         this.tiles = tiles;
 
-        imgDefault = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/player.png").toExternalForm());
-        imgUp = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/player_up.png").toExternalForm());
-        imgDown = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/player_down.png").toExternalForm());
-        imgLeft = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/player_left.png").toExternalForm());
-        imgRight = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/player_right.png").toExternalForm());
+        imgDefault = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player.png").toExternalForm());
+        imgUp = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player_up.png").toExternalForm());
+        imgDown = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player_down.png").toExternalForm());
+        imgLeft = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player_left.png").toExternalForm());
+        imgRight = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player_right.png").toExternalForm());
 
         sprite = new ImageView(imgDefault);
         sprite.setFitWidth(40);
