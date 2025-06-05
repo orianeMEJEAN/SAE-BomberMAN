@@ -31,9 +31,19 @@ public class Game
                     tile.setType(Tile.Type.WALL);
                 }
 
-                else if ((x != 1 || y != 1) && Math.random() < 0.2)
+                else if ((x == 1 || y == 1) && (x == 2 || y == 1) && (x == 1 || y == 2) && Math.random() < 0.2)
+                {
+                    tile.setType(Tile.Type.EMPTY);
+                }
+
+                else if ((x != 1 || y != 1) && (x != 2 || y != 1) && (x != 1 || y != 2) && Math.random() < 0.2)
                 {
                     tile.setType(Tile.Type.BREAKABLE);
+                }
+
+                else if ((x != 1 || y != 1) && (x != 2 || y != 1) && (x != 1 || y != 2) && Math.random() < 0.2)
+                {
+                    tile.setType(Tile.Type.WALL);
                 }
 
                 tiles[y][x] = tile;

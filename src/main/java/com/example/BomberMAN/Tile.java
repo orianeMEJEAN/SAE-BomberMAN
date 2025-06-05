@@ -65,7 +65,7 @@ public class Tile
     {
         if (breakable)
         {
-            rect.setFill(Color.LIGHTGREEN); // visuel de l’herbe
+            rect.setFill(Color.LIGHTGREEN);
             breakable = false;
             walkable = true;
         }
