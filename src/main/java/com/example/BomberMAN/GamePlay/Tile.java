@@ -69,6 +69,7 @@ public class Tile
             rect.setFill(Color.LIGHTGREEN);
             breakable = false;
             walkable = true;
+            type = Type.EMPTY;
         }
     }
 }
