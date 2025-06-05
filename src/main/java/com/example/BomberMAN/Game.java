@@ -32,15 +32,15 @@ public class Game
                 {
                     tile.setType(Tile.Type.WALL);
                 }
-                else if ((x == 1 || y == 1) && (x == 2 || y == 1) && (x == 1 || y == 2) && (x == 9 || y == 11) && (x == 8 || y == 1) && (x == 9 || y == 10))
+                else if ((x == 1 || y == 1) && (x == 2 || y == 1) && (x == 1 || y == 2) && (x == 9 || y == 11) && (x == 11 || y == 8) && (x == 10 || y == 9))
                 {
                     tile.setType(Tile.Type.EMPTY);
                 }
-                else if ((x != 1 || y != 1) && (x != 2 || y != 1) && (x != 1 || y != 2) && Math.random() < 0.2)
+                else if ((x != 1 || y != 1) && (x != 2 || y != 1) && (x != 1 || y != 2) && (x != 11 || y != 9) && (x != 11 || y != 8) && (x != 10 || y != 9) && Math.random() < 0.2)
                 {
                     tile.setType(Tile.Type.BREAKABLE);
                 }
-                else if ((x != 1 || y != 1) && (x != 2 || y != 1) && (x != 1 || y != 2) && Math.random() < 0.2)
+                else if ((x != 1 || y != 1) && (x != 2 || y != 1) && (x != 1 || y != 2) && (x != 11 || y != 9) && (x != 11 || y != 8) && (x != 10 || y != 9) && Math.random() < 0.2)
                 {
                     tile.setType(Tile.Type.WALL);
                 }
