@@ -1,5 +1,7 @@
 package com.example.BomberMAN;
 
+import com.example.BomberMAN.GamePlay.Player;
+import com.example.BomberMAN.GamePlay.Tile;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;

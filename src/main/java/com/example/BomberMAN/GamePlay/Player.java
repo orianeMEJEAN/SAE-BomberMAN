@@ -1,5 +1,6 @@
-package com.example.BomberMAN;
+package com.example.BomberMAN.GamePlay;
 
+import com.example.BomberMAN.Game;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.image.Image;
@@ -78,7 +79,7 @@ public class Player
 
             sprite.setVisible(false);
 
-            Image gif = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/BomberManV2.gif").toExternalForm());
+            Image gif = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/BomberManV2.gif").toExternalForm());
             ImageView gifView = new ImageView(gif);
             gifView.setPreserveRatio(false);
             gifView.setFitWidth(40);

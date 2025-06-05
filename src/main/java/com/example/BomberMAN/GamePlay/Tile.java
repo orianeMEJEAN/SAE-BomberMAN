@@ -1,5 +1,6 @@
-package com.example.BomberMAN;
+package com.example.BomberMAN.GamePlay;
 
+import com.example.BomberMAN.Game;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 

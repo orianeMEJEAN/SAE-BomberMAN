@@ -1,5 +1,6 @@
-package com.example.BomberMAN;
+package com.example.BomberMAN.GamePlay;
 
+import com.example.BomberMAN.Game;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.image.Image;
@@ -33,7 +34,6 @@ public class Bomb
     {
         grid.getChildren().remove(bombSprite);
 
-        // Explosion visuelle (affichée même si elle dépasse)
         Image explosionImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/explosion.png").toExternalForm());
         ImageView explosionSprite = new ImageView(explosionImage);
         explosionSprite.setFitWidth(Game.TILE_SIZE * 3);
@@ -42,17 +42,14 @@ public class Bomb
         int centerX = x - 1;
         int centerY = y - 1;
 
-        // 💥 Affiche toujours l’explosion (quitte à ce qu’elle dépasse)
         grid.add(explosionSprite, centerX, centerY, 3, 3);
 
-        // Explosion visuelle retirée après 0.5s
         Timeline clear = new Timeline(new KeyFrame(Duration.seconds(0.5), e -> {
             grid.getChildren().remove(explosionSprite);
         }));
         clear.setCycleCount(1);
         clear.play();
 
-        // 💣 Casse les blocs autour (même si explosion dépasse)
         int[][] directions = {
                 {0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}
         };
@@ -69,5 +66,4 @@ public class Bomb
             }
         }
     }
-
 }
