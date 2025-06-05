@@ -32,17 +32,14 @@ public class Game
                 {
                     tile.setType(Tile.Type.WALL);
                 }
-
-                else if ((x == 1 || y == 1) && (x == 2 || y == 1) && (x == 1 || y == 2))
+                else if ((x == 1 || y == 1) && (x == 2 || y == 1) && (x == 1 || y == 2) && (x == 9 || y == 11) && (x == 8 || y == 1) && (x == 9 || y == 10))
                 {
                     tile.setType(Tile.Type.EMPTY);
                 }
-
                 else if ((x != 1 || y != 1) && (x != 2 || y != 1) && (x != 1 || y != 2) && Math.random() < 0.2)
                 {
                     tile.setType(Tile.Type.BREAKABLE);
                 }
-
                 else if ((x != 1 || y != 1) && (x != 2 || y != 1) && (x != 1 || y != 2) && Math.random() < 0.2)
                 {
                     tile.setType(Tile.Type.WALL);
@@ -53,15 +50,26 @@ public class Game
             }
         }
 
-        player = new Player(1, 1, grid, tiles);
+        // Création d’un seul objet Player pour les 2 joueurs
+        player = new Player(1, 1, 11, 9, grid, tiles);
 
         Scene scene = new Scene(grid, 536, 454);
+
+        // Contrôles clavier pour les 2 joueurs
         scene.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.UP) player.move(0, -1);
-            if (e.getCode() == KeyCode.DOWN) player.move(0, 1);
-            if (e.getCode() == KeyCode.LEFT) player.move(-1, 0);
-            if (e.getCode() == KeyCode.RIGHT) player.move(1, 0);
-            if (e.getCode() == KeyCode.SPACE) player.placeBomb(tiles);
+            // Joueur 1 (flèches + CTRL)
+            if (e.getCode() == KeyCode.UP) player.movePlayer1(0, -1);
+            if (e.getCode() == KeyCode.DOWN) player.movePlayer1(0, 1);
+            if (e.getCode() == KeyCode.LEFT) player.movePlayer1(-1, 0);
+            if (e.getCode() == KeyCode.RIGHT) player.movePlayer1(1, 0);
+            if (e.getCode() == KeyCode.CONTROL) player.placeBombPlayer1();
+
+            // Joueur 2 (ZQSD + Espace)
+            if (e.getCode() == KeyCode.Z) player.movePlayer2(0, -1);
+            if (e.getCode() == KeyCode.S) player.movePlayer2(0, 1);
+            if (e.getCode() == KeyCode.Q) player.movePlayer2(-1, 0);
+            if (e.getCode() == KeyCode.D) player.movePlayer2(1, 0);
+            if (e.getCode() == KeyCode.SPACE) player.placeBombPlayer2();
         });
 
         stage.setTitle("BomberMan - G1-4");
