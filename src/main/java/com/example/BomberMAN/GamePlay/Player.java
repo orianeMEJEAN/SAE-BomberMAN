@@ -307,7 +307,7 @@ public class Player
             System.out.println("Redémarrage du jeu...");
 
             // Créer une nouvelle instance de Game et la démarrer
-            Game newGame = new Game();
+            Game newGame = new Game(true);
             newGame.start(stage);
 
             System.out.println("Nouveau jeu démarré avec succès !");
