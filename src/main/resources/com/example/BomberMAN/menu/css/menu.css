@@ -1,0 +1,21 @@
+.jersey-font {
+    -fx-font-family: "Jersey 10 Regular";
+    -fx-font-size: 102px;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.75), 4, 0.5, 2, 2);
+}
+
+Label {
+    -fx-font-family: 'Jersey 10 Regular';
+    -fx-text-fill: white;
+}
+
+.button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-font-family: 'Jersey 10 Regular';
+    -fx-text-fill: white;
+    -fx-padding: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
