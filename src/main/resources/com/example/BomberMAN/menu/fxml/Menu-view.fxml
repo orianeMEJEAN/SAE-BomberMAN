@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.text.Text?>
+<?import java.lang.String?>
+<?import java.net.URL?>
+<StackPane fx:id="rootPane"
+           xmlns="http://javafx.com/javafx/17.0.6"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.example.BomberMAN.menu.MenuController"
+           prefWidth="600" prefHeight="600">
+    <stylesheets>
+        <URL value="@../css/menu.css"/>
+    </stylesheets>
+
+    <!-- Image de fond -->
+    <ImageView fitWidth="800" fitHeight="800" preserveRatio="false">
+        <image>
+            <Image url="@../image/FondMenu.png" />
+        </image>
+    </ImageView>
+
+    <!-- Contenu centré -->
+    <VBox alignment="CENTER" spacing="20">
+        <!-- Titre du jeu -->
+        <Label text="Bomberman" styleClass="jersey-font"/>
+
+        <!-- Message d'invite -->
+        <Label fx:id="continu" text="Appuyez sur une touche pour continuer" style="-fx-font-size: 36px;"/>
+    </VBox>
+
+    <!-- Pop up menu-->
+    <StackPane fx:id="popupPane" alignment="CENTER" visible="false" opacity="0">
+        <VBox alignment="CENTER"
+              style="-fx-background-color: rgba(0, 0, 0, 0.8);
+                     -fx-font-size: 36px;
+                     -fx-padding: 20;
+                     -fx-background-radius: 10;"
+              maxWidth="600" maxHeight="600"
+              prefWidth="600" prefHeight="600">
+            <Label text="Menu Principal" styleClass="jersey-font"/>
+            <Button text="Nouvelle Partie" styleClass="button"/>
+            <Button text="Options" styleClass="button"/>
+            <Button text="Quitter" styleClass="button"/>
+        </VBox>
+    </StackPane>
+
+
+
+</StackPane>
