@@ -47,9 +47,9 @@
               maxWidth="600" maxHeight="600"
               prefWidth="600" prefHeight="600">
             <Label text="Menu Principal" styleClass="jersey-font"/>
-            <Button text="Nouvelle Partie" styleClass="button"/>
-            <Button text="Options" styleClass="button"/>
-            <Button text="Quitter" styleClass="button"/>
+            <Button fx:id="btnNP" text="Nouvelle Partie" styleClass="button" onAction="#handleNP"/>
+            <Button fx:id="btnOp" text="Options" styleClass="button" onAction="#handleOp"/>
+            <Button fx:id="btnQ" text="Quitter" styleClass="button" onAction="#handleQ"/>
         </VBox>
     </StackPane>
 

@@ -6,12 +6,15 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
+
+import java.util.List;
 
 public class MenuController {
     @FXML
@@ -26,6 +29,13 @@ public class MenuController {
     private StackPane popupPane;
 
     private boolean popupShown = false;
+
+    @FXML private Button btnNP;
+    @FXML private Button btnOp;
+    @FXML private Button btnQ;
+
+    private List<Button> menuButtons;
+    private int selectedIndex = 0;
 
     @FXML
     public void initialize() {
@@ -50,6 +60,8 @@ public class MenuController {
         mediaPlayer = new MediaPlayer(media);
         mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
         mediaPlayer.play();
+
+        menuButtons = List.of(btnNP, btnOp, btnQ);
     }
 
     private void handleKeyPress(KeyEvent event) {
@@ -61,10 +73,31 @@ public class MenuController {
                 }
                 break;
 
+            case UP:
+                if (popupShown) {
+                    selectedIndex = (selectedIndex - 1 + menuButtons.size()) % menuButtons.size();
+                    updateFocus();
+                }
+                break;
+
+            case DOWN:
+                if (popupShown) {
+                    selectedIndex = (selectedIndex + 1) % menuButtons.size();
+                    updateFocus();
+                }
+                break;
+
+            case ENTER:
+                if (popupShown) {
+                    executeSelected();
+                }
+                break;
+
             default:
                 if (!popupShown) {
                     showPopup();
                     popupShown = true;
+                    updateFocus();
                 }
                 break;
         }
@@ -84,6 +117,8 @@ public class MenuController {
         ft.setToValue(1);
 
         new ParallelTransition(tt, ft).play();
+
+        Platform.runLater(() -> rootPane.requestFocus());
     }
 
     private void hidePopup() {
@@ -97,8 +132,46 @@ public class MenuController {
         ft.setToValue(0);
 
         ParallelTransition pt = new ParallelTransition(tt, ft);
-        pt.setOnFinished(e -> popupPane.setVisible(false)); // cacher après l’animation
+        pt.setOnFinished(e -> {
+            popupPane.setVisible(false);
+            Platform.runLater(() -> rootPane.requestFocus()); // ⬅️ Ajouté ici
+        });
         pt.play();
     }
 
+    private void updateFocus() {
+        for (int i = 0; i < menuButtons.size(); i++) {
+            Button btn = menuButtons.get(i);
+            btn.setStyle(""); // reset style
+        }
+        Button selected = menuButtons.get(selectedIndex);
+        selected.setStyle("-fx-border-color: white; -fx-border-width: 2;");
+    }
+
+    private void executeSelected() {
+        Button selected = menuButtons.get(selectedIndex);
+        switch (selected.getText()) {
+            case "Nouvelle Partie" -> System.out.println("Nouvelle Partie sélectionnée");
+            case "Options" -> System.out.println("Options sélectionnées");
+            case "Quitter" -> System.exit(0);
+        }
+    }
+
+    @FXML
+    private void handleNP() {
+        System.out.println("Nouvelle partie lancée !");
+        // → ici, charger une autre scène, démarrer le jeu, etc.
+    }
+
+    @FXML
+    private void handleOp() {
+        System.out.println("Options ouvertes !");
+        // → afficher un autre menu, pop-up, etc.
+    }
+
+    @FXML
+    private void handleQ() {
+        System.out.println("Quitter !");
+        Platform.exit(); // ferme proprement l'application
+    }
 }

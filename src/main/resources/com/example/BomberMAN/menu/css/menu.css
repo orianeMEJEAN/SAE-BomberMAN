@@ -19,3 +19,9 @@ Label {
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
 }
+
+.button-selected {
+    -fx-background-color: rgba(255,255,255,0.2);
+    -fx-border-color: white;
+    -fx-border-width: 2px;
+}
