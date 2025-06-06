@@ -1,9 +1,7 @@
 package com.example.BomberMAN.menu;
 
-import javafx.animation.FadeTransition;
-import javafx.animation.Interpolator;
-import javafx.animation.ParallelTransition;
-import javafx.animation.TranslateTransition;
+import com.example.BomberMAN.Game;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -12,47 +10,47 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.List;
 
 public class MenuController {
-    @FXML
-    private StackPane rootPane;
-
-    @FXML
-    private Label continu;
-
-    private MediaPlayer mediaPlayer;
-
-    @FXML
-    private StackPane popupPane;
-
-    private boolean popupShown = false;
+    @FXML private StackPane rootPane;
+    @FXML private Label continu;
+    @FXML private StackPane popupPane;
+    @FXML private StackPane modePane;
 
     @FXML private Button btnNP;
     @FXML private Button btnOp;
     @FXML private Button btnQ;
+    @FXML private Button btnSolo;
+    @FXML private Button btnMulti;
 
     private List<Button> menuButtons;
+    private List<Button> modeButtons;
+
     private int selectedIndex = 0;
+    private boolean popupShown = false;
+    private boolean modeShown = false;
+
+    private MediaPlayer mediaPlayer;
+    private Stage primaryStage;
+
+    public void setPrimaryStage(Stage stage) {
+        this.primaryStage = stage;
+    }
 
     @FXML
     public void initialize() {
-        // Ajouter un écouteur d'événement clavier au root
         rootPane.setOnKeyPressed(this::handleKeyPress);
-
-        // Important : demander le focus pour capter les touches
         rootPane.setFocusTraversable(true);
         Platform.runLater(() -> rootPane.requestFocus());
-        rootPane.requestFocus();
 
-
-        // Création de l'animation de fade
         FadeTransition ft = new FadeTransition(Duration.seconds(0.7), continu);
         ft.setFromValue(1.0);
         ft.setToValue(0.1);
-        ft.setCycleCount(FadeTransition.INDEFINITE); // animation en boucle
+        ft.setCycleCount(FadeTransition.INDEFINITE);
         ft.setAutoReverse(true);
         ft.play();
 
@@ -62,33 +60,48 @@ public class MenuController {
         mediaPlayer.play();
 
         menuButtons = List.of(btnNP, btnOp, btnQ);
+        modeButtons = List.of(btnSolo, btnMulti);
+
+        btnSolo.setOnAction(e -> startGame(true));
+        btnMulti.setOnAction(e -> startGame(false));
     }
 
     private void handleKeyPress(KeyEvent event) {
         switch (event.getCode()) {
             case ESCAPE:
-                if (popupShown) {
+                if (modeShown) {
+                    hideModePopup();
+                    modeShown = false;
+                } else if (popupShown) {
                     hidePopup();
                     popupShown = false;
                 }
                 break;
 
             case UP:
-                if (popupShown) {
+                if (popupShown && !modeShown) {
                     selectedIndex = (selectedIndex - 1 + menuButtons.size()) % menuButtons.size();
-                    updateFocus();
+                    updateFocus(menuButtons);
+                } else if (modeShown) {
+                    selectedIndex = (selectedIndex - 1 + modeButtons.size()) % modeButtons.size();
+                    updateFocus(modeButtons);
                 }
                 break;
 
             case DOWN:
-                if (popupShown) {
+                if (popupShown && !modeShown) {
                     selectedIndex = (selectedIndex + 1) % menuButtons.size();
-                    updateFocus();
+                    updateFocus(menuButtons);
+                } else if (modeShown) {
+                    selectedIndex = (selectedIndex + 1) % modeButtons.size();
+                    updateFocus(modeButtons);
                 }
                 break;
 
             case ENTER:
-                if (popupShown) {
+                if (modeShown) {
+                    executeModeSelected();
+                } else if (popupShown) {
                     executeSelected();
                 }
                 break;
@@ -97,7 +110,8 @@ public class MenuController {
                 if (!popupShown) {
                     showPopup();
                     popupShown = true;
-                    updateFocus();
+                    selectedIndex = 0;
+                    updateFocus(menuButtons);
                 }
                 break;
         }
@@ -132,46 +146,84 @@ public class MenuController {
         ft.setToValue(0);
 
         ParallelTransition pt = new ParallelTransition(tt, ft);
-        pt.setOnFinished(e -> {
-            popupPane.setVisible(false);
-            Platform.runLater(() -> rootPane.requestFocus()); // ⬅️ Ajouté ici
-        });
+        pt.setOnFinished(e -> popupPane.setVisible(false));
         pt.play();
     }
 
-    private void updateFocus() {
-        for (int i = 0; i < menuButtons.size(); i++) {
-            Button btn = menuButtons.get(i);
-            btn.setStyle(""); // reset style
+    private void showModePopup() {
+        popupPane.setVisible(false);
+        modePane.setVisible(true);
+        modePane.setOpacity(0);
+        modePane.setTranslateY(600);
+
+        selectedIndex = 0;
+        updateFocus(modeButtons);
+
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), modePane);
+        tt.setFromY(600);
+        tt.setToY(0);
+        tt.setInterpolator(Interpolator.EASE_OUT);
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(0.5), modePane);
+        ft.setFromValue(0);
+        ft.setToValue(1);
+
+        new ParallelTransition(tt, ft).play();
+    }
+
+    private void hideModePopup() {
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), modePane);
+        tt.setFromY(0);
+        tt.setToY(600);
+        tt.setInterpolator(Interpolator.EASE_IN);
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(0.5), modePane);
+        ft.setFromValue(1);
+        ft.setToValue(0);
+
+        ParallelTransition pt = new ParallelTransition(tt, ft);
+        pt.setOnFinished(e -> modePane.setVisible(false));
+        pt.play();
+    }
+
+    private void updateFocus(List<Button> buttons) {
+        for (int i = 0; i < buttons.size(); i++) {
+            buttons.get(i).setStyle("");
         }
-        Button selected = menuButtons.get(selectedIndex);
-        selected.setStyle("-fx-border-color: white; -fx-border-width: 2;");
+        buttons.get(selectedIndex).setStyle("-fx-border-color: white; -fx-border-width: 2;");
     }
 
     private void executeSelected() {
         Button selected = menuButtons.get(selectedIndex);
         switch (selected.getText()) {
-            case "Nouvelle Partie" -> System.out.println("Nouvelle Partie sélectionnée");
+            case "Nouvelle Partie" -> {
+                selectedIndex = 0;
+                updateFocus(modeButtons);
+                showModePopup();
+                modeShown = true;
+            }
             case "Options" -> System.out.println("Options sélectionnées");
-            case "Quitter" -> System.exit(0);
+            case "Quitter" -> Platform.exit();
         }
     }
 
-    @FXML
-    private void handleNP() {
-        System.out.println("Nouvelle partie lancée !");
-        // → ici, charger une autre scène, démarrer le jeu, etc.
+    private void executeModeSelected() {
+        Button selected = modeButtons.get(selectedIndex);
+        if (selected.getText().equals("Solo")) {
+            startGame(true);
+        } else {
+            startGame(false);
+        }
     }
 
-    @FXML
-    private void handleOp() {
-        System.out.println("Options ouvertes !");
-        // → afficher un autre menu, pop-up, etc.
+    private void startGame(boolean isSolo) {
+        mediaPlayer.stop();
+        Game game = new Game(isSolo);
+        game.start(primaryStage);
     }
 
-    @FXML
-    private void handleQ() {
-        System.out.println("Quitter !");
-        Platform.exit(); // ferme proprement l'application
-    }
+    // Boutons clic (optionnels, si activés via FXML)
+    @FXML private void handleNP() { showModePopup(); }
+    @FXML private void handleOp() { System.out.println("Options sélectionnées"); }
+    @FXML private void handleQ() { Platform.exit(); }
 }

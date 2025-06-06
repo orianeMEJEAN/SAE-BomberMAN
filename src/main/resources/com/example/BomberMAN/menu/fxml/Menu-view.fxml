@@ -53,6 +53,20 @@
         </VBox>
     </StackPane>
 
+    <!-- Sous-menu Mode Solo / Multi -->
+    <StackPane fx:id="modePane" alignment="CENTER" visible="false" opacity="0">
+        <VBox alignment="CENTER"
+              style="-fx-background-color: rgba(0, 0, 0, 0.8);
+                 -fx-font-size: 36px;
+                 -fx-padding: 20;
+                 -fx-background-radius: 10;"
+              maxWidth="400" maxHeight="300"
+              spacing="20">
+            <Label text="Modes" styleClass="jersey-font"/>
+            <Button fx:id="btnSolo" text="Solo" styleClass="button"/>
+            <Button fx:id="btnMulti" text="Multijoueur" styleClass="button"/>
+        </VBox>
+    </StackPane>
 
 
 </StackPane>
