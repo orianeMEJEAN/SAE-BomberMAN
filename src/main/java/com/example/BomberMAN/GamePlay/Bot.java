@@ -19,7 +19,7 @@ public class Bot
 
     private void startAI()
     {
-        Timeline aiLoop = new Timeline(new KeyFrame(Duration.seconds(1), e -> makeMove()));
+        Timeline aiLoop = new Timeline(new KeyFrame(Duration.millis(200), e -> makeMove()));
         aiLoop.setCycleCount(Timeline.INDEFINITE);
         aiLoop.play();
     }
