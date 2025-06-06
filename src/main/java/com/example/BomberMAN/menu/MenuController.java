@@ -26,6 +26,7 @@ public class MenuController {
     @FXML private Button btnQ;
     @FXML private Button btnSolo;
     @FXML private Button btnMulti;
+    @FXML private Button btnR;
 
     private List<Button> menuButtons;
     private List<Button> modeButtons;
@@ -60,10 +61,11 @@ public class MenuController {
         mediaPlayer.play();
 
         menuButtons = List.of(btnNP, btnOp, btnQ);
-        modeButtons = List.of(btnSolo, btnMulti);
+        modeButtons = List.of(btnSolo, btnMulti, btnR);
 
         btnSolo.setOnAction(e -> startGame(true));
         btnMulti.setOnAction(e -> startGame(false));
+        btnR.setOnAction(e -> returnToMainMenu());
     }
 
     private void handleKeyPress(KeyEvent event) {
@@ -209,10 +211,13 @@ public class MenuController {
 
     private void executeModeSelected() {
         Button selected = modeButtons.get(selectedIndex);
-        if (selected.getText().equals("Solo")) {
+        String text = selected.getText();
+        if (text.equals("Solo")) {
             startGame(true);
-        } else {
+        } else if (text.equals("Multijoueur")) {
             startGame(false);
+        } else if (text.equals("Retour")) {
+            returnToMainMenu();
         }
     }
 
@@ -226,4 +231,13 @@ public class MenuController {
     @FXML private void handleNP() { showModePopup(); }
     @FXML private void handleOp() { System.out.println("Options sélectionnées"); }
     @FXML private void handleQ() { Platform.exit(); }
+
+    private void returnToMainMenu() {
+        hideModePopup();
+        modeShown = false;
+        showPopup();
+        popupShown = true;
+        selectedIndex = 0;
+        updateFocus(menuButtons);
+    }
 }

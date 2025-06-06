@@ -29,13 +29,10 @@
     </ImageView>
 
     <!-- Contenu centré -->
-    <VBox alignment="CENTER" spacing="20">
-        <!-- Titre du jeu -->
-        <Label text="Bomberman" styleClass="jersey-font"/>
-
-        <!-- Message d'invite -->
+    <VBox alignment="BOTTOM_CENTER" spacing="20" style="-fx-padding: 0 0 120 0;">
         <Label fx:id="continu" text="Appuyez sur une touche pour continuer" style="-fx-font-size: 36px;"/>
     </VBox>
+
 
     <!-- Pop up menu-->
     <StackPane fx:id="popupPane" alignment="CENTER" visible="false" opacity="0">
@@ -65,6 +62,7 @@
             <Label text="Modes" styleClass="jersey-font"/>
             <Button fx:id="btnSolo" text="Solo" styleClass="button"/>
             <Button fx:id="btnMulti" text="Multijoueur" styleClass="button"/>
+            <Button fx:id="btnR" text="Retour" styleClass="button"/>
         </VBox>
     </StackPane>
 
