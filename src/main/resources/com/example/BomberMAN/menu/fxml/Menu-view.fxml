@@ -24,7 +24,7 @@
     <!-- Image de fond -->
     <ImageView fitWidth="800" fitHeight="800" preserveRatio="false">
         <image>
-            <Image url="@../image/FondMenu.png" />
+            <Image url="@../image/FondMenu1.png" />
         </image>
     </ImageView>
 
