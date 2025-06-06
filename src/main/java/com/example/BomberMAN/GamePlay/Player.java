@@ -1,38 +1,63 @@
 package com.example.BomberMAN.GamePlay;
 
-import com.almasb.fxgl.texture.NineSliceTextureBuilder;
 import com.example.BomberMAN.Game;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
-import javafx.util.Duration;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.geometry.Pos;
 import javafx.stage.Stage;
-public class Player {
-    private int x1, y1;
-    private int x2, y2;
+import javafx.util.Duration;
+import javafx.geometry.Pos;
+
+/**
+ * Classe représentant les deux joueurs du jeu BomberMAN.
+ * Gère le déplacement, la pose de bombes, la gestion des vies, et l'affichage de l'écran de fin.
+ */
+public class Player
+{
+
+    // Position des deux joueurs
+    private int x1, y1; // Joueur 1
+    private int x2, y2; // Joueur 2
+
+    // Points de vie des joueurs
     private int pv1 = 1, pv2 = 1;
 
+    // Sprites des joueurs
     private ImageView sprite, sprite2;
-    private GridPane grid;
 
+    // Grille du jeu et carte des tuiles
+    private GridPane grid;
+    private Tile[][] tiles;
+
+    // Images pour les directions du joueur 1
     private Image imgUp, imgDown, imgLeft, imgRight, imgDefault;
+
+    // Images pour les directions du joueur 2
     private Image imgUp2, imgDown2, imgLeft2, imgRight2, imgDefault2;
 
+    // Contrôle des mouvements
     private boolean canMove1 = true;
     private boolean canMove2 = true;
 
-    private Tile[][] tiles;
-
-    public Player(int x, int y, int x2, int y2, GridPane grid, Tile[][] tiles) {
+    /**
+     * Constructeur du joueur.
+     * @param x Position X initiale du joueur 1
+     * @param y Position Y initiale du joueur 1
+     * @param x2 Position X initiale du joueur 2
+     * @param y2 Position Y initiale du joueur 2
+     * @param grid Grille de jeu
+     * @param tiles Carte des tuiles
+     */
+    public Player(int x, int y, int x2, int y2, GridPane grid, Tile[][] tiles)
+    {
         this.x1 = x;
         this.y1 = y;
         this.x2 = x2;
@@ -40,7 +65,7 @@ public class Player {
         this.grid = grid;
         this.tiles = tiles;
 
-        // Joueur 1
+        // Chargement des images du joueur 1
         imgDefault = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player.png").toExternalForm());
         imgUp = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player_up.png").toExternalForm());
         imgDown = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player_down.png").toExternalForm());
@@ -52,7 +77,7 @@ public class Player {
         sprite.setFitHeight(40);
         grid.add(sprite, x, y);
 
-        // Joueur 2
+        // Chargement des images du joueur 2
         imgDefault2 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/Player2-default.png").toExternalForm());
         imgUp2 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/Player2-up.png").toExternalForm());
         imgDown2 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/Player2-down.png").toExternalForm());
@@ -65,7 +90,13 @@ public class Player {
         grid.add(sprite2, x2, y2);
     }
 
-    public void movePlayer1(int dx, int dy) {
+    /**
+     * Déplace le joueur 1 si possible dans la direction donnée.
+     * @param dx Direction en X (-1 gauche, +1 droite)
+     * @param dy Direction en Y (-1 haut, +1 bas)
+     */
+    public void movePlayer1(int dx, int dy)
+    {
         if (!canMove1) return;
 
         int newX = x1 + dx;
@@ -85,7 +116,13 @@ public class Player {
         GridPane.setRowIndex(sprite, y1);
     }
 
-    public void movePlayer2(int dx, int dy) {
+    /**
+     * Déplace le joueur 2 si possible dans la direction donnée.
+     * @param dx Direction en X
+     * @param dy Direction en Y
+     */
+    public void movePlayer2(int dx, int dy)
+    {
         if (!canMove2) return;
 
         int newX = x2 + dx;
@@ -105,7 +142,11 @@ public class Player {
         GridPane.setRowIndex(sprite2, y2);
     }
 
-    public void placeBombPlayer1() {
+    /**
+     * Place une bombe à la position actuelle du joueur 1.
+     */
+    public void placeBombPlayer1()
+    {
         if (!canMove1) return;
 
         lockMovement1();
@@ -132,7 +173,11 @@ public class Player {
         waitGIF.play();
     }
 
-    public void placeBombPlayer2() {
+    /**
+     * Place une bombe à la position actuelle du joueur 2.
+     */
+    public void placeBombPlayer2()
+    {
         if (!canMove2) return;
 
         lockMovement2();
@@ -159,125 +204,105 @@ public class Player {
         waitGIF.play();
     }
 
-
-    public void deathJ1() {
-        if (pv1 <= 0) {
+    /**
+     * Gère la mort du joueur 1.
+     */
+    public void deathJ1()
+    {
+        if (pv1 <= 0)
+        {
             canMove1 = false;
             sprite.setVisible(false);
             System.out.println("Joueur 1 éliminé....");
-
-            Platform.runLater(() -> {
-                showGameOverScreen("Le joueur 2 a gagné !");
-            });
+            Platform.runLater(() -> showGameOverScreen("Le joueur 2 a gagné !"));
         }
     }
 
-    public void deathJ2() {
-        if (pv2 <= 0) {
+    /**
+     * Gère la mort du joueur 2.
+     */
+    public void deathJ2()
+    {
+        if (pv2 <= 0)
+        {
             canMove2 = false;
             sprite2.setVisible(false);
             System.out.println("Joueur 2 éliminé....");
-
-            Platform.runLater(() -> {
-                showGameOverScreen("Le joueur 1 a gagné !");
-            });
+            Platform.runLater(() -> showGameOverScreen("Le joueur 1 a gagné !"));
         }
     }
 
-    private void showGameOverScreen(String winnerMessage) {
-        // Récupérer la fenêtre actuelle
+    // Affiche l'écran de fin de jeu
+    private void showGameOverScreen(String winnerMessage)
+    {
         Stage stage = (Stage) grid.getScene().getWindow();
 
-        // Créer le contenu de l'écran de fin
         VBox gameOverLayout = new VBox(30);
         gameOverLayout.setAlignment(Pos.CENTER);
         gameOverLayout.setStyle("-fx-background-color: #2c3e50; -fx-padding: 50px;");
 
-        // Titre "Game Over"
         Text gameOverText = new Text("GAME OVER");
         gameOverText.setFont(Font.font("Arial", 48));
         gameOverText.setStyle("-fx-fill: #e74c3c; -fx-font-weight: bold;");
 
-        // Message du gagnant
         Text winnerText = new Text(winnerMessage);
         winnerText.setFont(Font.font("Arial", 32));
         winnerText.setStyle("-fx-fill: #f39c12; -fx-font-weight: bold;");
 
-        // Bouton Rejouer
         Button replayButton = new Button("REJOUER");
         replayButton.setPrefSize(200, 50);
         replayButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
                 "-fx-background-color: #27ae60; -fx-text-fill: white; " +
                 "-fx-background-radius: 10px; -fx-cursor: hand;");
-        replayButton.setOnMouseEntered(e -> replayButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
-                "-fx-background-color: #2ecc71; -fx-text-fill: white; " +
-                "-fx-background-radius: 10px; -fx-cursor: hand;"));
-        replayButton.setOnMouseExited(e -> replayButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
-                "-fx-background-color: #27ae60; -fx-text-fill: white; " +
-                "-fx-background-radius: 10px; -fx-cursor: hand;"));
         replayButton.setOnAction(e -> restartGame(stage));
 
-        // Bouton Quitter
         Button quitButton = new Button("QUITTER");
         quitButton.setPrefSize(200, 50);
         quitButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
                 "-fx-background-color: #e74c3c; -fx-text-fill: white; " +
                 "-fx-background-radius: 10px; -fx-cursor: hand;");
-        quitButton.setOnMouseEntered(e -> quitButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
-                "-fx-background-color: #c0392b; -fx-text-fill: white; " +
-                "-fx-background-radius: 10px; -fx-cursor: hand;"));
-        quitButton.setOnMouseExited(e -> quitButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
-                "-fx-background-color: #e74c3c; -fx-text-fill: white; " +
-                "-fx-background-radius: 10px; -fx-cursor: hand;"));
         quitButton.setOnAction(e -> Platform.exit());
 
-        // Ajouter tous les éléments
         gameOverLayout.getChildren().addAll(gameOverText, winnerText, replayButton, quitButton);
 
-        // Remplacer la scène actuelle
         Scene gameOverScene = new Scene(gameOverLayout, 800, 600);
         stage.setScene(gameOverScene);
     }
 
-    private void restartGame(Stage stage) {
-        // Réinitialiser les valeurs du jeu
+    // Redémarre le jeu en réinitialisant les états
+    private void restartGame(Stage stage)
+    {
         pv1 = 1;
         pv2 = 1;
         canMove1 = true;
         canMove2 = true;
 
-        // Remettre les sprites visibles
         sprite.setVisible(true);
         sprite2.setVisible(true);
 
-        // Réinitialiser les positions (vous pouvez ajuster selon vos besoins)
-        x1 = 1; // Position initiale joueur 1
+        x1 = 1;
         y1 = 1;
-        x2 = Game.GRID_WIDTH - 2; // Position initiale joueur 2
+        x2 = Game.GRID_WIDTH - 2;
         y2 = Game.GRID_HEIGHT - 2;
 
-        // Repositionner les sprites
         GridPane.setColumnIndex(sprite, x1);
         GridPane.setRowIndex(sprite, y1);
         GridPane.setColumnIndex(sprite2, x2);
         GridPane.setRowIndex(sprite2, y2);
 
-        // Remettre les images par défaut
         sprite.setImage(imgDefault);
         sprite2.setImage(imgDefault2);
-
-        // Ici vous devrez créer une nouvelle scène de jeu ou restaurer l'ancienne
-        // Cette partie dépend de comment votre jeu est structuré
-        // Vous pourriez avoir besoin d'appeler une méthode comme Game.startNewGame() ou similaire
 
         System.out.println("Nouveau jeu démarré !");
     }
 
+    // Méthodes de verrouillage / déverrouillage des mouvements
     public void lockMovement1() { canMove1 = false; }
     public void unlockMovement1() { canMove1 = true; }
     public void lockMovement2() { canMove2 = false; }
     public void unlockMovement2() { canMove2 = true; }
 
+    // Getters / Setters
     public int getX1() { return x1; }
     public int getY1() { return y1; }
     public int getX2() { return x2; }
