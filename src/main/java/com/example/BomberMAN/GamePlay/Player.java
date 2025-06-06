@@ -1,17 +1,25 @@
 package com.example.BomberMAN.GamePlay;
 
+import com.almasb.fxgl.texture.NineSliceTextureBuilder;
 import com.example.BomberMAN.Game;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ButtonBar;
+import javafx.application.Platform;
+import java.util.Optional;
 
-public class Player
-{
-    private int x, y;   // Joueur 1
-    private int x2, y2; // Joueur 2
+public class Player {
+    private int x1, y1;
+    private int x2, y2;
+    private int pv1 = 1, pv2 = 1;
 
     private ImageView sprite, sprite2;
     private GridPane grid;
@@ -24,10 +32,9 @@ public class Player
 
     private Tile[][] tiles;
 
-    public Player(int x, int y, int x2, int y2, GridPane grid, Tile[][] tiles)
-    {
-        this.x = x;
-        this.y = y;
+    public Player(int x, int y, int x2, int y2, GridPane grid, Tile[][] tiles) {
+        this.x1 = x;
+        this.y1 = y;
         this.x2 = x2;
         this.y2 = y2;
         this.grid = grid;
@@ -58,12 +65,11 @@ public class Player
         grid.add(sprite2, x2, y2);
     }
 
-    public void movePlayer1(int dx, int dy)
-    {
+    public void movePlayer1(int dx, int dy) {
         if (!canMove1) return;
 
-        int newX = x + dx;
-        int newY = y + dy;
+        int newX = x1 + dx;
+        int newY = y1 + dy;
 
         if (newX < 0 || newX >= Game.GRID_WIDTH || newY < 0 || newY >= Game.GRID_HEIGHT) return;
         if (!tiles[newY][newX].isWalkable()) return;
@@ -73,14 +79,13 @@ public class Player
         else if (dy == -1) sprite.setImage(imgUp);
         else if (dy == 1) sprite.setImage(imgDown);
 
-        x = newX;
-        y = newY;
-        GridPane.setColumnIndex(sprite, x);
-        GridPane.setRowIndex(sprite, y);
+        x1 = newX;
+        y1 = newY;
+        GridPane.setColumnIndex(sprite, x1);
+        GridPane.setRowIndex(sprite, y1);
     }
 
-    public void movePlayer2(int dx, int dy)
-    {
+    public void movePlayer2(int dx, int dy) {
         if (!canMove2) return;
 
         int newX = x2 + dx;
@@ -100,13 +105,12 @@ public class Player
         GridPane.setRowIndex(sprite2, y2);
     }
 
-    public void placeBombPlayer1()
-    {
+    public void placeBombPlayer1() {
         if (!canMove1) return;
 
         lockMovement1();
-        final int bombX = x;
-        final int bombY = y;
+        final int bombX = x1;
+        final int bombY = y1;
 
         sprite.setVisible(false);
 
@@ -120,7 +124,7 @@ public class Player
             grid.getChildren().remove(gifView);
             new Bomb(bombX, bombY, grid, tiles, this);
             grid.getChildren().remove(sprite);
-            grid.add(sprite, x, y);
+            grid.add(sprite, x1, y1);
             sprite.setVisible(true);
             unlockMovement1();
         }));
@@ -128,8 +132,7 @@ public class Player
         waitGIF.play();
     }
 
-    public void placeBombPlayer2()
-    {
+    public void placeBombPlayer2() {
         if (!canMove2) return;
 
         lockMovement2();
@@ -156,16 +159,59 @@ public class Player
         waitGIF.play();
     }
 
+
+    public void deathJ1() {
+        if (pv1 <= 0) {
+            canMove1 = false;
+            sprite.setVisible(false);  // Correct : cache le sprite du joueur 1
+            System.out.println("Joueur 1 éliminé....");
+
+            // Utiliser Platform.runLater pour s'assurer que l'alerte s'affiche sur le thread JavaFX
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Fin de partie");
+                alert.setHeaderText(null);
+                alert.setContentText("Le joueur 2 a gagné !");
+                alert.showAndWait();
+
+                // Arrêter le programme après fermeture de la popup
+                Platform.exit();
+            });
+        }
+    }
+
+    public void deathJ2() {
+        if (pv2 <= 0) {
+            canMove2 = false;
+            sprite2.setVisible(false);  // Correction : cache le sprite du joueur 2, pas celui du joueur 1
+            System.out.println("Joueur 2 éliminé....");
+
+            // Utiliser Platform.runLater pour s'assurer que l'alerte s'affiche sur le thread JavaFX
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Fin de partie");
+                alert.setHeaderText(null);
+                alert.setContentText("Le joueur 1 a gagné !");
+                alert.showAndWait();
+
+                // Arrêter le programme après fermeture de la popup
+                Platform.exit();
+            });
+        }
+    }
+
     public void lockMovement1() { canMove1 = false; }
     public void unlockMovement1() { canMove1 = true; }
     public void lockMovement2() { canMove2 = false; }
     public void unlockMovement2() { canMove2 = true; }
 
-    public ImageView getSprite1() { return sprite; }
-    public ImageView getSprite2() { return sprite2; }
-
-    public int getX1() { return x; }
-    public int getY1() { return y; }
+    public int getX1() { return x1; }
+    public int getY1() { return y1; }
     public int getX2() { return x2; }
     public int getY2() { return y2; }
+
+    public int getPv1() { return pv1; }
+    public int getPv2() { return pv2; }
+    public void setPv1(int pv) { this.pv1 = pv; }
+    public void setPv2(int pv) { this.pv2 = pv; }
 }
