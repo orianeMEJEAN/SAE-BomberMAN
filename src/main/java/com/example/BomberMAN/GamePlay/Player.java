@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -22,7 +23,6 @@ import javafx.geometry.Pos;
  */
 public class Player
 {
-
     // Position des deux joueurs
     private int x1, y1; // Joueur 1
     private int x2, y2; // Joueur 2
@@ -65,6 +65,15 @@ public class Player
         this.grid = grid;
         this.tiles = tiles;
 
+        loadImages();
+        createSprites();
+    }
+
+    /**
+     * Charge toutes les images nécessaires pour les joueurs
+     */
+    private void loadImages()
+    {
         // Chargement des images du joueur 1
         imgDefault = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player.png").toExternalForm());
         imgUp = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player_up.png").toExternalForm());
@@ -72,17 +81,23 @@ public class Player
         imgLeft = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player_left.png").toExternalForm());
         imgRight = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player_right.png").toExternalForm());
 
-        sprite = new ImageView(imgDefault);
-        sprite.setFitWidth(40);
-        sprite.setFitHeight(40);
-        grid.add(sprite, x, y);
-
         // Chargement des images du joueur 2
         imgDefault2 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/Player2-default.png").toExternalForm());
         imgUp2 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/Player2-up.png").toExternalForm());
         imgDown2 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/Player2-down.png").toExternalForm());
         imgLeft2 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/Player2-left.png").toExternalForm());
         imgRight2 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/Player2-right.png").toExternalForm());
+    }
+
+    /**
+     * Crée les sprites des joueurs et les place sur la grille
+     */
+    private void createSprites()
+    {
+        sprite = new ImageView(imgDefault);
+        sprite.setFitWidth(40);
+        sprite.setFitHeight(40);
+        grid.add(sprite, x1, y1);
 
         sprite2 = new ImageView(imgDefault2);
         sprite2.setFitWidth(40);
@@ -232,7 +247,9 @@ public class Player
         }
     }
 
-    // Affiche l'écran de fin de jeu
+    /**
+     * Affiche l'écran de fin de jeu
+     */
     private void showGameOverScreen(String winnerMessage)
     {
         Stage stage = (Stage) grid.getScene().getWindow();
@@ -254,6 +271,12 @@ public class Player
         replayButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
                 "-fx-background-color: #27ae60; -fx-text-fill: white; " +
                 "-fx-background-radius: 10px; -fx-cursor: hand;");
+        replayButton.setOnMouseEntered(e -> replayButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
+                "-fx-background-color: #2ecc71; -fx-text-fill: white; " +
+                "-fx-background-radius: 10px; -fx-cursor: hand;"));
+        replayButton.setOnMouseExited(e -> replayButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
+                "-fx-background-color: #27ae60; -fx-text-fill: white; " +
+                "-fx-background-radius: 10px; -fx-cursor: hand;"));
         replayButton.setOnAction(e -> restartGame(stage));
 
         Button quitButton = new Button("QUITTER");
@@ -261,6 +284,12 @@ public class Player
         quitButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
                 "-fx-background-color: #e74c3c; -fx-text-fill: white; " +
                 "-fx-background-radius: 10px; -fx-cursor: hand;");
+        quitButton.setOnMouseEntered(e -> quitButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
+                "-fx-background-color: #c0392b; -fx-text-fill: white; " +
+                "-fx-background-radius: 10px; -fx-cursor: hand;"));
+        quitButton.setOnMouseExited(e -> quitButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
+                "-fx-background-color: #e74c3c; -fx-text-fill: white; " +
+                "-fx-background-radius: 10px; -fx-cursor: hand;"));
         quitButton.setOnAction(e -> Platform.exit());
 
         gameOverLayout.getChildren().addAll(gameOverText, winnerText, replayButton, quitButton);
@@ -269,31 +298,25 @@ public class Player
         stage.setScene(gameOverScene);
     }
 
-    // Redémarre le jeu en réinitialisant les états
+    /**
+     * Redémarre le jeu en créant une nouvelle instance de Game
+     */
     private void restartGame(Stage stage)
     {
-        pv1 = 1;
-        pv2 = 1;
-        canMove1 = true;
-        canMove2 = true;
+        try {
+            System.out.println("Redémarrage du jeu...");
 
-        sprite.setVisible(true);
-        sprite2.setVisible(true);
+            // Créer une nouvelle instance de Game et la démarrer
+            Game newGame = new Game();
+            newGame.start(stage);
 
-        x1 = 1;
-        y1 = 1;
-        x2 = Game.GRID_WIDTH - 2;
-        y2 = Game.GRID_HEIGHT - 2;
+            System.out.println("Nouveau jeu démarré avec succès !");
 
-        GridPane.setColumnIndex(sprite, x1);
-        GridPane.setRowIndex(sprite, y1);
-        GridPane.setColumnIndex(sprite2, x2);
-        GridPane.setRowIndex(sprite2, y2);
-
-        sprite.setImage(imgDefault);
-        sprite2.setImage(imgDefault2);
-
-        System.out.println("Nouveau jeu démarré !");
+        } catch (Exception e) {
+            System.err.println("Erreur lors du redémarrage : " + e.getMessage());
+            e.printStackTrace();
+            Platform.exit();
+        }
     }
 
     // Méthodes de verrouillage / déverrouillage des mouvements
