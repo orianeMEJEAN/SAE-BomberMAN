@@ -4,18 +4,18 @@ import com.almasb.fxgl.texture.NineSliceTextureBuilder;
 import com.example.BomberMAN.Game;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ButtonBar;
 import javafx.application.Platform;
-import java.util.Optional;
-
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.geometry.Pos;
+import javafx.stage.Stage;
 public class Player {
     private int x1, y1;
     private int x2, y2;
@@ -163,19 +163,11 @@ public class Player {
     public void deathJ1() {
         if (pv1 <= 0) {
             canMove1 = false;
-            sprite.setVisible(false);  // Correct : cache le sprite du joueur 1
+            sprite.setVisible(false);
             System.out.println("Joueur 1 éliminé....");
 
-            // Utiliser Platform.runLater pour s'assurer que l'alerte s'affiche sur le thread JavaFX
             Platform.runLater(() -> {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Fin de partie");
-                alert.setHeaderText(null);
-                alert.setContentText("Le joueur 2 a gagné !");
-                alert.showAndWait();
-
-                // Arrêter le programme après fermeture de la popup
-                Platform.exit();
+                showGameOverScreen("Le joueur 2 a gagné !");
             });
         }
     }
@@ -183,21 +175,102 @@ public class Player {
     public void deathJ2() {
         if (pv2 <= 0) {
             canMove2 = false;
-            sprite2.setVisible(false);  // Correction : cache le sprite du joueur 2, pas celui du joueur 1
+            sprite2.setVisible(false);
             System.out.println("Joueur 2 éliminé....");
 
-            // Utiliser Platform.runLater pour s'assurer que l'alerte s'affiche sur le thread JavaFX
             Platform.runLater(() -> {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Fin de partie");
-                alert.setHeaderText(null);
-                alert.setContentText("Le joueur 1 a gagné !");
-                alert.showAndWait();
-
-                // Arrêter le programme après fermeture de la popup
-                Platform.exit();
+                showGameOverScreen("Le joueur 1 a gagné !");
             });
         }
+    }
+
+    private void showGameOverScreen(String winnerMessage) {
+        // Récupérer la fenêtre actuelle
+        Stage stage = (Stage) grid.getScene().getWindow();
+
+        // Créer le contenu de l'écran de fin
+        VBox gameOverLayout = new VBox(30);
+        gameOverLayout.setAlignment(Pos.CENTER);
+        gameOverLayout.setStyle("-fx-background-color: #2c3e50; -fx-padding: 50px;");
+
+        // Titre "Game Over"
+        Text gameOverText = new Text("GAME OVER");
+        gameOverText.setFont(Font.font("Arial", 48));
+        gameOverText.setStyle("-fx-fill: #e74c3c; -fx-font-weight: bold;");
+
+        // Message du gagnant
+        Text winnerText = new Text(winnerMessage);
+        winnerText.setFont(Font.font("Arial", 32));
+        winnerText.setStyle("-fx-fill: #f39c12; -fx-font-weight: bold;");
+
+        // Bouton Rejouer
+        Button replayButton = new Button("REJOUER");
+        replayButton.setPrefSize(200, 50);
+        replayButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
+                "-fx-background-color: #27ae60; -fx-text-fill: white; " +
+                "-fx-background-radius: 10px; -fx-cursor: hand;");
+        replayButton.setOnMouseEntered(e -> replayButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
+                "-fx-background-color: #2ecc71; -fx-text-fill: white; " +
+                "-fx-background-radius: 10px; -fx-cursor: hand;"));
+        replayButton.setOnMouseExited(e -> replayButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
+                "-fx-background-color: #27ae60; -fx-text-fill: white; " +
+                "-fx-background-radius: 10px; -fx-cursor: hand;"));
+        replayButton.setOnAction(e -> restartGame(stage));
+
+        // Bouton Quitter
+        Button quitButton = new Button("QUITTER");
+        quitButton.setPrefSize(200, 50);
+        quitButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
+                "-fx-background-color: #e74c3c; -fx-text-fill: white; " +
+                "-fx-background-radius: 10px; -fx-cursor: hand;");
+        quitButton.setOnMouseEntered(e -> quitButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
+                "-fx-background-color: #c0392b; -fx-text-fill: white; " +
+                "-fx-background-radius: 10px; -fx-cursor: hand;"));
+        quitButton.setOnMouseExited(e -> quitButton.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; " +
+                "-fx-background-color: #e74c3c; -fx-text-fill: white; " +
+                "-fx-background-radius: 10px; -fx-cursor: hand;"));
+        quitButton.setOnAction(e -> Platform.exit());
+
+        // Ajouter tous les éléments
+        gameOverLayout.getChildren().addAll(gameOverText, winnerText, replayButton, quitButton);
+
+        // Remplacer la scène actuelle
+        Scene gameOverScene = new Scene(gameOverLayout, 800, 600);
+        stage.setScene(gameOverScene);
+    }
+
+    private void restartGame(Stage stage) {
+        // Réinitialiser les valeurs du jeu
+        pv1 = 1;
+        pv2 = 1;
+        canMove1 = true;
+        canMove2 = true;
+
+        // Remettre les sprites visibles
+        sprite.setVisible(true);
+        sprite2.setVisible(true);
+
+        // Réinitialiser les positions (vous pouvez ajuster selon vos besoins)
+        x1 = 1; // Position initiale joueur 1
+        y1 = 1;
+        x2 = Game.GRID_WIDTH - 2; // Position initiale joueur 2
+        y2 = Game.GRID_HEIGHT - 2;
+
+        // Repositionner les sprites
+        GridPane.setColumnIndex(sprite, x1);
+        GridPane.setRowIndex(sprite, y1);
+        GridPane.setColumnIndex(sprite2, x2);
+        GridPane.setRowIndex(sprite2, y2);
+
+        // Remettre les images par défaut
+        sprite.setImage(imgDefault);
+        sprite2.setImage(imgDefault2);
+
+        // Ici vous devrez créer une nouvelle scène de jeu ou restaurer l'ancienne
+        // Cette partie dépend de comment votre jeu est structuré
+        // Vous pourriez avoir besoin d'appeler une méthode comme Game.startNewGame() ou similaire
+
+        System.out.println("Nouveau jeu démarré !");
     }
 
     public void lockMovement1() { canMove1 = false; }
