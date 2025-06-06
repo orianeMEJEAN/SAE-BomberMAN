@@ -1,9 +1,9 @@
 package com.example.BomberMAN;
 
+import com.example.BomberMAN.GamePlay.Bot;
 import com.example.BomberMAN.GamePlay.Player;
 import com.example.BomberMAN.GamePlay.Tile;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
@@ -16,6 +16,12 @@ public class Game
     private GridPane grid;
     private Tile[][] tiles;
     private Player player;
+    private boolean isSoloMode;
+
+    public Game(boolean isSoloMode)
+    {
+        this.isSoloMode = isSoloMode;
+    }
 
     public void start(Stage stage)
     {
@@ -50,29 +56,43 @@ public class Game
             }
         }
 
-        // Création d’un seul objet Player pour les 2 joueurs
+        // Création de l'objet Player
         player = new Player(1, 1, 11, 9, grid, tiles);
 
         Scene scene = new Scene(grid, 536, 454);
 
-        // Contrôles clavier pour les 2 joueurs
         scene.setOnKeyPressed(e -> {
-            // Joueur 1 (flèches + CTRL)
-            if (e.getCode() == KeyCode.UP) player.movePlayer1(0, -1);
-            if (e.getCode() == KeyCode.DOWN) player.movePlayer1(0, 1);
-            if (e.getCode() == KeyCode.LEFT) player.movePlayer1(-1, 0);
-            if (e.getCode() == KeyCode.RIGHT) player.movePlayer1(1, 0);
-            if (e.getCode() == KeyCode.CONTROL) player.placeBombPlayer1();
+            // Joueur 1 (toujours actif)
+            switch (e.getCode())
+            {
+                case Z -> player.movePlayer1(0, -1);
+                case S -> player.movePlayer1(0, 1);
+                case Q -> player.movePlayer1(-1, 0);
+                case D -> player.movePlayer1(1, 0);
+                case SPACE -> player.placeBombPlayer1();
+            }
 
-            // Joueur 2 (ZQSD + Espace)
-            if (e.getCode() == KeyCode.Z) player.movePlayer2(0, -1);
-            if (e.getCode() == KeyCode.S) player.movePlayer2(0, 1);
-            if (e.getCode() == KeyCode.Q) player.movePlayer2(-1, 0);
-            if (e.getCode() == KeyCode.D) player.movePlayer2(1, 0);
-            if (e.getCode() == KeyCode.SPACE) player.placeBombPlayer2();
+            if (!isSoloMode)
+            {
+                // Joueur 2 (si multijoueur)
+                switch (e.getCode())
+                {
+                    case UP -> player.movePlayer2(0, -1);
+                    case DOWN -> player.movePlayer2(0, 1);
+                    case LEFT -> player.movePlayer2(-1, 0);
+                    case RIGHT -> player.movePlayer2(1, 0);
+                    case CONTROL -> player.placeBombPlayer2();
+                }
+            }
         });
 
-        stage.setTitle("BomberMan - G1-4");
+        // Créer le bot si mode solo
+        if (isSoloMode)
+        {
+            new Bot(player);
+        }
+
+        stage.setTitle("BomberMan - " + (isSoloMode ? "Solo" : "Multijoueur"));
         stage.setScene(scene);
         stage.show();
     }
