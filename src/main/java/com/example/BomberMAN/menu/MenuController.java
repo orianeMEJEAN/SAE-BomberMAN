@@ -1,3 +1,7 @@
+/**
+ * Contrôleur du menu principal du jeu BomberMAN.
+ * Gère les animations, les interactions clavier, les effets visuels et la navigation vers le jeu.
+ */
 package com.example.BomberMAN.menu;
 
 import com.example.BomberMAN.Game;
@@ -15,38 +19,79 @@ import javafx.util.Duration;
 
 import java.util.List;
 
+/**
+ * Contrôleur de l'interface de menu principal.
+ */
 public class MenuController {
+
+    /** Pane racine contenant tous les éléments du menu. */
     @FXML private StackPane rootPane;
+
+    /** Label "Appuyez pour continuer". */
     @FXML private Label continu;
+
+    /** Pane du popup du menu principal (Nouvelle Partie, Options, Quitter). */
     @FXML private StackPane popupPane;
+
+    /** Pane de sélection du mode de jeu (Solo, Multi). */
     @FXML private StackPane modePane;
 
+    /** Bouton "Nouvelle Partie". */
     @FXML private Button btnNP;
+
+    /** Bouton "Options". */
     @FXML private Button btnOp;
+
+    /** Bouton "Quitter". */
     @FXML private Button btnQ;
+
+    /** Bouton "Solo". */
     @FXML private Button btnSolo;
+
+    /** Bouton "Multi". */
     @FXML private Button btnMulti;
 
+    /** Liste des boutons du menu principal. */
     private List<Button> menuButtons;
+
+    /** Liste des boutons de sélection de mode. */
     private List<Button> modeButtons;
 
+    /** Index de l'élément sélectionné dans le menu courant. */
     private int selectedIndex = 0;
+
+    /** Indique si le popup du menu principal est affiché. */
     private boolean popupShown = false;
+
+    /** Indique si le popup de sélection de mode est affiché. */
     private boolean modeShown = false;
 
+    /** Lecteur média pour la musique de fond. */
     private MediaPlayer mediaPlayer;
+
+    /** Référence à la fenêtre principale. */
     private Stage primaryStage;
 
-    public void setPrimaryStage(Stage stage) {
+    /**
+     * Définit la fenêtre principale pour le lancement du jeu.
+     * @param stage La fenêtre JavaFX principale.
+     */
+    public void setPrimaryStage(Stage stage)
+    {
         this.primaryStage = stage;
     }
 
+    /**
+     * Initialise le menu, configure les effets et les événements clavier.
+     */
     @FXML
-    public void initialize() {
+    public void initialize()
+    {
         rootPane.setOnKeyPressed(this::handleKeyPress);
         rootPane.setFocusTraversable(true);
         Platform.runLater(() -> rootPane.requestFocus());
 
+        // Animation du label "Appuyez pour continuer"
         FadeTransition ft = new FadeTransition(Duration.seconds(0.7), continu);
         ft.setFromValue(1.0);
         ft.setToValue(0.1);
@@ -54,6 +99,7 @@ public class MenuController {
         ft.setAutoReverse(true);
         ft.play();
 
+        // Chargement et lecture de la musique de fond
         Media media = new Media(getClass().getResource("sound/MenuPrincipal.mp3").toExternalForm());
         mediaPlayer = new MediaPlayer(media);
         mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
@@ -66,48 +112,63 @@ public class MenuController {
         btnMulti.setOnAction(e -> startGame(false));
     }
 
-    private void handleKeyPress(KeyEvent event) {
-        switch (event.getCode()) {
+    /**
+     * Gère les événements clavier (navigation, validation, retour).
+     * @param event L'événement clavier.
+     */
+    private void handleKeyPress(KeyEvent event)
+    {
+        switch (event.getCode())
+        {
             case ESCAPE:
-                if (modeShown) {
+                if (modeShown)
+                {
                     hideModePopup();
                     modeShown = false;
-                } else if (popupShown) {
+                } else if (popupShown)
+                {
                     hidePopup();
                     popupShown = false;
                 }
                 break;
 
             case UP:
-                if (popupShown && !modeShown) {
+                if (popupShown && !modeShown)
+                {
                     selectedIndex = (selectedIndex - 1 + menuButtons.size()) % menuButtons.size();
                     updateFocus(menuButtons);
-                } else if (modeShown) {
+                } else if (modeShown)
+                {
                     selectedIndex = (selectedIndex - 1 + modeButtons.size()) % modeButtons.size();
                     updateFocus(modeButtons);
                 }
                 break;
 
             case DOWN:
-                if (popupShown && !modeShown) {
+                if (popupShown && !modeShown)
+                {
                     selectedIndex = (selectedIndex + 1) % menuButtons.size();
                     updateFocus(menuButtons);
-                } else if (modeShown) {
+                } else if (modeShown)
+                {
                     selectedIndex = (selectedIndex + 1) % modeButtons.size();
                     updateFocus(modeButtons);
                 }
                 break;
 
             case ENTER:
-                if (modeShown) {
+                if (modeShown)
+                {
                     executeModeSelected();
-                } else if (popupShown) {
+                } else if (popupShown)
+                {
                     executeSelected();
                 }
                 break;
 
             default:
-                if (!popupShown) {
+                if (!popupShown)
+                {
                     showPopup();
                     popupShown = true;
                     selectedIndex = 0;
@@ -117,7 +178,11 @@ public class MenuController {
         }
     }
 
-    private void showPopup() {
+    /**
+     * Affiche le popup du menu principal avec animation.
+     */
+    private void showPopup()
+    {
         popupPane.setVisible(true);
         popupPane.setTranslateY(600);
 
@@ -135,7 +200,11 @@ public class MenuController {
         Platform.runLater(() -> rootPane.requestFocus());
     }
 
-    private void hidePopup() {
+    /**
+     * Cache le popup du menu principal avec animation.
+     */
+    private void hidePopup()
+    {
         TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), popupPane);
         tt.setFromY(0);
         tt.setToY(600);
@@ -150,7 +219,11 @@ public class MenuController {
         pt.play();
     }
 
-    private void showModePopup() {
+    /**
+     * Affiche la sélection du mode de jeu avec animation.
+     */
+    private void showModePopup()
+    {
         popupPane.setVisible(false);
         modePane.setVisible(true);
         modePane.setOpacity(0);
@@ -171,7 +244,11 @@ public class MenuController {
         new ParallelTransition(tt, ft).play();
     }
 
-    private void hideModePopup() {
+    /**
+     * Cache le panneau de sélection du mode de jeu.
+     */
+    private void hideModePopup()
+    {
         TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), modePane);
         tt.setFromY(0);
         tt.setToY(600);
@@ -186,17 +263,29 @@ public class MenuController {
         pt.play();
     }
 
-    private void updateFocus(List<Button> buttons) {
-        for (int i = 0; i < buttons.size(); i++) {
+    /**
+     * Met à jour le style du bouton sélectionné.
+     * @param buttons La liste de boutons concernés.
+     */
+    private void updateFocus(List<Button> buttons)
+    {
+        for (int i = 0; i < buttons.size(); i++)
+        {
             buttons.get(i).setStyle("");
         }
         buttons.get(selectedIndex).setStyle("-fx-border-color: white; -fx-border-width: 2;");
     }
 
-    private void executeSelected() {
+    /**
+     * Exécute l'action associée au bouton actuellement sélectionné du menu principal.
+     */
+    private void executeSelected()
+    {
         Button selected = menuButtons.get(selectedIndex);
-        switch (selected.getText()) {
-            case "Nouvelle Partie" -> {
+        switch (selected.getText())
+        {
+            case "Nouvelle Partie" ->
+            {
                 selectedIndex = 0;
                 updateFocus(modeButtons);
                 showModePopup();
@@ -207,23 +296,38 @@ public class MenuController {
         }
     }
 
-    private void executeModeSelected() {
+    /**
+     * Exécute le démarrage du jeu selon le mode sélectionné (solo ou multijoueur).
+     */
+    private void executeModeSelected()
+    {
         Button selected = modeButtons.get(selectedIndex);
-        if (selected.getText().equals("Solo")) {
+        if (selected.getText().equals("Solo"))
+        {
             startGame(true);
-        } else {
+        } else
+        {
             startGame(false);
         }
     }
 
-    private void startGame(boolean isSolo) {
+    /**
+     * Lance le jeu en mode solo ou multijoueur.
+     * @param isSolo true pour le mode solo, false pour multijoueur.
+     */
+    private void startGame(boolean isSolo)
+    {
         mediaPlayer.stop();
         Game game = new Game(isSolo);
         game.start(primaryStage);
     }
 
-    // Boutons clic (optionnels, si activés via FXML)
+    /** Gère le clic sur le bouton Nouvelle Partie (FXML). */
     @FXML private void handleNP() { showModePopup(); }
+
+    /** Gère le clic sur le bouton Options (FXML). */
     @FXML private void handleOp() { System.out.println("Options sélectionnées"); }
+
+    /** Gère le clic sur le bouton Quitter (FXML). */
     @FXML private void handleQ() { Platform.exit(); }
 }
