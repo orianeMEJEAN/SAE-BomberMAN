@@ -12,6 +12,8 @@
 <?import javafx.scene.text.Text?>
 <?import java.lang.String?>
 <?import java.net.URL?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Slider?>
 <StackPane fx:id="rootPane"
            xmlns="http://javafx.com/javafx/17.0.6"
            xmlns:fx="http://javafx.com/fxml"
@@ -66,5 +68,21 @@
         </VBox>
     </StackPane>
 
+    <StackPane fx:id="optionsPane" visible="false" opacity="0">
+        <VBox spacing="20" alignment="CENTER"
+              style="-fx-background-color: rgba(0, 0, 0, 0.8);
+              -fx-font-size: 36px;
+              -fx-padding: 20;
+              -fx-background-radius: 10;"
+              maxWidth="400" maxHeight="300">
+            <Label text="Options" style="-fx-text-fill: white;" styleClass="jersey-font"/>
+
+            <!-- Slider pour volume -->
+            <HBox spacing="10" alignment="CENTER">
+                <Label text="Volume" style="-fx-font-size: 24px; -fx-text-fill: white;" styleClass="button"/>
+                <Slider fx:id="volumeSlider" min="0" max="1" value="0.5" blockIncrement="0.1" styleClass="button"/>
+            </HBox>
+        </VBox>
+    </StackPane>
 
 </StackPane>
