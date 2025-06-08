@@ -10,6 +10,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
@@ -77,6 +78,12 @@ public class MenuController {
     /** Lecteur média pour sound effect */
     private AudioClip  sfxMove;
 
+    /** Pane des options */
+    @FXML private StackPane optionsPane;
+
+    /** Slider du volume */
+    @FXML private Slider volumeSlider;
+
     /** Référence à la fenêtre principale. */
     private Stage primaryStage;
 
@@ -116,6 +123,11 @@ public class MenuController {
         String moveSoundPath = getClass().getResource("sound/switch.mp3").toExternalForm();
         sfxMove = new AudioClip(moveSoundPath);;
 
+        // Binding entre le volume et le slider
+        volumeSlider.setValue(mediaPlayer.getVolume());
+        volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            mediaPlayer.setVolume(newVal.doubleValue());
+        });
 
         menuButtons = List.of(btnNP, btnOp, btnQ);
         modeButtons = List.of(btnSolo, btnMulti, btnR);
@@ -130,11 +142,41 @@ public class MenuController {
      * @param event L'événement clavier.
      */
     private void handleKeyPress(KeyEvent event) {
+        if (optionsPane.isVisible()) {
+            switch (event.getCode()) {
+                case LEFT -> {
+                    double newVal = volumeSlider.getValue() - volumeSlider.getBlockIncrement();
+                    if (newVal < volumeSlider.getMin()) newVal = volumeSlider.getMin();
+                    volumeSlider.setValue(newVal);
+                    mediaPlayer.setVolume(newVal);
+                    event.consume();
+                }
+                case RIGHT -> {
+                    double newVal = volumeSlider.getValue() + volumeSlider.getBlockIncrement();
+                    if (newVal > volumeSlider.getMax()) newVal = volumeSlider.getMax();
+                    volumeSlider.setValue(newVal);
+                    mediaPlayer.setVolume(newVal);
+                    event.consume();
+                }
+                case ESCAPE -> {
+                    handleRetourOptions();
+                    event.consume();
+                }
+                default -> {}
+            }
+            return; // On stoppe ici car options active
+        }
+
         switch (event.getCode()) {
             case ESCAPE:
-                if (modeShown) {
+                if (optionsPane.isVisible()) {
+                    hideOptionsPane();
+                } else if (modeShown) {
                     hideModePopup();
                     modeShown = false;
+                    popupShown = true;
+                    selectedIndex = 0;
+                    updateFocus(menuButtons);
                 } else if (popupShown) {
                     hidePopup();
                     popupShown = false;
@@ -142,7 +184,7 @@ public class MenuController {
                 break;
 
             case UP:
-                if (popupShown && !modeShown) {
+                if (popupShown && !modeShown && !optionsPane.isVisible()) {
                     selectedIndex = (selectedIndex - 1 + menuButtons.size()) % menuButtons.size();
                     sfxMove.play();
                     updateFocus(menuButtons);
@@ -154,7 +196,7 @@ public class MenuController {
                 break;
 
             case DOWN:
-                if (popupShown && !modeShown) {
+                if (popupShown && !modeShown && !optionsPane.isVisible()) {
                     selectedIndex = (selectedIndex + 1) % menuButtons.size();
                     sfxMove.play();
                     updateFocus(menuButtons);
@@ -174,7 +216,7 @@ public class MenuController {
                 break;
 
             default:
-                if (!popupShown) {
+                if (!popupShown && !optionsPane.isVisible()) {
                     showPopup();
                     popupShown = true;
                     selectedIndex = 0;
@@ -265,6 +307,27 @@ public class MenuController {
         pt.play();
     }
 
+    private void hideOptionsPane() {
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), optionsPane);
+        tt.setFromY(0);
+        tt.setToY(600);
+        tt.setInterpolator(Interpolator.EASE_IN);
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(0.5), optionsPane);
+        ft.setFromValue(1);
+        ft.setToValue(0);
+
+        ParallelTransition pt = new ParallelTransition(tt, ft);
+        pt.setOnFinished(e -> {
+            optionsPane.setVisible(false);
+            popupShown = true;
+            selectedIndex = 0;
+            updateFocus(menuButtons);
+            showPopup();
+        });
+        pt.play();
+    }
+
     /**
      * Met à jour le style du bouton sélectionné.
      * @param buttons La liste de boutons concernés.
@@ -288,7 +351,10 @@ public class MenuController {
                 showModePopup();
                 modeShown = true;
             }
-            case "Options" -> System.out.println("Options sélectionnées");
+            case "Options" -> {
+                showOptionsPane();
+                popupShown = false;
+            }
             case "Quitter" -> Platform.exit();
         }
     }
@@ -325,6 +391,49 @@ public class MenuController {
         popupShown = true;
         selectedIndex = 0;
         updateFocus(menuButtons);
+    }
+
+    /**
+     * Execute l'affiche des options
+     */
+    private void showOptionsPane() {
+        popupPane.setVisible(false);
+        optionsPane.setVisible(true);
+        optionsPane.setOpacity(0);
+        optionsPane.setTranslateY(600);
+
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), optionsPane);
+        tt.setFromY(600);
+        tt.setToY(0);
+        tt.setInterpolator(Interpolator.EASE_OUT);
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(0.5), optionsPane);
+        ft.setFromValue(0);
+        ft.setToValue(1);
+
+        new ParallelTransition(tt, ft).play();
+
+        Platform.runLater(() -> optionsPane.requestFocus());
+    }
+
+    @FXML
+    private void handleRetourOptions() {
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), optionsPane);
+        tt.setFromY(0);
+        tt.setToY(600);
+        tt.setInterpolator(Interpolator.EASE_IN);
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(0.5), optionsPane);
+        ft.setFromValue(1);
+        ft.setToValue(0);
+
+        ParallelTransition pt = new ParallelTransition(tt, ft);
+        pt.setOnFinished(e -> {
+            optionsPane.setVisible(false);
+            showPopup();
+            popupShown = true;
+        });
+        pt.play();
     }
 
     /** Gère le clic sur le bouton Nouvelle Partie (FXML). */
