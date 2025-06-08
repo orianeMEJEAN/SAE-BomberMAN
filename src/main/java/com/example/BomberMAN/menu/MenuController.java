@@ -16,6 +16,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.scene.media.AudioClip;
 
 import java.util.List;
 
@@ -51,6 +52,10 @@ public class MenuController {
     /** Bouton "Multi". */
     @FXML private Button btnMulti;
 
+
+    /** Bouton "Retour". */
+    @FXML private Button btnR;
+
     /** Liste des boutons du menu principal. */
     private List<Button> menuButtons;
 
@@ -68,6 +73,9 @@ public class MenuController {
 
     /** Lecteur média pour la musique de fond. */
     private MediaPlayer mediaPlayer;
+
+    /** Lecteur média pour sound effect */
+    private AudioClip  sfxMove;
 
     /** Référence à la fenêtre principale. */
     private Stage primaryStage;
@@ -100,14 +108,21 @@ public class MenuController {
         // Chargement et lecture de la musique de fond
         Media media = new Media(getClass().getResource("sound/MenuPrincipal.mp3").toExternalForm());
         mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.setVolume(0.2);
         mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
         mediaPlayer.play();
 
+        // Chargement et lecture du sound effect
+        String moveSoundPath = getClass().getResource("sound/switch.mp3").toExternalForm();
+        sfxMove = new AudioClip(moveSoundPath);;
+
+
         menuButtons = List.of(btnNP, btnOp, btnQ);
-        modeButtons = List.of(btnSolo, btnMulti);
+        modeButtons = List.of(btnSolo, btnMulti, btnR);
 
         btnSolo.setOnAction(e -> startGame(true));
         btnMulti.setOnAction(e -> startGame(false));
+        btnR.setOnAction(e -> handleRetour());
     }
 
     /**
@@ -129,9 +144,11 @@ public class MenuController {
             case UP:
                 if (popupShown && !modeShown) {
                     selectedIndex = (selectedIndex - 1 + menuButtons.size()) % menuButtons.size();
+                    sfxMove.play();
                     updateFocus(menuButtons);
                 } else if (modeShown) {
                     selectedIndex = (selectedIndex - 1 + modeButtons.size()) % modeButtons.size();
+                    sfxMove.play();
                     updateFocus(modeButtons);
                 }
                 break;
@@ -139,9 +156,11 @@ public class MenuController {
             case DOWN:
                 if (popupShown && !modeShown) {
                     selectedIndex = (selectedIndex + 1) % menuButtons.size();
+                    sfxMove.play();
                     updateFocus(menuButtons);
                 } else if (modeShown) {
                     selectedIndex = (selectedIndex + 1) % modeButtons.size();
+                    sfxMove.play();
                     updateFocus(modeButtons);
                 }
                 break;
@@ -281,7 +300,10 @@ public class MenuController {
         Button selected = modeButtons.get(selectedIndex);
         if (selected.getText().equals("Solo")) {
             startGame(true);
-        } else {
+        } if (selected.getText().equals("Retour")) {
+            handleRetour();
+        }
+        else {
             startGame(false);
         }
     }
@@ -294,6 +316,15 @@ public class MenuController {
         mediaPlayer.stop();
         Game game = new Game(isSolo);
         game.start(primaryStage);
+    }
+
+    private void handleRetour() {
+        hideModePopup();
+        showPopup();
+        modeShown = false;
+        popupShown = true;
+        selectedIndex = 0;
+        updateFocus(menuButtons);
     }
 
     /** Gère le clic sur le bouton Nouvelle Partie (FXML). */
