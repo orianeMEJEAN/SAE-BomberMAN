@@ -64,6 +64,7 @@
             <Label text="Modes" styleClass="jersey-font"/>
             <Button fx:id="btnSolo" text="Solo" styleClass="button"/>
             <Button fx:id="btnMulti" text="Multijoueur" styleClass="button"/>
+            <Button fx:id="btnEdit" text="Editeur de carte" styleClass="button" />
             <Button fx:id="btnR" text="Retour" styleClass="button"/>
         </VBox>
     </StackPane>

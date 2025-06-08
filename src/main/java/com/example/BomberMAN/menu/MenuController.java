@@ -53,6 +53,8 @@ public class MenuController {
     /** Bouton "Multi". */
     @FXML private Button btnMulti;
 
+    /** Bouton "Edit". */
+    @FXML private Button btnEdit;
 
     /** Bouton "Retour". */
     @FXML private Button btnR;
@@ -130,7 +132,7 @@ public class MenuController {
         });
 
         menuButtons = List.of(btnNP, btnOp, btnQ);
-        modeButtons = List.of(btnSolo, btnMulti, btnR);
+        modeButtons = List.of(btnSolo, btnMulti, btnEdit, btnR);
 
         btnSolo.setOnAction(e -> startGame(true));
         btnMulti.setOnAction(e -> startGame(false));
