@@ -5,6 +5,7 @@
 package com.example.BomberMAN.menu;
 
 import com.example.BomberMAN.Game;
+import com.example.BomberMAN.mapEditor.MapEditor;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -146,6 +147,7 @@ public class MenuController {
 
         btnSolo.setOnAction(e -> startGame(true));
         btnMulti.setOnAction(e -> startGame(false));
+        btnEdit.setOnAction(e -> startMapEditor());
         btnR.setOnAction(e -> handleRetour());
     }
 
@@ -391,6 +393,8 @@ public class MenuController {
         Button selected = modeButtons.get(selectedIndex);
         if (selected.getText().equals("Solo")) {
             startGame(true);
+        } else if (selected.getText().equals("Editeur de carte")) {
+            startMapEditor();
         } else if (selected.getText().equals("Retour")) {
             handleRetour();
         } else {
@@ -406,6 +410,17 @@ public class MenuController {
         mediaPlayer.stop();
         Game game = new Game(isSolo);
         game.start(primaryStage);
+    }
+
+
+    /**
+     * Lance l'éditeur de carte.
+     */
+    @FXML
+    private void startMapEditor() {
+        MapEditor editor = new MapEditor();
+        Stage stage = (Stage) rootPane.getScene().getWindow();
+        editor.start(stage);
     }
 
     private void handleRetour() {
