@@ -11,10 +11,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.effect.GaussianBlur;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.media.AudioClip;
@@ -85,6 +88,13 @@ public class MenuController {
 
     /** Slider du volume */
     @FXML private Slider volumeSlider;
+
+    /** Rectangle pour le flou */
+    @FXML
+    private Rectangle overlay;
+
+    /** Indique si le l'overlay de flou est visible */
+    private boolean isOverlayVisible = false;
 
     /** Référence à la fenêtre principale. */
     private Stage primaryStage;
@@ -173,15 +183,18 @@ public class MenuController {
             case ESCAPE:
                 if (optionsPane.isVisible()) {
                     hideOptionsPane();
+                    togglePopup();
                 } else if (modeShown) {
                     hideModePopup();
                     modeShown = false;
                     popupShown = true;
                     selectedIndex = 0;
                     updateFocus(menuButtons);
+                    togglePopup();
                 } else if (popupShown) {
                     hidePopup();
                     popupShown = false;
+                    togglePopup();
                 }
                 break;
 
@@ -223,6 +236,7 @@ public class MenuController {
                     popupShown = true;
                     selectedIndex = 0;
                     updateFocus(menuButtons);
+                    togglePopup();
                 }
                 break;
         }
@@ -331,6 +345,15 @@ public class MenuController {
     }
 
     /**
+     * Applique un effect de flou Gaussian.
+     */
+    private void togglePopup() {
+        isOverlayVisible = !isOverlayVisible;
+        overlay.setVisible(isOverlayVisible);
+        overlay.setOpacity(isOverlayVisible ? 0.5 : 0);
+    }
+    
+    /**
      * Met à jour le style du bouton sélectionné.
      * @param buttons La liste de boutons concernés.
      */
@@ -368,10 +391,9 @@ public class MenuController {
         Button selected = modeButtons.get(selectedIndex);
         if (selected.getText().equals("Solo")) {
             startGame(true);
-        } if (selected.getText().equals("Retour")) {
+        } else if (selected.getText().equals("Retour")) {
             handleRetour();
-        }
-        else {
+        } else {
             startGame(false);
         }
     }
