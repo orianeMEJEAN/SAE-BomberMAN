@@ -14,6 +14,7 @@
 <?import java.net.URL?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.shape.Rectangle?>
 <StackPane fx:id="rootPane"
            xmlns="http://javafx.com/javafx/17.0.6"
            xmlns:fx="http://javafx.com/fxml"
@@ -29,6 +30,9 @@
             <Image url="@../image/FondMenu1.png" />
         </image>
     </ImageView>
+
+    <!-- Overlay sombre semi-transparent -->
+    <Rectangle fx:id="overlay" width="800" height="800" fill="black" opacity="0" visible="false"/>
 
     <!-- Contenu centré -->
     <VBox alignment="BOTTOM_CENTER" spacing="20" style="-fx-padding: 0 0 120 0;">
@@ -64,6 +68,7 @@
             <Label text="Modes" styleClass="jersey-font"/>
             <Button fx:id="btnSolo" text="Solo" styleClass="button"/>
             <Button fx:id="btnMulti" text="Multijoueur" styleClass="button"/>
+            <Button fx:id="btnEdit" text="Editeur de carte" styleClass="button" />
             <Button fx:id="btnR" text="Retour" styleClass="button"/>
         </VBox>
     </StackPane>
