@@ -11,11 +11,13 @@ import javafx.util.Duration;
 /**
  * Représente une bombe placée sur la grille, qui explose après un court délai.
  */
-public class Bomb {
+public class Bomb
+{
     private ImageView bombSprite;
     private GridPane grid;
     private Tile[][] tiles;
     private Player player;
+    private boolean active = true;
 
     /**
      * Initialise une bombe aux coordonnées spécifiées sur la grille.
@@ -37,7 +39,7 @@ public class Bomb {
 
         grid.add(bombSprite, x, y);
 
-        Timeline explosionDelay = new Timeline(new KeyFrame(Duration.seconds(1), ev -> explode(x, y)));
+        Timeline explosionDelay = new Timeline(new KeyFrame(Duration.seconds(2), ev -> explode(x, y)));
         explosionDelay.setCycleCount(1);
         explosionDelay.play();
     }
@@ -76,7 +78,8 @@ public class Bomb {
             int dx = x + dir[0];
             int dy = y + dir[1];
 
-            if (dx >= 0 && dx < Game.GRID_WIDTH && dy >= 0 && dy < Game.GRID_HEIGHT) {
+            if (dx >= 0 && dx < Game.GRID_WIDTH && dy >= 0 && dy < Game.GRID_HEIGHT)
+            {
                 Tile tile = tiles[dy][dx];
                 if (tile != null && tile.isBreakable())
                 {
@@ -88,12 +91,19 @@ public class Bomb {
                 {
                     player.setPv1(0);
                     player.deathJ1();
-                } else if (dx == player.getX2() && dy == player.getY2())
+                }
+                else if (dx == player.getX2() && dy == player.getY2())
                 {
                     player.setPv2(0);
                     player.deathJ2();
                 }
             }
         }
+        active = false;
+    }
+
+    public boolean isActive()
+    {
+        return active;
     }
 }
