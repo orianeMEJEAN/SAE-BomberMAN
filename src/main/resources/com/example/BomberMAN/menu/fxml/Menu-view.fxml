@@ -74,8 +74,6 @@
         </VBox>
     </StackPane>
 
-    <StackPane fx:id="" />
-
     <StackPane fx:id="optionsPane" visible="false" opacity="0">
         <VBox spacing="20" alignment="CENTER"
               style="-fx-background-color: rgba(0, 0, 0, 0.8);
@@ -93,4 +91,18 @@
         </VBox>
     </StackPane>
 
+    <!-- Pane de sélection de Thèmes -->
+    <StackPane fx:id="themePane" visible="false" opacity="0">
+        <VBox spacing="20" alignment="CENTER"
+              style="-fx-background-color: rgba(0, 0, 0, 0.8);
+                 -fx-font-size: 36px;
+                 -fx-padding: 20;
+                 -fx-background-radius: 10;"
+              maxWidth="400" maxHeight="300">
+            <Label text="Thèmes" styleClass="jersey-font"/>
+            <Button fx:id="btnThemeBomberMan" text="BomberMan" styleClass="button"/>
+            <Button fx:id="btnThemeManoir" text="Manoir" styleClass="button"/>
+            <Button fx:id="btnThemeRetour" text="Retour" styleClass="button"/>
+        </VBox>
+    </StackPane>
 </StackPane>

@@ -12,7 +12,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
-import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
@@ -72,9 +71,6 @@ public class MenuController {
     /** Liste des boutons de sélection de mode. */
     private List<Button> modeButtons;
 
-    /** Liste des boutons de sélection de skin */
-    private List<Button> modeSkin;
-
     /** Index de l'élément sélectionné dans le menu courant. */
     private int selectedIndex = 0;
 
@@ -111,6 +107,17 @@ public class MenuController {
 
     /** Référence à la fenêtre principale. */
     private Stage primaryStage;
+
+    @FXML private StackPane themePane;
+    @FXML private Button btnThemeBomberMan;
+    @FXML private Button btnThemeManoir;
+    @FXML private Button btnThemeRetour;
+
+    private boolean themeShown = false;
+
+    private String currentTheme = "BomberMan"; // Thème par défaut
+    private List<Button> themeButtons;
+
 
     /**
      * Définit la fenêtre principale pour le lancement du jeu.
@@ -167,12 +174,17 @@ public class MenuController {
 
         menuButtons = List.of(btnNP, btnSKIN, btnOp, btnQ);
         modeButtons = List.of(btnSolo, btnMulti, btnEdit, btnR);
-        modeSkin = List.of(btnR);
 
         btnSolo.setOnAction(e -> startGame(true));
         btnMulti.setOnAction(e -> startGame(false));
         btnEdit.setOnAction(e -> startMapEditor());
         btnR.setOnAction(e -> handleRetour());
+
+        btnThemeBomberMan.setOnAction(e -> selectTheme("BomberMan"));
+        btnThemeManoir.setOnAction(e -> selectTheme("Manoir"));
+        btnThemeRetour.setOnAction(e -> handleRetourTheme());
+
+        themeButtons = List.of(btnThemeBomberMan, btnThemeManoir, btnThemeRetour);
     }
 
     /**
@@ -205,19 +217,29 @@ public class MenuController {
             return; // On stoppe ici car options active
         }
 
-        switch (event.getCode()) {
+        switch (event.getCode())
+        {
             case ESCAPE:
-                if (optionsPane.isVisible()) {
+                if (optionsPane.isVisible())
+                {
                     hideOptionsPane();
                     togglePopup();
-                } else if (modeShown) {
+                }
+                else if (themeShown)
+                {
+                    handleRetourTheme();
+                }
+                else if (modeShown)
+                {
                     hideModePopup();
                     modeShown = false;
                     popupShown = true;
                     selectedIndex = 0;
                     updateFocus(menuButtons);
                     togglePopup();
-                } else if (popupShown) {
+                }
+                else if (popupShown)
+                {
                     hidePopup();
                     popupShown = false;
                     togglePopup();
@@ -225,34 +247,60 @@ public class MenuController {
                 break;
 
             case UP:
-                if (popupShown && !modeShown && !optionsPane.isVisible()) {
+                if (popupShown && !modeShown && !themeShown && !optionsPane.isVisible())
+                {
                     selectedIndex = (selectedIndex - 1 + menuButtons.size()) % menuButtons.size();
                     sfxMove.play();
                     updateFocus(menuButtons);
-                } else if (modeShown) {
+                }
+                else if (modeShown)
+                {
                     selectedIndex = (selectedIndex - 1 + modeButtons.size()) % modeButtons.size();
                     sfxMove.play();
                     updateFocus(modeButtons);
                 }
+                else if (themeShown)
+                {
+                    selectedIndex = (selectedIndex - 1 + themeButtons.size()) % themeButtons.size();
+                    sfxMove.play();
+                    updateFocus(themeButtons);
+                }
                 break;
 
             case DOWN:
-                if (popupShown && !modeShown && !optionsPane.isVisible()) {
+                if (popupShown && !modeShown && !themeShown && !optionsPane.isVisible())
+                {
                     selectedIndex = (selectedIndex + 1) % menuButtons.size();
                     sfxMove.play();
                     updateFocus(menuButtons);
-                } else if (modeShown) {
+                }
+                else if (modeShown)
+                {
                     selectedIndex = (selectedIndex + 1) % modeButtons.size();
                     sfxMove.play();
                     updateFocus(modeButtons);
                 }
+                else if (themeShown)
+                {
+                    selectedIndex = (selectedIndex + 1) % themeButtons.size();
+                    sfxMove.play();
+                    updateFocus(themeButtons);
+                }
                 break;
 
             case ENTER:
-                if (modeShown) {
+                if (themeShown)
+                {
+                    executeThemeSelected();
+                    sfxUse.play();
+                }
+                else if (modeShown)
+                {
                     executeModeSelected();
                     sfxUse.play();
-                } else if (popupShown) {
+                }
+                else if (popupShown)
+                {
                     executeSelected();
                     sfxUse.play();
                 }
@@ -333,6 +381,32 @@ public class MenuController {
         new ParallelTransition(tt, ft).play();
     }
 
+    public void showThemePopup()
+    {
+        popupPane.setVisible(false);
+        themePane.setVisible(true);
+        themePane.setOpacity(0);
+        themePane.setTranslateY(600);
+
+        selectedIndex = 0;
+        updateFocus(themeButtons);
+        themeShown = true;
+        popupShown = false;
+
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), themePane);
+        tt.setFromY(600);
+        tt.setToY(0);
+        tt.setInterpolator(Interpolator.EASE_OUT);
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(0.5), themePane);
+        ft.setFromValue(0);
+        ft.setToValue(1);
+
+        new ParallelTransition(tt, ft).play();
+
+        Platform.runLater(() -> rootPane.requestFocus());
+    }
+
     /**
      * Cache le panneau de sélection du mode de jeu.
      */
@@ -373,6 +447,25 @@ public class MenuController {
     }
 
     /**
+     * Cache le panneau de sélection de thème avec animation.
+     */
+    private void hideThemePopup()
+    {
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), themePane);
+        tt.setFromY(0);
+        tt.setToY(600);
+        tt.setInterpolator(Interpolator.EASE_IN);
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(0.5), themePane);
+        ft.setFromValue(1);
+        ft.setToValue(0);
+
+        ParallelTransition pt = new ParallelTransition(tt, ft);
+        pt.setOnFinished(e -> themePane.setVisible(false));
+        pt.play();
+    }
+
+    /**
      * Applique un effect de flou Gaussian.
      */
     private void togglePopup() {
@@ -403,6 +496,14 @@ public class MenuController {
                 updateFocus(modeButtons);
                 showModePopup();
                 modeShown = true;
+                popupShown = false;
+            }
+            case "Thèmes" -> {
+                selectedIndex = 0;
+                updateFocus(themeButtons);
+                showThemePopup();
+                themeShown = true;
+                popupShown = false;
             }
             case "Options" -> {
                 showOptionsPane();
@@ -437,7 +538,6 @@ public class MenuController {
         Game game = new Game(isSolo);
         game.start(primaryStage);
     }
-
 
     /**
      * Lance l'éditeur de carte.
@@ -507,7 +607,7 @@ public class MenuController {
     /** Gère le clic sur le bouton Thème (FXML). */
     @FXML private void handleSkin()
     {
-
+        showThemePopup();
     }
 
     /** Gère le clic sur le bouton Options (FXML). */
@@ -515,4 +615,109 @@ public class MenuController {
 
     /** Gère le clic sur le bouton Quitter (FXML). */
     @FXML private void handleQ() { Platform.exit(); }
+
+    /**
+     * Sélectionne un thème et applique les changements visuels.
+     * @param themeName Le nom du thème à appliquer.
+     */
+    private void selectTheme(String themeName)
+    {
+        currentTheme = themeName;
+        applyTheme(themeName);
+
+        // Jouer un son de confirmation
+        sfxUse.play();
+
+        // Afficher un feedback visuel (optionnel)
+        System.out.println("Thème sélectionné : " + themeName);
+
+        // Retourner au menu principal après sélection
+        handleRetourTheme();
+    }
+
+    /**
+     * Applique le thème sélectionné à l'interface.
+     * @param themeName Le nom du thème à appliquer.
+     */
+    private void applyTheme(String themeName) {
+        // Changer l'image de fond selon le thème
+        ImageView backgroundImage = (ImageView) rootPane.getChildren().get(0);
+
+        switch (themeName) {
+            case "BomberMan" -> {
+                // Appliquer le thème BomberMan
+                backgroundImage.setImage(new javafx.scene.image.Image(
+                        getClass().getResource("../image/FondMenu1.png").toExternalForm()));
+
+                // Optionnel : changer les couleurs des boutons
+                updateButtonsTheme("#FF6B35", "#FFFFFF"); // Orange et blanc
+            }
+            case "Manoir" -> {
+                // Appliquer le thème Manoir
+                backgroundImage.setImage(new javafx.scene.image.Image(
+                        getClass().getResource("../image/FondMenuManoir.png").toExternalForm()));
+
+                // Optionnel : changer les couleurs des boutons
+                updateButtonsTheme("#8B4513", "#F5DEB3"); // Marron et beige
+            }
+            default -> {
+                // Thème par défaut
+                backgroundImage.setImage(new javafx.scene.image.Image(
+                        getClass().getResource("../image/FondMenu1.png").toExternalForm()));
+                updateButtonsTheme("#FF6B35", "#FFFFFF");
+            }
+        }
+    }
+
+    /**
+     * Met à jour les couleurs des boutons selon le thème.
+     * @param primaryColor Couleur primaire du thème.
+     * @param textColor Couleur du texte.
+     */
+    private void updateButtonsTheme(String primaryColor, String textColor)
+    {
+        String buttonStyle = String.format(
+                "-fx-background-color: %s; -fx-text-fill: %s; -fx-background-radius: 5;",
+                primaryColor, textColor
+        );
+
+        // Appliquer le style à tous les boutons
+        menuButtons.forEach(button -> button.setStyle(buttonStyle));
+        modeButtons.forEach(button -> button.setStyle(buttonStyle));
+        themeButtons.forEach(button -> button.setStyle(buttonStyle));
+    }
+
+    /**
+     * Cache le panneau de sélection de thème et retourne au menu principal.
+     */
+    private void handleRetourTheme()
+    {
+        hideThemePopup();
+        themeShown = false;
+        popupShown = true;
+        selectedIndex = 0;
+        updateFocus(menuButtons);
+        showPopup();
+    }
+
+    /**
+     * Obtient le thème actuellement sélectionné.
+     * @return Le nom du thème actuel.
+     */
+    public String getCurrentTheme()
+    {
+        return currentTheme;
+    }
+
+    /**
+     * Exécute l'action associée au bouton de thème actuellement sélectionné.
+     */
+    private void executeThemeSelected() {
+        Button selected = themeButtons.get(selectedIndex);
+        switch (selected.getText()) {
+            case "BomberMan" -> selectTheme("BomberMan");
+            case "Manoir" -> selectTheme("Manoir");
+            case "Retour" -> handleRetourTheme();
+        }
+    }
 }
