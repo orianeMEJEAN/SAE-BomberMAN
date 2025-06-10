@@ -108,11 +108,7 @@ public class Tile
     {
         if (breakable && grid != null)
         {
-            rect.setFill(Color.LIGHTGREEN);
-            breakable = false;
-            walkable = true;
-            type = Type.EMPTY;
-
+            setType(Type.EMPTY); // Replace by EMPTY tile with texture
             // Tenter de faire apparaître un bonus
             return Bonus.trySpawnBonus(x, y, grid);
         }
