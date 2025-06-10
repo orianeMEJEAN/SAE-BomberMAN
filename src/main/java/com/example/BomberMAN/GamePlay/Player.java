@@ -57,8 +57,17 @@ public class Player
 //    private boolean canMove3 = true;
 //    private boolean canMove4 = true;
 
-    private boolean bombCooldown = false;
+    private boolean bombCooldownPlayer1 = false;
+    private boolean bombCooldownPlayer2 = false;
+//    private boolean bombCooldownPlayer3 = false;
+//    private boolean bombCooldownPlayer4 = false;
     private boolean isMoving = true;
+
+    // Contrôle des bombes - UNE SEULE BOMBE PAR JOUEUR
+    private boolean hasBombPlayer1 = false;
+    private boolean hasBombPlayer2 = false;
+//    private boolean hasBombPlayer3 = false;
+//    private boolean hasBombPlayer4 = false;
 
     /**
      * Constructeur du joueur.
@@ -254,10 +263,11 @@ public class Player
      */
     public void placeBombPlayer1()
     {
-        if (!canMove1 || bombCooldown) return;
-        bombCooldown = true;
+        if (!canMove1 || bombCooldownPlayer1 ||hasBombPlayer1) return;
+        bombCooldownPlayer1 = true;
 
         lockMovement1();
+        hasBombPlayer1 = true;
         final int bombX = x1;
         final int bombY = y1;
 
@@ -280,7 +290,7 @@ public class Player
         waitGIF.setCycleCount(1);
         waitGIF.play();
 
-        Timeline cd = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> bombCooldown = false));
+        Timeline cd = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> bombCooldownPlayer1 = false));
         cd.setCycleCount(1);
         cd.play();
     }
@@ -290,10 +300,11 @@ public class Player
      */
     public void placeBombPlayer2()
     {
-        if (!canMove2|| bombCooldown) return;
-        bombCooldown = true;
+        if (!canMove2|| bombCooldownPlayer2 || hasBombPlayer2) return;
+        bombCooldownPlayer2 = true;
 
         lockMovement2();
+        hasBombPlayer2 = true;
         final int bombX = x2;
         final int bombY = y2;
 
@@ -316,7 +327,7 @@ public class Player
         waitGIF.setCycleCount(1);
         waitGIF.play();
 
-        Timeline cd = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> bombCooldown = false));
+        Timeline cd = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> bombCooldownPlayer2 = false));
         cd.setCycleCount(1);
         cd.play();
     }
@@ -326,10 +337,11 @@ public class Player
 //     */
 //    public void placeBombPlayer3()
 //    {
-//        if (!canMove3 || bombCooldown) return;
+//        if (!canMove3 || bombCooldownPlayer3 || hasBombPlayer3) return;
 //        bombCooldown = true;
 //
 //        lockMovement3();
+//        hasBombPlayer3 = true;
 //        final int bombX = x3;
 //        final int bombY = y3;
 //
@@ -352,7 +364,7 @@ public class Player
 //        waitGIF.setCycleCount(1);
 //        waitGIF.play();
 //
-//        Timeline cd = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> bombCooldown = false));
+//        Timeline cd = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> bombCooldownPlayer3 = false));
 //        cd.setCycleCount(1);
 //        cd.play();
 //    }
@@ -362,10 +374,11 @@ public class Player
 //     */
 //    public void placeBombPlayer4()
 //    {
-//        if (!canMove4|| bombCooldown) return;
+//        if (!canMove4|| bombCooldownPlayer4 || hasBombPlayer4) return;
 //        bombCooldown = true;
 //
 //        lockMovement4();
+//        hasBombPlayer4 = true;
 //        final int bombX = x4;
 //        final int bombY = y4;
 //
@@ -388,10 +401,26 @@ public class Player
 //        waitGIF.setCycleCount(1);
 //        waitGIF.play();
 //
-//        Timeline cd = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> bombCooldown = false));
+//        Timeline cd = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> bombCooldownPlayer4 = false));
 //        cd.setCycleCount(1);
 //        cd.play();
 //    }
+
+    /**
+     * Appelée par la bombe quand elle explose pour libérer le joueur 1
+     */
+    public void releaseBombPlayer1()
+    {
+        hasBombPlayer1 = false;
+    }
+
+    /**
+     * Appelée par la bombe quand elle explose pour libérer le joueur 2
+     */
+    public void releaseBombPlayer2()
+    {
+        hasBombPlayer2 = false;
+    }
 
     /**
      * Gère la mort du joueur 1.
@@ -540,6 +569,10 @@ public class Player
 //    public int getY3() { return y3; }
 //    public int getX4() { return x4; }
 //    public int getY4() { return y4; }
+    public boolean hasBombPlayer1() { return hasBombPlayer1; }
+    public boolean hasBombPlayer2() { return hasBombPlayer2; }
+//    public boolean hasBombPlayer3() { return hasBombPlayer3; }
+//    public boolean hasBombPlayer4() { return hasBombPlayer4; }
 
     public int getPv1() { return pv1; }
     public int getPv2() { return pv2; }
