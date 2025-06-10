@@ -3,6 +3,7 @@ package com.example.BomberMAN;
 import com.example.BomberMAN.GamePlay.Bot;
 import com.example.BomberMAN.GamePlay.Player;
 import com.example.BomberMAN.GamePlay.Tile;
+import com.example.BomberMAN.Maps.MapLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -42,42 +43,16 @@ public class Game
     public void start(Stage stage)
     {
         grid = new GridPane();
-        tiles = new Tile[GRID_HEIGHT][GRID_WIDTH];
 
-        // Création du plateau
-        for (int y = 0; y < GRID_HEIGHT; y++)
-        {
-            for (int x = 0; x < GRID_WIDTH; x++)
-            {
-                Tile tile = new Tile(x, y);
+        Tile.loadTextures(); // charger les textures d’abord
+        tiles = MapLoader.loadMap("src/main/resources/com/example/BomberMAN/BomberMAN/texture_Maps/map1.txt");
 
-                // Bords extérieurs
-                if (x == 0 || y == 0 || x == GRID_WIDTH - 1 || y == GRID_HEIGHT - 1)
-                {
-                    tile.setType(Tile.Type.WALL);
-                }
-                // Zones de départ vides
-                else if ((x == 1 || y == 1) && (x == 2 || y == 1) && (x == 1 || y == 2) && (x == 9 || y == 11) && (x == 11 || y == 8) && (x == 10 || y == 9))
-                {
-                    tile.setType(Tile.Type.EMPTY);
-                }
-                // Tuiles cassables aléatoires
-                else if ((x != 1 || y != 1) && (x != 2 || y != 1) && (x != 1 || y != 2) && (x != 11 || y != 9) && (x != 11 || y != 8) && (x != 10 || y != 9) && Math.random() < 0.2)
-                {
-                    tile.setType(Tile.Type.BREAKABLE);
-                }
-                // Murs aléatoires
-                else if ((x != 1 || y != 1) && (x != 2 || y != 1) && (x != 1 || y != 2) && (x != 11 || y != 9) && (x != 11 || y != 8) && (x != 10 || y != 9) && Math.random() < 0.2)
-                {
-                    tile.setType(Tile.Type.WALL);
-                }
-
-                tiles[y][x] = tile;
-                grid.add(tile.getRectangle(), x, y);
+        for (int y = 0; y < tiles.length; y++) {
+            for (int x = 0; x < tiles[y].length; x++) {
+                grid.add(tiles[y][x].getRectangle(), x, y);
             }
         }
 
-        // Création de l'objet Player
         player = new Player(1, 1, 11, 9, grid, tiles);
 
         Scene scene = new Scene(grid, 536, 454);

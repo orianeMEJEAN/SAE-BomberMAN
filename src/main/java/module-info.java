@@ -11,6 +11,8 @@ module com.example.BomberMAN {
     exports com.example.BomberMAN;
     exports com.example.BomberMAN.GamePlay;
     opens com.example.BomberMAN.GamePlay to javafx.fxml;
-    opens com.example.BomberMAN.menu to javafx.fxml;
     exports com.example.BomberMAN.menu;
+    opens com.example.BomberMAN.menu to javafx.fxml;
+    exports com.example.BomberMAN.Maps;
+    opens com.example.BomberMAN.Maps to javafx.fxml;
 }

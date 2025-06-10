@@ -1,8 +1,12 @@
 package com.example.BomberMAN.GamePlay;
 
 import com.example.BomberMAN.Game;
+import javafx.scene.image.Image;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+
+import java.util.Objects;
 
 public class Tile
 {
@@ -21,12 +25,23 @@ public class Tile
     private boolean breakable; /**< Indique si la tuile est cassable */
     private boolean walkable;  /**< Indique si la tuile est traversable */
 
-    /**
-     * Constructeur de la tuile.
-     *
-     * @param x Position en X (non utilisée directement ici)
-     * @param y Position en Y (non utilisée directement ici)
-     */
+    // === STATIC TEXTURES ===
+    private static ImagePattern EMPTY_TEXTURE;
+    private static ImagePattern BREAKABLE_TEXTURE;
+    private static ImagePattern WALL_TEXTURE;
+
+    public static void loadTextures()
+    {
+        EMPTY_TEXTURE = new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/MAP1/EMPTY.jpg"));
+        BREAKABLE_TEXTURE = new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/MAP1/BREAKABLE.jpg"));
+        WALL_TEXTURE = new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/MAP1/WALL.jpg"));
+    }
+
+    private static Image loadImage(String path)
+    {
+        return new Image(Objects.requireNonNull(Tile.class.getResourceAsStream(path)));
+    }
+
     public Tile(int x, int y)
     {
         rect = new Rectangle(Game.TILE_SIZE, Game.TILE_SIZE);
@@ -56,17 +71,17 @@ public class Tile
         switch (type)
         {
             case EMPTY -> {
-                rect.setFill(Color.LIGHTGREEN);
+                rect.setFill(EMPTY_TEXTURE);
                 breakable = false;
                 walkable = true;
             }
             case BREAKABLE -> {
-                rect.setFill(Color.BROWN);
+                rect.setFill(BREAKABLE_TEXTURE);
                 breakable = true;
                 walkable = false;
             }
             case WALL -> {
-                rect.setFill(Color.DARKGRAY);
+                rect.setFill(WALL_TEXTURE);
                 breakable = false;
                 walkable = false;
             }
@@ -100,18 +115,10 @@ public class Tile
     {
         if (breakable)
         {
-            rect.setFill(Color.LIGHTGREEN);
-            breakable = false;
-            walkable = true;
-            type = Type.EMPTY;
+            setType(Type.EMPTY); // Replace by EMPTY tile with texture
         }
     }
 
-    /**
-     * Retourne le type actuel de la tuile.
-     *
-     * @return Le type de la tuile
-     */
     public Type getType()
     {
         return type;
