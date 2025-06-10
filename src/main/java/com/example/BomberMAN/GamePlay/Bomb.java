@@ -18,6 +18,8 @@ public class Bomb
     private Tile[][] tiles;
     private Player player;
     private boolean active = true;
+    private int playerNumber; // 1 ou 2, pour identifier quel joueur a posé la bombe
+    private Game game; // Référence au jeu pour ajouter les bonus
 
     /**
      * Initialise une bombe aux coordonnées spécifiées sur la grille.
@@ -32,6 +34,19 @@ public class Bomb
         this.grid = grid;
         this.tiles = tiles;
         this.player = player;
+
+        // Déterminer quel joueur a posé la bombe en fonction de sa position actuelle
+        // Note: On utilise une méthode plus robuste basée sur la proximité
+        double distanceToPlayer1 = Math.abs(x - player.getX1()) + Math.abs(y - player.getY1());
+        double distanceToPlayer2 = Math.abs(x - player.getX2()) + Math.abs(y - player.getY2());
+
+        // Déterminer quel joueur a posé la bombe
+        if (x == player.getX1() && y == player.getY1()) {
+            this.playerNumber = 1;
+        } else {
+            this.playerNumber = 2;
+        }
+
         Image bombImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/bomb.png").toExternalForm());
         bombSprite = new ImageView(bombImage);
         bombSprite.setFitWidth(Game.TILE_SIZE);
@@ -43,6 +58,16 @@ public class Bomb
         explosionDelay.setCycleCount(1);
         explosionDelay.play();
     }
+
+    /**
+     * Constructeur avec référence au jeu (pour le système de bonus)
+     */
+    public Bomb(int x, int y, GridPane grid, Tile[][] tiles, Player player, Game game)
+    {
+        this(x, y, grid, tiles, player);
+        this.game = game;
+    }
+
 
     /**
      * Gère l'explosion de la bombe : animation, suppression de tuiles cassables, etc.
@@ -68,6 +93,13 @@ public class Bomb
         }));
         clear.setCycleCount(1);
         clear.play();
+
+        // Libérer le joueur qui a posé cette bombe
+        if (playerNumber == 1) {
+            player.releaseBombPlayer1();
+        } else {
+            player.releaseBombPlayer2();
+        }
 
         int[][] directions = {
                 {0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}
