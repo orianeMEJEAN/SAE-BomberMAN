@@ -63,11 +63,12 @@ public class Player
 //    private boolean bombCooldownPlayer4 = false;
     private boolean isMoving = true;
 
-    // Contrôle des bombes - UNE SEULE BOMBE PAR JOUEUR
-    private boolean hasBombPlayer1 = false;
-    private boolean hasBombPlayer2 = false;
-//    private boolean hasBombPlayer3 = false;
-//    private boolean hasBombPlayer4 = false;
+    // Contrôle des bombes - Système de bombes multiples
+    private int currentBombsPlayer1 = 0;
+    private int currentBombsPlayer2 = 0;
+//  private int currentBombsPlayer3 = 0;
+    private int maxBombsPlayer1 = 1;
+    private int maxBombsPlayer2 = 1;
 
     /**
      * Constructeur du joueur.
@@ -263,11 +264,11 @@ public class Player
      */
     public void placeBombPlayer1()
     {
-        if (!canMove1 || bombCooldownPlayer1 ||hasBombPlayer1) return;
+        if (!canMove1 || bombCooldownPlayer1 ||currentBombsPlayer1 >= maxBombsPlayer1) return;
         bombCooldownPlayer1 = true;
 
         lockMovement1();
-        hasBombPlayer1 = true;
+        currentBombsPlayer1++;
         final int bombX = x1;
         final int bombY = y1;
 
@@ -300,11 +301,11 @@ public class Player
      */
     public void placeBombPlayer2()
     {
-        if (!canMove2|| bombCooldownPlayer2 || hasBombPlayer2) return;
+        if (!canMove2|| bombCooldownPlayer2 || currentBombsPlayer2 >= maxBombsPlayer2) return;
         bombCooldownPlayer2 = true;
 
         lockMovement2();
-        hasBombPlayer2 = true;
+        currentBombsPlayer2++;
         final int bombX = x2;
         final int bombY = y2;
 
@@ -337,11 +338,11 @@ public class Player
 //     */
 //    public void placeBombPlayer3()
 //    {
-//        if (!canMove3 || bombCooldownPlayer3 || hasBombPlayer3) return;
+//        if (!canMove3 || bombCooldownPlayer3 || currentBombsPlayer3 >= maxBombsPlayer3) return;
 //        bombCooldown = true;
 //
 //        lockMovement3();
-//        hasBombPlayer3 = true;
+//        currrentBombsPlayer3++;
 //        final int bombX = x3;
 //        final int bombY = y3;
 //
@@ -411,7 +412,9 @@ public class Player
      */
     public void releaseBombPlayer1()
     {
-        hasBombPlayer1 = false;
+        if (currentBombsPlayer1 > 0) {
+            currentBombsPlayer1--;
+        }
     }
 
     /**
@@ -419,8 +422,24 @@ public class Player
      */
     public void releaseBombPlayer2()
     {
-        hasBombPlayer2 = false;
+        if (currentBombsPlayer2 > 0) {
+            currentBombsPlayer2--;
+        }
     }
+
+//    public void releaseBombPlayer3()
+//    {
+//        if (currentBombsPlayer3 > 0) {
+//            currentBombsPlayer3--;
+//        }
+//    }
+//
+//    public void releaseBombPlayer4()
+//    {
+//        if (currentBombsPlayer4 > 0) {
+//            currentBombsPlayer4--;
+//        }
+//    }
 
     /**
      * Gère la mort du joueur 1.
@@ -569,10 +588,21 @@ public class Player
 //    public int getY3() { return y3; }
 //    public int getX4() { return x4; }
 //    public int getY4() { return y4; }
-    public boolean hasBombPlayer1() { return hasBombPlayer1; }
-    public boolean hasBombPlayer2() { return hasBombPlayer2; }
-//    public boolean hasBombPlayer3() { return hasBombPlayer3; }
-//    public boolean hasBombPlayer4() { return hasBombPlayer4; }
+    public int getCurrentBombsPlayer1() { return currentBombsPlayer1; }
+    public int getCurrentBombsPlayer2() { return currentBombsPlayer2; }
+    public int getMaxBombsPlayer1() { return maxBombsPlayer1; }
+    public int getMaxBombsPlayer2() { return maxBombsPlayer2; }
+    public boolean canPlaceBombPlayer1() { return currentBombsPlayer1 < maxBombsPlayer1; }
+    public boolean canPlaceBombPlayer2() { return currentBombsPlayer2 < maxBombsPlayer2; }
+
+//    public int getCurrentBombsPlayer3() { return currentBombsPlayer3; }
+//    public int getCurrentBombsPlayer4() { return currentBombsPlayer4; }
+//    public int getMaxBombsPlayer3() { return maxBombsPlayer3; }
+//    public int getMaxBombsPlayer4() { return maxBombsPlayer4; }
+//    public boolean canPlaceBombPlayer3() { return currentBombsPlayer3 < maxBombsPlayer3; }
+//    public boolean canPlaceBombPlayer4() { return currentBombsPlayer4 < maxBombsPlayer4; }
+
+
 
     public int getPv1() { return pv1; }
     public int getPv2() { return pv2; }
