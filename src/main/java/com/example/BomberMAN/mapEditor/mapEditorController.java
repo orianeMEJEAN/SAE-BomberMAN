@@ -11,8 +11,8 @@ public class mapEditorController {
     @FXML
     private GridPane mapGrid;
 
-    private final int rows = 10;
-    private final int cols = 10;
+    private final int rows = 11;
+    private final int cols = 13;
 
     @FXML
     public void initialize() {
