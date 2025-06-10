@@ -441,6 +441,24 @@ public class Player
 //        }
 //    }
 
+
+    /**
+     * Augmente la limite de bombes du joueur 1
+     */
+    public void increaseBombLimitPlayer1()
+    {
+        maxBombsPlayer1++;
+    }
+
+    /**
+     * Augmente la limite de bombes du joueur 2
+     */
+    public void increaseBombLimitPlayer2()
+    {
+        maxBombsPlayer2++;
+    }
+
+
     /**
      * Gère la mort du joueur 1.
      */
