@@ -113,19 +113,16 @@ public class Tile
     }
 
     /**
-     * Détruit la tuile et peut faire apparaître un bonus
-     * @return Le bonus créé, ou null si aucun bonus n'apparaît
+     * Détruit une tuile cassable, la transforme en tuile vide.
      */
-    public Bonus destroy()
+    public void destroy()
     {
-        if (breakable && grid != null)
+        if (breakable)
         {
             setType(Type.EMPTY); // Replace by EMPTY tile with texture
-            // Tenter de faire apparaître un bonus
-            return Bonus.trySpawnBonus(x, y, grid);
         }
-        return null;
     }
+
 
     public Type getType()
     {
