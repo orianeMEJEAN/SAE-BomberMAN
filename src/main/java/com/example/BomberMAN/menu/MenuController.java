@@ -57,6 +57,9 @@ public class MenuController {
     /** Bouton "Multi". */
     @FXML private Button btnMulti;
 
+    /** Bouton Thème */
+    @FXML private Button btnSKIN;
+
     /** Bouton "Edit". */
     @FXML private Button btnEdit;
 
@@ -68,6 +71,9 @@ public class MenuController {
 
     /** Liste des boutons de sélection de mode. */
     private List<Button> modeButtons;
+
+    /** Liste des boutons de sélection de skin */
+    private List<Button> modeSkin;
 
     /** Index de l'élément sélectionné dans le menu courant. */
     private int selectedIndex = 0;
@@ -159,8 +165,9 @@ public class MenuController {
             mediaPlayer.setVolume(newVal.doubleValue());
         });
 
-        menuButtons = List.of(btnNP, btnOp, btnQ);
+        menuButtons = List.of(btnNP, btnSKIN, btnOp, btnQ);
         modeButtons = List.of(btnSolo, btnMulti, btnEdit, btnR);
+        modeSkin = List.of(btnR);
 
         btnSolo.setOnAction(e -> startGame(true));
         btnMulti.setOnAction(e -> startGame(false));
@@ -496,6 +503,12 @@ public class MenuController {
 
     /** Gère le clic sur le bouton Nouvelle Partie (FXML). */
     @FXML private void handleNP() { showModePopup(); }
+
+    /** Gère le clic sur le bouton Thème (FXML). */
+    @FXML private void handleSkin()
+    {
+
+    }
 
     /** Gère le clic sur le bouton Options (FXML). */
     @FXML private void handleOp() { System.out.println("Options sélectionnées"); }

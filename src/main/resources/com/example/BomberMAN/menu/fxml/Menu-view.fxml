@@ -51,6 +51,7 @@
               prefWidth="600" prefHeight="600">
             <Label text="Menu Principal" styleClass="jersey-font"/>
             <Button fx:id="btnNP" text="Nouvelle Partie" styleClass="button" onAction="#handleNP"/>
+            <Button fx:id="btnSKIN" text="Thèmes" styleClass="button" onAction="#handleSkin"/>
             <Button fx:id="btnOp" text="Options" styleClass="button" onAction="#handleOp"/>
             <Button fx:id="btnQ" text="Quitter" styleClass="button" onAction="#handleQ"/>
         </VBox>
@@ -72,6 +73,8 @@
             <Button fx:id="btnR" text="Retour" styleClass="button"/>
         </VBox>
     </StackPane>
+
+    <StackPane fx:id="" />
 
     <StackPane fx:id="optionsPane" visible="false" opacity="0">
         <VBox spacing="20" alignment="CENTER"
