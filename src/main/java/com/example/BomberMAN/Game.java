@@ -33,6 +33,8 @@ public class Game
     private boolean isSoloMode;
     /** Instance du bot contrôlé par l'IA en mode solo. */
     private Bot bot;
+    /** Thème actuel pour les tuiles et les joueurs. */
+    private String currentTheme = "BomberMan"; // Thème par défaut
 
     /**
      * Constructeur de la classe Game.
@@ -58,6 +60,8 @@ public class Game
         grid = new GridPane();
 
         Tile.loadAllTextures(); // Charger toutes les textures nécessaires pour les tuiles.
+        // Définir le thème pour les tuiles
+        Tile.setCurrentTheme(currentTheme);
         // Charger la carte depuis un fichier spécifié.
         tiles = MapLoader.loadMap("src/main/resources/com/example/BomberMAN/BomberMAN/texture_Maps/map1.map");
 
@@ -70,8 +74,9 @@ public class Game
             }
         }
 
-        // Initialisation du joueur avec ses positions de départ et la grille de jeu.
-        player = new Player(1, 1, 11, 9, grid, tiles);
+        // Initialisation du joueur avec ses positions de départ, la grille de jeu et le thème.
+        // **Modification ici : ajouter 'currentTheme' comme dernier argument**
+        player = new Player(1, 1, 11, 9, grid, tiles, currentTheme);
 
         // Création de la scène du jeu avec la grille et ses dimensions.
         Scene scene = new Scene(grid, 536, 454);
@@ -121,6 +126,6 @@ public class Game
      */
     public void setCurrentThemes(String themeName)
     {
-        Tile.setCurrentTheme(themeName);
+        this.currentTheme = themeName;
     }
 }

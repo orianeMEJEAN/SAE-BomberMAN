@@ -1,7 +1,3 @@
-/**
- * Contrôleur du menu principal du jeu BomberMAN.
- * Gère les animations, les interactions clavier, les effets visuels et la navigation vers le jeu.
- */
 package com.example.BomberMAN.menu;
 
 import com.example.BomberMAN.Game;
