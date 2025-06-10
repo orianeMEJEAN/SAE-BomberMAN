@@ -25,4 +25,13 @@
         </GridPane>
     </center>
 
+    <right>
+        <VBox alignment="TOP_CENTER" spacing="10" style="-fx-background-color: #f0f0f0; -fx-padding: 10;">
+            <Label text="Types de cellules" style="-fx-font-weight: bold;"/>
+            <Button text="Mur Incassable" onAction="#handleWallSelection" style="-fx-background-color: black; -fx-text-fill: white;"/>
+            <Button text="Espace Vide" onAction="#handleEmptySelection" style="-fx-background-color: white;"/>
+            <Button text="Mur Cassable" onAction="#handleBreakableWallSelection" style="-fx-background-color: gray;"/>
+        </VBox>
+    </right>
+
 </BorderPane>
