@@ -44,7 +44,7 @@ public class Game
     {
         grid = new GridPane();
 
-        Tile.loadTextures(); // charger les textures d’abord
+        Tile.loadAllTextures(); // charger les textures d’abord
         tiles = MapLoader.loadMap("src/main/resources/com/example/BomberMAN/BomberMAN/texture_Maps/map1.map");
 
         for (int y = 0; y < tiles.length; y++)
@@ -94,5 +94,10 @@ public class Game
         stage.setTitle("BomberMan - " + (isSoloMode ? "Solo" : "Multijoueur"));
         stage.setScene(scene);
         stage.show();
+    }
+
+    public void setCurrentThemes(String themeName)
+    {
+        Tile.setCurrentTheme(themeName);
     }
 }

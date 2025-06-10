@@ -5,6 +5,7 @@
 package com.example.BomberMAN.menu;
 
 import com.example.BomberMAN.Game;
+import com.example.BomberMAN.GamePlay.Tile;
 import com.example.BomberMAN.mapEditor.MapEditor;
 import javafx.animation.*;
 import javafx.application.Platform;
@@ -117,7 +118,7 @@ public class MenuController {
 
     private String currentTheme = "BomberMan"; // Thème par défaut
     private List<Button> themeButtons;
-
+    @FXML private ImageView backgroundImageView;
 
     /**
      * Définit la fenêtre principale pour le lancement du jeu.
@@ -185,6 +186,9 @@ public class MenuController {
         btnThemeRetour.setOnAction(e -> handleRetourTheme());
 
         themeButtons = List.of(btnThemeBomberMan, btnThemeManoir, btnThemeRetour);
+
+        // Charger toutes les textures au démarrage
+        Tile.loadAllTextures();
     }
 
     /**
@@ -473,7 +477,7 @@ public class MenuController {
         overlay.setVisible(isOverlayVisible);
         overlay.setOpacity(isOverlayVisible ? 0.5 : 0);
     }
-    
+
     /**
      * Met à jour le style du bouton sélectionné.
      * @param buttons La liste de boutons concernés.
@@ -536,6 +540,8 @@ public class MenuController {
     private void startGame(boolean isSolo) {
         mediaPlayer.stop();
         Game game = new Game(isSolo);
+        // Passer le thème au jeu
+        game.setCurrentThemes(currentTheme);
         game.start(primaryStage);
     }
 
@@ -639,31 +645,18 @@ public class MenuController {
      * Applique le thème sélectionné à l'interface.
      * @param themeName Le nom du thème à appliquer.
      */
-    private void applyTheme(String themeName) {
-        // Changer l'image de fond selon le thème
-        ImageView backgroundImage = (ImageView) rootPane.getChildren().get(0);
-
+    private void applyTheme(String themeName)
+    {
         switch (themeName) {
             case "BomberMan" -> {
-                // Appliquer le thème BomberMan
-                backgroundImage.setImage(new javafx.scene.image.Image(
-                        getClass().getResource("../image/FondMenu1.png").toExternalForm()));
-
-                // Optionnel : changer les couleurs des boutons
-                updateButtonsTheme("#FF6B35", "#FFFFFF"); // Orange et blanc
+                backgroundImageView.setImage(new javafx.scene.image.Image(getClass().getResource("/com/example/BomberMAN/menu/image/FondMenu1.png").toExternalForm()));
             }
             case "Manoir" -> {
-                // Appliquer le thème Manoir
-                backgroundImage.setImage(new javafx.scene.image.Image(
-                        getClass().getResource("../image/FondMenuManoir.png").toExternalForm()));
-
-                // Optionnel : changer les couleurs des boutons
-                updateButtonsTheme("#8B4513", "#F5DEB3"); // Marron et beige
+                backgroundImageView.setImage(new javafx.scene.image.Image(getClass().getResource("/com/example/BomberMAN/menu/image/FondMenu1.png").toExternalForm()));
             }
             default -> {
-                // Thème par défaut
-                backgroundImage.setImage(new javafx.scene.image.Image(
-                        getClass().getResource("../image/FondMenu1.png").toExternalForm()));
+                backgroundImageView.setImage(new javafx.scene.image.Image(
+                        getClass().getResource("/com/example/BomberMAN/menu/image/FondMenu1.png").toExternalForm()));
                 updateButtonsTheme("#FF6B35", "#FFFFFF");
             }
         }
