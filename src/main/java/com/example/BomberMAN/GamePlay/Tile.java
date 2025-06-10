@@ -1,6 +1,7 @@
 package com.example.BomberMAN.GamePlay;
 
 import com.example.BomberMAN.Game;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
@@ -20,6 +21,9 @@ public class Tile
     private Type type;         /**< Type de la tuile */
     private boolean breakable; /**< Indique si la tuile est cassable */
     private boolean walkable;  /**< Indique si la tuile est traversable */
+    private int x, y; // Position de la tuile
+    private GridPane grid; // Référence à la grille pour les bonus
+
 
     /**
      * Constructeur de la tuile.
@@ -29,11 +33,14 @@ public class Tile
      */
     public Tile(int x, int y)
     {
+        this.x = x;
+        this.y = y;
         rect = new Rectangle(Game.TILE_SIZE, Game.TILE_SIZE);
         rect.setStroke(Color.GRAY);
         setType(Type.EMPTY);
     }
 
+    public void setGrid(GridPane grid) { this.grid = grid; }
     /**
      * Retourne le rectangle associé à la tuile (utilisé pour l'affichage).
      *
@@ -94,17 +101,18 @@ public class Tile
     }
 
     /**
-     * Détruit une tuile cassable, la transforme en tuile vide.
+     * Détruit la tuile et peut faire apparaître un bonus
+     * @return Le bonus créé, ou null si aucun bonus n'apparaît
      */
-    public void destroy()
+    public Bonus destroy()
     {
-        if (breakable)
+        if (breakable && grid != null)
         {
-            rect.setFill(Color.LIGHTGREEN);
-            breakable = false;
-            walkable = true;
-            type = Type.EMPTY;
+            setType(Type.EMPTY); // Replace by EMPTY tile with texture
+            // Tenter de faire apparaître un bonus
+            return Bonus.trySpawnBonus(x, y, grid);
         }
+        return null;
     }
 
     /**
