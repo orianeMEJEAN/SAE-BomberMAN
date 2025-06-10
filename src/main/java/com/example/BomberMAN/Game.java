@@ -47,8 +47,10 @@ public class Game
         Tile.loadTextures(); // charger les textures d’abord
         tiles = MapLoader.loadMap("src/main/resources/com/example/BomberMAN/BomberMAN/texture_Maps/map1.map");
 
-        for (int y = 0; y < tiles.length; y++) {
-            for (int x = 0; x < tiles[y].length; x++) {
+        for (int y = 0; y < tiles.length; y++)
+        {
+            for (int x = 0; x < tiles[y].length; x++)
+            {
                 grid.add(tiles[y][x].getRectangle(), x, y);
             }
         }
