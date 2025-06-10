@@ -17,8 +17,6 @@ public class Bot
 
     private Tile[][] tiles;
 
-    private int dXNiv1Escape = 0, dYNiv1Escape = 0, dXNiv2Escape = 0, dYNiv2Escape = 0;
-
     private int xBomb, yBomb;
 
     public Bot(Player botPlayer, Tile[][] tiles)
