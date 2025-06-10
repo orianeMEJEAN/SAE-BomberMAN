@@ -18,6 +18,8 @@ public class Bomb
     private Tile[][] tiles;
     private Player player;
     private boolean active = true;
+    private int bombX, bombY; // Position de la bombe
+    private int playerNumber; // 1 ou 2, pour identifier quel joueur a posé la bombe
 
     /**
      * Initialise une bombe aux coordonnées spécifiées sur la grille.
@@ -32,6 +34,14 @@ public class Bomb
         this.grid = grid;
         this.tiles = tiles;
         this.player = player;
+
+        // Déterminer quel joueur a posé la bombe
+        if (x == player.getX1() && y == player.getY1()) {
+            this.playerNumber = 1;
+        } else {
+            this.playerNumber = 2;
+        }
+        
         Image bombImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/bomb.png").toExternalForm());
         bombSprite = new ImageView(bombImage);
         bombSprite.setFitWidth(Game.TILE_SIZE);
@@ -68,6 +78,13 @@ public class Bomb
         }));
         clear.setCycleCount(1);
         clear.play();
+
+        // Libérer le joueur qui a posé cette bombe
+        if (playerNumber == 1) {
+            player.releaseBombPlayer1();
+        } else {
+            player.releaseBombPlayer2();
+        }
 
         int[][] directions = {
                 {0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}
