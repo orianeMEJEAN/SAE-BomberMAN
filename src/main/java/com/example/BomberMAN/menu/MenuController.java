@@ -5,6 +5,7 @@
 package com.example.BomberMAN.menu;
 
 import com.example.BomberMAN.Game;
+import com.example.BomberMAN.mapEditor.MapEditor;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -80,8 +81,14 @@ public class MenuController {
     /** Lecteur média pour la musique de fond. */
     private MediaPlayer mediaPlayer;
 
+    /** Lecteur média pour l'annonce du titre de fond. */
+    private MediaPlayer bomberName;
+
     /** Lecteur média pour sound effect */
-    private AudioClip  sfxMove;
+    private AudioClip sfxMove;
+
+    /** Lecteur média pour sound effect */
+    private AudioClip sfxUse;
 
     /** Pane des options */
     @FXML private StackPane optionsPane;
@@ -131,9 +138,20 @@ public class MenuController {
         mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
         mediaPlayer.play();
 
+        // Chargement et lecture de l'annonce du jeu
+        Media media1 = new Media(getClass().getResource("sound/SuperBomberman.mp3").toExternalForm());
+        bomberName = new MediaPlayer(media1);
+        bomberName.setVolume(0.4);
+        bomberName.play();
+
         // Chargement et lecture du sound effect
         String moveSoundPath = getClass().getResource("sound/switch.mp3").toExternalForm();
-        sfxMove = new AudioClip(moveSoundPath);;
+        sfxMove = new AudioClip(moveSoundPath);
+
+        // Chargement et lecture du sound effect
+        String useSoundPath = getClass().getResource("sound/click.mp3").toExternalForm();
+        sfxUse = new AudioClip(useSoundPath);;
+        sfxUse.setVolume(1.8);
 
         // Binding entre le volume et le slider
         volumeSlider.setValue(mediaPlayer.getVolume());
@@ -146,6 +164,7 @@ public class MenuController {
 
         btnSolo.setOnAction(e -> startGame(true));
         btnMulti.setOnAction(e -> startGame(false));
+        btnEdit.setOnAction(e -> startMapEditor());
         btnR.setOnAction(e -> handleRetour());
     }
 
@@ -225,8 +244,10 @@ public class MenuController {
             case ENTER:
                 if (modeShown) {
                     executeModeSelected();
+                    sfxUse.play();
                 } else if (popupShown) {
                     executeSelected();
+                    sfxUse.play();
                 }
                 break;
 
@@ -391,6 +412,8 @@ public class MenuController {
         Button selected = modeButtons.get(selectedIndex);
         if (selected.getText().equals("Solo")) {
             startGame(true);
+        } else if (selected.getText().equals("Editeur de carte")) {
+            startMapEditor();
         } else if (selected.getText().equals("Retour")) {
             handleRetour();
         } else {
@@ -406,6 +429,17 @@ public class MenuController {
         mediaPlayer.stop();
         Game game = new Game(isSolo);
         game.start(primaryStage);
+    }
+
+
+    /**
+     * Lance l'éditeur de carte.
+     */
+    @FXML
+    private void startMapEditor() {
+        MapEditor editor = new MapEditor();
+        Stage stage = (Stage) rootPane.getScene().getWindow();
+        editor.start(stage);
     }
 
     private void handleRetour() {

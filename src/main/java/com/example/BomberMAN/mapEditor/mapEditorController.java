@@ -11,8 +11,8 @@ public class mapEditorController {
     @FXML
     private GridPane mapGrid;
 
-    private final int rows = 10;
-    private final int cols = 10;
+    private final int rows = 11;
+    private final int cols = 13;
 
     @FXML
     public void initialize() {
@@ -38,19 +38,19 @@ public class mapEditorController {
     }
 
     @FXML
-    private void handleSave() {
+    public void handleSave() {
         System.out.println("Sauvegarde de la map...");
         // Implémenter la logique d’export de la grille
     }
 
     @FXML
-    private void handleLoad() {
+    public void handleLoad() {
         System.out.println("Chargement d'une map...");
         // Implémenter la logique de chargement
     }
 
     @FXML
-    private void handleReturn() {
+    public void handleReturn() {
         // Fermer la fenêtre de création de map
         Stage stage = (Stage) mapGrid.getScene().getWindow();
         stage.close();
