@@ -220,10 +220,13 @@ public class Tile
     {
         if (breakable)
         {
-            setType(Type.EMPTY); // Replace by EMPTY tile with texture
+            setType(Type.EMPTY);
         }
     }
 
+    /**
+     * Recupère le type de tile (WALL, BREAKABLE ou EMPTY)
+     */
     public Type getType()
     {
         return type;
