@@ -101,9 +101,4 @@ public class Bomb
         }
         active = false;
     }
-
-    public boolean isActive()
-    {
-        return active;
-    }
 }
