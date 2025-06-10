@@ -562,16 +562,4 @@ public class Player
             return true;
         }
     }
-
-    public void stopMoving()
-    {
-        sprite2.setImage(imgDefault2);
-        isMoving = false;
-
-        Timeline pauseTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-            isMoving = true;
-        }));
-        pauseTimer.setCycleCount(1);
-        pauseTimer.play();
-    }
 }
