@@ -32,10 +32,22 @@ public class Bomb
         this.grid = grid;
         this.tiles = tiles;
         this.player = player;
-        Image bombImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/bomb.png").toExternalForm());
-        bombSprite = new ImageView(bombImage);
-        bombSprite.setFitWidth(Game.TILE_SIZE);
-        bombSprite.setFitHeight(Game.TILE_SIZE);
+
+        if(Tile.getCurrentTheme() == "Manoir")
+        {
+            Image bombImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/bomb_Manoir.png").toExternalForm());
+            bombSprite = new ImageView(bombImage);
+            bombSprite.setFitWidth(20);
+            bombSprite.setFitHeight(20);
+        }
+        else
+        {
+            Image bombImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/bomb.png").toExternalForm());
+            bombSprite = new ImageView(bombImage);
+            bombSprite.setFitWidth(Game.TILE_SIZE);
+            bombSprite.setFitHeight(Game.TILE_SIZE);
+        }
+
 
         grid.add(bombSprite, x, y);
 
