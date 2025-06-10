@@ -68,6 +68,7 @@ public class Bomb
         this.game = game;
     }
 
+
     /**
      * Gère l'explosion de la bombe : animation, suppression de tuiles cassables, etc.
      * @param x Position horizontale d'explosion (même que la bombe)
