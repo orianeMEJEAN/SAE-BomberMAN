@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.BomberMAN.mapEditor.mapEditorController"
+            prefHeight="400.0" prefWidth="600.0" >
+
+    <top>
+        <ToolBar>
+            <Button text="Enregistrer" onAction="#handleSave"/>
+            <Button text="Charger" onAction="#handleLoad"/>
+            <Button text="Retour" onAction="#handleReturn"/>
+        </ToolBar>
+    </top>
+
+    <center>
+        <GridPane fx:id="mapGrid" hgap="2" vgap="2" alignment="CENTER">
+            <!-- Les cellules de la map seront ajoutées dynamiquement -->
+        </GridPane>
+    </center>
+
+</BorderPane>

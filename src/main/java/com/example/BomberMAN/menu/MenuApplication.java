@@ -6,10 +6,24 @@ import javafx.scene.Scene;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-public class MenuApplication extends Application {
+/**
+ * Classe principale de l'application JavaFX pour le menu de Bomberman.
+ * <p>
+ * Cette classe charge la vue FXML du menu, configure la scène, charge une police personnalisée,
+ * et affiche la fenêtre principale.
+ */
+public class MenuApplication extends Application
+{
 
+    /**
+     * Point d'entrée JavaFX : configure et affiche la fenêtre principale.
+     *
+     * @param stage La fenêtre principale fournie par le framework JavaFX.
+     * @throws Exception en cas d'erreur lors du chargement du fichier FXML ou des ressources.
+     */
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) throws Exception
+    {
         // Chargement du fichier FXML
         FXMLLoader fxmlLoader = new FXMLLoader(MenuApplication.class.getResource("fxml/Menu-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 800, 800);
@@ -28,7 +42,15 @@ public class MenuApplication extends Application {
         stage.show();
     }
 
-    public static void main(String[] args) {
+    /**
+     * Méthode principale du programme.
+     * <p>
+     * Lance l'application JavaFX.
+     *
+     * @param args Arguments de la ligne de commande (non utilisés).
+     */
+    public static void main(String[] args)
+    {
         launch(args);
     }
 }
