@@ -10,7 +10,7 @@ import javafx.util.Duration;
 
 /**
  * Représente une bombe placée sur la grille, qui explose après un court délai.
- * Gère les dégâts aux joueurs en tenant compte de l'invincibilité.
+ * Gère les dégâts aux 4 joueurs en tenant compte de l'invincibilité.
  */
 public class Bomb {
     private ImageView bombSprite;
@@ -18,7 +18,7 @@ public class Bomb {
     private Tile[][] tiles;
     private Player player;
     private boolean active = true;
-    private int playerNumber; // 1 ou 2, pour identifier quel joueur a posé la bombe
+    private int playerNumber; // 1, 2, 3 ou 4, pour identifier quel joueur a posé la bombe
     private Game game; // Référence au jeu pour ajouter les bonus
 
     // Constantes d'explosion
@@ -36,15 +36,10 @@ public class Bomb {
         this.game = game;
 
         // Déterminer quel joueur a posé la bombe
-        if (x == player.getX1() && y == player.getY1()) {
-            this.playerNumber = 1;
-        } else {
-            this.playerNumber = 2;
-        }
+        this.playerNumber = determinePlayerNumber(x, y);
 
         createBombSprite(x, y);
         startExplosionTimer(x, y);
-        //grid.add(bombSprite, x, y);
 
         Timeline explosionDelay = new Timeline(new KeyFrame(Duration.seconds(2), ev -> explode(x, y)));
         explosionDelay.setCycleCount(1);
@@ -56,6 +51,22 @@ public class Bomb {
      */
     public Bomb(int x, int y, GridPane grid, Tile[][] tiles, Player player) {
         this(x, y, grid, tiles, player, null);
+    }
+
+    /**
+     * Détermine quel joueur a posé la bombe en fonction de la position
+     */
+    private int determinePlayerNumber(int x, int y) {
+        if (x == player.getX1() && y == player.getY1()) {
+            return 1;
+        } else if (x == player.getX2() && y == player.getY2()) {
+            return 2;
+        } else if (x == player.getX3() && y == player.getY3()) {
+            return 3;
+        } else if (x == player.getX4() && y == player.getY4()) {
+            return 4;
+        }
+        return 1; // Par défaut joueur 1
     }
 
     /**
@@ -146,10 +157,11 @@ public class Bomb {
      * Libère la bombe du compteur du joueur qui l'a posée
      */
     private void releaseBombFromPlayer() {
-        if (playerNumber == 1) {
-            player.releaseBombPlayer1();
-        } else {
-            player.releaseBombPlayer2();
+        switch (playerNumber) {
+            case 1: player.releaseBombPlayer1(); break;
+            case 2: player.releaseBombPlayer2(); break;
+            case 3: player.releaseBombPlayer3(); break;
+            case 4: player.releaseBombPlayer4(); break;
         }
     }
 
@@ -208,7 +220,7 @@ public class Bomb {
     }
 
     /**
-     * Gère les dégâts aux joueurs, en tenant compte de l'invincibilité
+     * Gère les dégâts aux 4 joueurs, en tenant compte de l'invincibilité
      */
     private void handlePlayerDamage(int x, int y) {
         // Vérifier le joueur 1
@@ -232,28 +244,27 @@ public class Bomb {
                 player.deathJ2();
             }
         }
-    }
 
-    /**
-     * Vérifie si la bombe est encore active
-     */
-    public boolean isActive() {
-        return active;
-    }
-
-    /**
-     * Force l'explosion de la bombe (pour les réactions en chaîne)
-     */
-    public void forceExplode(int x, int y) {
-        if (active) {
-            explode(x, y);
+        // Vérifier le joueur 3
+        if (x == player.getX3() && y == player.getY3()) {
+            if (player.isInvinciblePlayer3()) {
+                System.out.println("Joueur 3 touché par explosion mais INVINCIBLE ! Aucun dégât.");
+            } else {
+                System.out.println("Joueur 3 touché par explosion !");
+                player.setPv3(0);
+                player.deathJ3();
+            }
         }
-    }
 
-    /**
-     * Retourne le numéro du joueur qui a posé cette bombe
-     */
-    public int getPlayerNumber() {
-        return playerNumber;
+        // Vérifier le joueur 4
+        if (x == player.getX4() && y == player.getY4()) {
+            if (player.isInvinciblePlayer4()) {
+                System.out.println("Joueur 4 touché par explosion mais INVINCIBLE ! Aucun dégât.");
+            } else {
+                System.out.println("Joueur 4 touché par explosion !");
+                player.setPv4(0);
+                player.deathJ4();
+            }
+        }
     }
 }

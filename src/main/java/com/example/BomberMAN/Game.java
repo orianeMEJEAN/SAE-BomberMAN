@@ -113,7 +113,11 @@ public class Game
         }
         this.tiles = com.example.BomberMAN.Maps.MapLoader.loadMap(mapPath, grid);
         populateGrid();
-        player = new Player(1, 1, 11, 9, grid, tiles, this, currentTheme, mapName);
+
+        // Création du joueur avec référence au jeu pour les bonus
+        player = new Player(1, 1, 11, 9, 11, 1,1, 9, grid, tiles, this, currentTheme);
+
+        System.out.println("Composants du jeu initialisés");
     }
 
     /**
@@ -183,25 +187,69 @@ public class Game
                 {
                     switch (e.getCode())
                     {
-                        case UP -> {
+                        case I -> {
                             player.movePlayer2(0, -1);
                             checkBonusCollectionImmediate();
                         }
-                        case DOWN -> {
+                        case K -> {
                             player.movePlayer2(0, 1);
                             checkBonusCollectionImmediate();
                         }
-                        case LEFT -> {
+                        case J -> {
                             player.movePlayer2(-1, 0);
                             checkBonusCollectionImmediate();
                         }
-                        case RIGHT -> {
+                        case L -> {
                             player.movePlayer2(1, 0);
                             checkBonusCollectionImmediate();
                         }
-                        case CONTROL -> player.placeBombPlayer2();
+                        case EXCLAMATION_MARK -> player.placeBombPlayer2();
+                    }
+
+                    switch (e.getCode())
+                    {
+                        case UP -> {
+                            player.movePlayer3(0, -1);
+                            checkBonusCollectionImmediate();
+                        }
+                        case DOWN -> {
+                            player.movePlayer3(0, 1);
+                            checkBonusCollectionImmediate();
+                        }
+                        case LEFT -> {
+                            player.movePlayer3(-1, 0);
+                            checkBonusCollectionImmediate();
+                        }
+                        case RIGHT -> {
+                            player.movePlayer3(1, 0);
+                            checkBonusCollectionImmediate();
+                        }
+                        case CONTROL -> player.placeBombPlayer3();
+                    }
+
+                    switch (e.getCode())
+                    {
+                        case NUMPAD8 -> {
+                            player.movePlayer4(0, -1);
+                            checkBonusCollectionImmediate();
+                        }
+                        case NUMPAD5 -> {
+                            player.movePlayer4(0, 1);
+                            checkBonusCollectionImmediate();
+                        }
+                        case NUMPAD4 -> {
+                            player.movePlayer4(-1, 0);
+                            checkBonusCollectionImmediate();
+                        }
+                        case NUMPAD6 -> {
+                            player.movePlayer4(1, 0);
+                            checkBonusCollectionImmediate();
+                        }
+                        case NUMPAD0 -> player.placeBombPlayer4();
                     }
                 }
+
+
 
                 // === TOUCHES DE DEBUG (optionnel) ===
                 switch (e.getCode()) {
@@ -478,4 +526,3 @@ public class Game
         return INVINCIBILITY_DURATION;
     }
 }
-
