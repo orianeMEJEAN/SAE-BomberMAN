@@ -69,7 +69,7 @@
             <Button fx:id="btnMulti" text="Multijoueur" styleClass="button"/>
             <Button fx:id="btnEdit" text="Editeur de carte" styleClass="button" />
             <Label text="Choisissez une carte :" style="-fx-text-fill: white;"/>
-            <Button fx:id="btnCh" text="Aucune carte" styleClass="button"/>
+            <Button fx:id="btnCh" text="editedMap" styleClass="button"/>
             <Button fx:id="btnR" text="Retour" styleClass="button"/>
         </VBox>
     </StackPane>
