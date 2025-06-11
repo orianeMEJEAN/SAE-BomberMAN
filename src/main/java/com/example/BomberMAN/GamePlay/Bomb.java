@@ -10,9 +10,9 @@ import javafx.util.Duration;
 
 /**
  * Représente une bombe placée sur la grille, qui explose après un court délai.
+ * Gère les dégâts aux joueurs en tenant compte de l'invincibilité.
  */
-public class Bomb
-{
+public class Bomb {
     private ImageView bombSprite;
     private GridPane grid;
     private Tile[][] tiles;
@@ -21,24 +21,19 @@ public class Bomb
     private int playerNumber; // 1 ou 2, pour identifier quel joueur a posé la bombe
     private Game game; // Référence au jeu pour ajouter les bonus
 
+    // Constantes d'explosion
+    private static final int EXPLOSION_RADIUS = 1; // Rayon d'explosion (croix de 3x3)
+    private static final double EXPLOSION_DURATION = 0.5; // Durée d'affichage de l'explosion
+    private static final double BOMB_TIMER = 2.0; // Temps avant explosion
+
     /**
-     * Initialise une bombe aux coordonnées spécifiées sur la grille.
-     * @param x Position horizontale de la bombe
-     * @param y Position verticale de la bombe
-     * @param grid Grille de jeu (interface)
-     * @param tiles Grille logique des tuiles
-     * @param player Référence au joueur (non utilisé dans cette version, à évaluer)
+     * Constructeur principal avec référence au jeu
      */
-    public Bomb(int x, int y, GridPane grid, Tile[][] tiles, Player player)
-    {
+    public Bomb(int x, int y, GridPane grid, Tile[][] tiles, Player player, Game game) {
         this.grid = grid;
         this.tiles = tiles;
         this.player = player;
-
-        // Déterminer quel joueur a posé la bombe en fonction de sa position actuelle
-        // Note: On utilise une méthode plus robuste basée sur la proximité
-        double distanceToPlayer1 = Math.abs(x - player.getX1()) + Math.abs(y - player.getY1());
-        double distanceToPlayer2 = Math.abs(x - player.getX2()) + Math.abs(y - player.getY2());
+        this.game = game;
 
         // Déterminer quel joueur a posé la bombe
         if (x == player.getX1() && y == player.getY1()) {
@@ -47,90 +42,203 @@ public class Bomb
             this.playerNumber = 2;
         }
 
-        Image bombImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/bomb.png").toExternalForm());
-        bombSprite = new ImageView(bombImage);
-        bombSprite.setFitWidth(Game.TILE_SIZE);
-        bombSprite.setFitHeight(Game.TILE_SIZE);
+        createBombSprite(x, y);
+        startExplosionTimer(x, y);
+    }
 
-        grid.add(bombSprite, x, y);
+    /**
+     * Constructeur de compatibilité (sans game)
+     */
+    public Bomb(int x, int y, GridPane grid, Tile[][] tiles, Player player) {
+        this(x, y, grid, tiles, player, null);
+    }
 
-        Timeline explosionDelay = new Timeline(new KeyFrame(Duration.seconds(2), ev -> explode(x, y)));
+    /**
+     * Crée et place le sprite de la bombe sur la grille
+     */
+    private void createBombSprite(int x, int y) {
+        try {
+            Image bombImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/bomb.png").toExternalForm());
+            bombSprite = new ImageView(bombImage);
+            bombSprite.setFitWidth(Game.TILE_SIZE);
+            bombSprite.setFitHeight(Game.TILE_SIZE);
+            grid.add(bombSprite, x, y);
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement de l'image de la bombe: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Démarre le timer d'explosion de la bombe
+     */
+    private void startExplosionTimer(int x, int y) {
+        Timeline explosionDelay = new Timeline(new KeyFrame(Duration.seconds(BOMB_TIMER), ev -> explode(x, y)));
         explosionDelay.setCycleCount(1);
         explosionDelay.play();
     }
 
     /**
-     * Constructeur avec référence au jeu (pour le système de bonus)
+     * Gère l'explosion de la bombe : animation, destruction de tuiles, et dégâts aux joueurs
      */
-    public Bomb(int x, int y, GridPane grid, Tile[][] tiles, Player player, Game game)
-    {
-        this(x, y, grid, tiles, player);
-        this.game = game;
-    }
+    private void explode(int x, int y) {
+        if (!active) return; // Éviter les explosions multiples
 
+        active = false;
 
-    /**
-     * Gère l'explosion de la bombe : animation, suppression de tuiles cassables, etc.
-     * @param x Position horizontale d'explosion (même que la bombe)
-     * @param y Position verticale d'explosion
-     */
-    private void explode(int x, int y)
-    {
-        grid.getChildren().remove(bombSprite);
+        // Supprimer le sprite de la bombe
+        if (bombSprite != null) {
+            grid.getChildren().remove(bombSprite);
+        }
 
-        Image explosionImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/explosion.png").toExternalForm());
-        ImageView explosionSprite = new ImageView(explosionImage);
-        explosionSprite.setFitWidth(Game.TILE_SIZE * 3);
-        explosionSprite.setFitHeight(Game.TILE_SIZE * 3);
-
-        int centerX = x - 1;
-        int centerY = y - 1;
-
-        grid.add(explosionSprite, centerX, centerY, 3, 3);
-
-        Timeline clear = new Timeline(new KeyFrame(Duration.seconds(0.5), e -> {
-            grid.getChildren().remove(explosionSprite);
-        }));
-        clear.setCycleCount(1);
-        clear.play();
+        // Créer l'animation d'explosion
+        createExplosionAnimation(x, y);
 
         // Libérer le joueur qui a posé cette bombe
+        releaseBombFromPlayer();
+
+        // Gérer les effets de l'explosion dans toutes les directions
+        handleExplosionEffects(x, y);
+    }
+
+    /**
+     * Crée et affiche l'animation d'explosion
+     */
+    private void createExplosionAnimation(int x, int y) {
+        try {
+            Image explosionImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/explosion.png").toExternalForm());
+            ImageView explosionSprite = new ImageView(explosionImage);
+
+            // Taille de l'explosion (3x3 cases)
+            explosionSprite.setFitWidth(Game.TILE_SIZE * 3);
+            explosionSprite.setFitHeight(Game.TILE_SIZE * 3);
+
+            // Positionner l'explosion centrée sur la bombe
+            grid.add(explosionSprite, x - 1, y - 1, 3, 3);
+
+            // Supprimer l'explosion après un délai
+            Timeline clearExplosion = new Timeline(
+                    new KeyFrame(Duration.seconds(EXPLOSION_DURATION), e -> grid.getChildren().remove(explosionSprite))
+            );
+            clearExplosion.setCycleCount(1);
+            clearExplosion.play();
+
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement de l'image d'explosion: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Libère la bombe du compteur du joueur qui l'a posée
+     */
+    private void releaseBombFromPlayer() {
         if (playerNumber == 1) {
             player.releaseBombPlayer1();
         } else {
             player.releaseBombPlayer2();
         }
+    }
 
-        int[][] directions = {
-                {0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}
+    /**
+     * Gère tous les effets de l'explosion (destruction et dégâts)
+     */
+    private void handleExplosionEffects(int x, int y) {
+        // Directions d'explosion : centre + croix (haut, bas, gauche, droite)
+        int[][] explosionPattern = {
+                {0, 0},   // Centre
+                {1, 0},   // Droite
+                {-1, 0},  // Gauche
+                {0, 1},   // Bas
+                {0, -1}   // Haut
         };
 
-        for (int[] dir : directions)
-        {
-            int dx = x + dir[0];
-            int dy = y + dir[1];
+        for (int[] direction : explosionPattern) {
+            int explosionX = x + direction[0];
+            int explosionY = y + direction[1];
 
-            if (dx >= 0 && dx < Game.GRID_WIDTH && dy >= 0 && dy < Game.GRID_HEIGHT)
-            {
-                Tile tile = tiles[dy][dx];
-                if (tile != null && tile.isBreakable())
-                {
-                    tile.destroy();
-                }
+            // Vérifier les limites de la grille
+            if (isValidPosition(explosionX, explosionY)) {
+                // Traiter la destruction des tuiles
+                handleTileDestruction(explosionX, explosionY);
 
-                // Vérifie si un joueur est touché
-                if (dx == player.getX1() && dy == player.getY1())
-                {
-                    player.setPv1(0);
-                    player.deathJ1();
-                }
-                else if (dx == player.getX2() && dy == player.getY2())
-                {
-                    player.setPv2(0);
-                    player.deathJ2();
-                }
+                // Traiter les dégâts aux joueurs
+                handlePlayerDamage(explosionX, explosionY);
             }
         }
-        active = false;
+    }
+
+    /**
+     * Vérifie si une position est valide dans la grille
+     */
+    private boolean isValidPosition(int x, int y) {
+        return x >= 0 && x < Game.GRID_WIDTH && y >= 0 && y < Game.GRID_HEIGHT;
+    }
+
+    /**
+     * Gère la destruction des tuiles cassables
+     */
+    private void handleTileDestruction(int x, int y) {
+        Tile tile = tiles[y][x];
+
+        if (tile != null && tile.isBreakable()) {
+            // Détruire la tuile et récupérer un éventuel bonus
+            Bonus bonus = tile.destroy();
+
+            // Ajouter le bonus au jeu s'il existe
+            if (bonus != null && game != null) {
+                game.addBonus(bonus);
+                System.out.println("Bonus " + bonus.getType().getDescription() +
+                        " apparu en position (" + x + ", " + y + ")");
+            }
+        }
+    }
+
+    /**
+     * Gère les dégâts aux joueurs, en tenant compte de l'invincibilité
+     */
+    private void handlePlayerDamage(int x, int y) {
+        // Vérifier le joueur 1
+        if (x == player.getX1() && y == player.getY1()) {
+            if (player.isInvinciblePlayer1()) {
+                System.out.println("Joueur 1 touché par explosion mais INVINCIBLE ! Aucun dégât.");
+            } else {
+                System.out.println("Joueur 1 touché par explosion !");
+                player.setPv1(0);
+                player.deathJ1();
+            }
+        }
+
+        // Vérifier le joueur 2
+        if (x == player.getX2() && y == player.getY2()) {
+            if (player.isInvinciblePlayer2()) {
+                System.out.println("Joueur 2 touché par explosion mais INVINCIBLE ! Aucun dégât.");
+            } else {
+                System.out.println("Joueur 2 touché par explosion !");
+                player.setPv2(0);
+                player.deathJ2();
+            }
+        }
+    }
+
+    /**
+     * Vérifie si la bombe est encore active
+     */
+    public boolean isActive() {
+        return active;
+    }
+
+    /**
+     * Force l'explosion de la bombe (pour les réactions en chaîne)
+     */
+    public void forceExplode(int x, int y) {
+        if (active) {
+            explode(x, y);
+        }
+    }
+
+    /**
+     * Retourne le numéro du joueur qui a posé cette bombe
+     */
+    public int getPlayerNumber() {
+        return playerNumber;
     }
 }
