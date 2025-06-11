@@ -173,9 +173,15 @@ public class Tile {
      * Par défaut, la tuile est de type EMPTY.
      * @param x La coordonnée X de la tuile dans la grille.
      * @param y La coordonnée Y de la tuile dans la grille.
+     * @param grid La référence à la grille JavaFX pour la gestion des bonus.
      */
-    public Tile(int x, int y)
+    public Tile(int x, int y, GridPane grid)
     {
+        // ✅ CORRECTION : Assigner les coordonnées et la grille
+        this.x = x;
+        this.y = y;
+        this.grid = grid;
+
         // Initialise le Rectangle graphique avec la taille de tuile définie dans la classe Game.
         rect = new Rectangle(Game.TILE_SIZE, Game.TILE_SIZE);
         // Définit une bordure grise pour le rectangle.

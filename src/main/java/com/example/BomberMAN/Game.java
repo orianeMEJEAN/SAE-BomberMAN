@@ -98,15 +98,14 @@ public class Game
         Tile.loadAllTextures(); // Charger toutes les textures nécessaires pour les tuiles.
         // Définir le thème pour les tuiles
         Tile.setCurrentTheme(currentTheme);
-        tiles = MapLoader.loadMap("src/main/resources/com/example/BomberMAN/BomberMAN/texture_Maps/map1.map");
+
+        tiles = MapLoader.loadMap("src/main/resources/com/example/BomberMAN/BomberMAN/texture_Maps/map1.map", grid);
 
         // Ajout des tuiles à la grille
         populateGrid();
 
         // Création du joueur avec référence au jeu pour les bonus
         player = new Player(1, 1, 11, 9, grid, tiles, this, currentTheme);
-
-        System.out.println("Composants du jeu initialisés");
     }
 
     /**

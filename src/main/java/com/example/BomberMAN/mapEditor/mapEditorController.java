@@ -57,15 +57,15 @@ public class mapEditorController {
     @FXML
     public void initialize() {
         // Charger les images depuis le répertoire des ressources
-        wallImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/texture_Maps/MAP1/WALL.jpg").toExternalForm());
-        emptyImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/texture_Maps/MAP1/EMPTY.jpg").toExternalForm());
-        breakableWallImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/texture_Maps/MAP1/BREAKABLE.jpg").toExternalForm());
+        wallImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/texture_Maps/Theme_BomberMan/WALL.jpg").toExternalForm());
+        emptyImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/texture_Maps/Theme_BomberMan/EMPTY.jpg").toExternalForm());
+        breakableWallImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/texture_Maps/Theme_BomberMan/BREAKABLE.jpg").toExternalForm());
 
         // Charger les images des personnages
-        player1Image = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player.png").toExternalForm());
-        player2Image = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/Player2-default.png").toExternalForm());
-        player3Image = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J3/p3_default.png").toExternalForm());
-        player4Image = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J4/p4_default.png").toExternalForm());
+        player1Image = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/BomberMan/player.png").toExternalForm());
+        player2Image = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/BomberMan/Player2-default.png").toExternalForm());
+        player3Image = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J3/BomberMan/p3_default.png").toExternalForm());
+        player4Image = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J4/BomberMan/p4_default.png").toExternalForm());
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
