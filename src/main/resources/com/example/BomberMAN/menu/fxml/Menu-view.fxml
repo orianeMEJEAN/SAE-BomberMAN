@@ -120,10 +120,10 @@
             <Label text="Commande : " wrapText="true" style="-fx-text-fill: white;"/>
 
             <Label text="Joueur | Haut | Bas | Droite | Gauche | Bombarder" wrapText="true" style="-fx-text-fill: white;"/>
-            <Label text="   J1    |   z   |     s      |     q      |      d      |  espace" wrapText="true" style="-fx-text-fill: white;"/>
-            <Label text="  J2   |  i   |  k  |   l    |   j    |    !" wrapText="true" style="-fx-text-fill: white;"/>
-            <Label text="  J3   |  ↑   |  ↓  |   →    |   ←    | ctrl-droit" wrapText="true" style="-fx-text-fill: white;"/>
-            <Label text="  J4   |  8   |  5  |   4    |   6    |    +" wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="  J1    |  z   |   s   |   q    |    d    |  espace" wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="  J2   |   i   |   k   |    l     |    j     |    !" wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="  J3   | ↑  |  ↓  |  →   |   ←   | ctrl-droit" wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="  J4   |  8   |   5   |   4    |    6    |    +" wrapText="true" style="-fx-text-fill: white;"/>
 
             <Button text="Retour" styleClass="button" onAction="#handleRetourRules"/>
         </VBox>
