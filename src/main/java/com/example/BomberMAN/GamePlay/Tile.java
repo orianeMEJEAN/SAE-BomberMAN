@@ -5,6 +5,7 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.GridPane;
 
 import java.util.Objects;
 
@@ -29,6 +30,9 @@ public class Tile
     private static ImagePattern EMPTY_TEXTURE;
     private static ImagePattern BREAKABLE_TEXTURE;
     private static ImagePattern WALL_TEXTURE;
+
+    private int x, y; // Position de la tuile
+    private GridPane grid; // Référence à la grille pour les bonus
 
     public static void loadTextures()
     {
@@ -109,15 +113,25 @@ public class Tile
     }
 
     /**
-     * Détruit une tuile cassable, la transforme en tuile vide.
+     * Détruit la tuile et peut faire apparaître un bonus
+     * @return Le bonus créé, ou null si aucun bonus n'apparaît
      */
-    public void destroy()
+    public Bonus destroy()
     {
-        if (breakable)
+        if (breakable && grid != null)
         {
             setType(Type.EMPTY); // Replace by EMPTY tile with texture
+            // Tenter de faire apparaître un bonus
+            return Bonus.trySpawnBonus(x, y, grid);
         }
+        else if (breakable) {
+            setType(Type.EMPTY); // Même sans grille
+        }
+
+        return null;
     }
+
+
 
     public Type getType()
     {

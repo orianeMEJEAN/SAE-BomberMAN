@@ -16,9 +16,8 @@ import java.util.Random;
 public class Bonus {
 
     public enum BonusType {
-        EXTRA_BOMB("Bombe supplémentaire", Color.ORANGE)
-        // On pourra ajouter d'autres types plus tard : SPEED, POWER, etc.
-        ;
+        EXTRA_BOMB("Bombe supplémentaire", Color.ORANGE),
+        INVINCIBILITY("Invincibilité", Color.GOLD);
 
         private final String description;
         private final Color color;
@@ -35,7 +34,8 @@ public class Bonus {
     private BonusType type;
     private int x, y;
     private GridPane grid;
-    private Circle bonusSprite;
+    private ImageView bonusSpriteView;
+
     private static final Random random = new Random();
 
     // Probabilité d'apparition d'un bonus (30%)
@@ -63,9 +63,9 @@ public class Bonus {
             return null; // Pas de bonus cette fois
         }
 
-        // Pour l'instant, seul le bonus EXTRA_BOMB existe
-        // Plus tard on pourra ajouter une sélection aléatoire entre différents types
-        BonusType bonusType = BonusType.EXTRA_BOMB;
+        // Sélection aléatoire du type de bonus
+        BonusType[] availableTypes = BonusType.values();
+        BonusType bonusType = availableTypes[random.nextInt(availableTypes.length)];
 
         return new Bonus(bonusType, x, y, grid);
     }
@@ -74,16 +74,30 @@ public class Bonus {
      * Crée le sprite visuel du bonus
      */
     private void createBonusSprite() {
-        bonusSprite = new Circle(Game.TILE_SIZE / 3);
-        bonusSprite.setFill(type.getColor());
-        bonusSprite.setStroke(Color.WHITE);
-        bonusSprite.setStrokeWidth(2);
+        String imagePath;
+        switch (type) {
+            case EXTRA_BOMB:
+                imagePath = "/com/example/BomberMAN/BomberMAN/Bonus/bomb_buff.png";
+                break;
+            case INVINCIBILITY:
+                imagePath = "/com/example/BomberMAN/BomberMAN/Bonus/invincibility.png";
+                break;
+            default:
+                imagePath = "/com/example/BomberMAN/BomberMAN/Bonus/bomb_buff.png";
+                break;
+        }
 
-        // Centrer le cercle dans la tuile
-        bonusSprite.setTranslateX(Game.TILE_SIZE / 2);
-        bonusSprite.setTranslateY(Game.TILE_SIZE / 2);
+        Image image = new Image(getClass().getResourceAsStream(imagePath));
+        bonusSpriteView = new ImageView(image);
 
-        grid.add(bonusSprite, x, y);
+        bonusSpriteView.setFitWidth(Game.TILE_SIZE / 1.5);
+        bonusSpriteView.setFitHeight(Game.TILE_SIZE / 1.5);
+
+        // Centrer l'image dans la tuile
+        bonusSpriteView.setTranslateX((Game.TILE_SIZE - bonusSpriteView.getFitWidth()) / 1.5);
+        bonusSpriteView.setTranslateY((Game.TILE_SIZE - bonusSpriteView.getFitHeight()) / 1.5);
+
+        grid.add(bonusSpriteView, x, y);
     }
 
     /**
@@ -129,9 +143,15 @@ public class Bonus {
                 }
                 break;
 
-            // Ici on pourra ajouter d'autres types de bonus
-            // case SPEED: ... break;
-            // case POWER: ... break;
+            case INVINCIBILITY:
+                if (playerNumber == 1) {
+                    player.activateInvincibilityPlayer1();
+                    System.out.println("Joueur 1 a ramassé un bonus : " + type.getDescription() + " (5 secondes)");
+                } else {
+                    player.activateInvincibilityPlayer2();
+                    System.out.println("Joueur 2 a ramassé un bonus : " + type.getDescription() + " (5 secondes)");
+                }
+                break;
         }
     }
 
@@ -139,7 +159,9 @@ public class Bonus {
      * Supprime le bonus de la grille
      */
     private void removeFromGrid() {
-        grid.getChildren().remove(bonusSprite);
+        if (bonusSpriteView != null) {
+            grid.getChildren().remove(bonusSpriteView);
+        }
     }
 
     // Getters
