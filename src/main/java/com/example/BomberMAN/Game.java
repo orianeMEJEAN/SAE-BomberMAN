@@ -49,15 +49,18 @@ public class Game
 
     /** Thème actuel pour les tuiles et les joueurs. */
     private String currentTheme = "BomberMan"; // Thème par défaut
+    private String mapName; // Nom de la carte à charger
 
     /**
      * Constructeur de la classe Game.
      *
      * @param isSoloMode True pour lancer une partie en solo, false pour multijoueur.
+     * @param mapName Le nom du fichier de la carte à charger.
      */
-    public Game(boolean isSoloMode)
+    public Game(boolean isSoloMode, String mapName)
     {
         this.isSoloMode = isSoloMode;
+        this.mapName = mapName;
         this.activeBonus = new ArrayList<>();
 
         System.out.println("Nouvelle partie créée - Mode: " + (isSoloMode ? "Solo" : "Multijoueur"));
@@ -90,22 +93,27 @@ public class Game
      */
     private void initializeGame()
     {
-        // Initialisation de la grille
         grid = new GridPane();
         grid.setStyle("-fx-background-color: #2c3e50;");
-
-        // Chargement des textures et de la carte
-        Tile.loadAllTextures(); // Charger toutes les textures nécessaires pour les tuiles.
-        // Définir le thème pour les tuiles
+        Tile.loadAllTextures();
         Tile.setCurrentTheme(currentTheme);
 
-        tiles = MapLoader.loadMap("src/main/resources/com/example/BomberMAN/BomberMAN/texture_Maps/map1.map", grid);
-
-        // Ajout des tuiles à la grille
+        // Tentative de chargement dans texture_Maps, sinon dans niveau
+        String mapPath = null;
+        java.io.File resMap = new java.io.File("src/main/resources/com/example/BomberMAN/BomberMAN/texture_Maps/" + mapName);
+        if (resMap.exists()) {
+            mapPath = resMap.getPath();
+        } else {
+            java.io.File devMap = new java.io.File("niveau/" + mapName);
+            if (devMap.exists()) {
+                mapPath = devMap.getPath();
+            } else {
+                throw new RuntimeException("Carte introuvable : " + mapName);
+            }
+        }
+        this.tiles = com.example.BomberMAN.Maps.MapLoader.loadMap(mapPath, grid);
         populateGrid();
-
-        // Création du joueur avec référence au jeu pour les bonus
-        player = new Player(1, 1, 11, 9, grid, tiles, this, currentTheme);
+        player = new Player(1, 1, 11, 9, grid, tiles, this, currentTheme, mapName);
     }
 
     /**
@@ -349,7 +357,7 @@ public class Game
             stopGameSystems();
 
             // Créer une nouvelle instance
-            Game newGame = new Game(this.isSoloMode);
+            Game newGame = new Game(this.isSoloMode, this.mapName);
             newGame.start(stage);
 
             System.out.println("Jeu redémarré avec succès !");
@@ -402,6 +410,14 @@ public class Game
     public void setCurrentThemes(String themeName)
     {
         this.currentTheme = themeName;
+    }
+
+    /**
+     * Définit le nom de la carte à charger.
+     * @param mapName Le nom du fichier de la carte (doit être un chemin valide).
+     */
+    public void setMapName(String mapName) {
+        this.mapName = mapName;
     }
 
     // === GETTERS ET SETTERS ===
@@ -462,3 +478,4 @@ public class Game
         return INVINCIBILITY_DURATION;
     }
 }
+

@@ -77,6 +77,7 @@ public class Player
 
     // Nouveau champ pour le thème actuel
     private String currentTheme;
+    private String mapName;
     private Game game;
 
     /**
@@ -90,22 +91,17 @@ public class Player
      * @param tiles Carte des tuiles
      * @param game
      */
-    public Player(int x, int y, int x2, int y2, GridPane grid, Tile[][] tiles, Game game, String theme)
+    public Player(int x, int y, int x2, int y2, GridPane grid, Tile[][] tiles, Game game, String theme, String mapName)
     {
         this.x1 = x;
         this.y1 = y;
         this.x2 = x2;
         this.y2 = y2;
-//        this.x3 = x3;
-//        this.y3 = y3;
-//        this.x4 = x4;
-//        this.y4 = y4;
-
         this.grid = grid;
         this.tiles = tiles;
         this.game = game;
         this.currentTheme = theme;
-
+        this.mapName = mapName;
         loadImages();
         createSprites();
     }
@@ -498,7 +494,7 @@ public class Player
             System.out.println("Redémarrage du jeu...");
 
             // Créer une nouvelle instance de Game et la démarrer
-            Game newGame = new Game(true);
+            Game newGame = new Game(true, mapName);
             newGame.setCurrentThemes(currentTheme);
             newGame.start(stage);
 
@@ -564,3 +560,4 @@ public class Player
         }
     }
 }
+

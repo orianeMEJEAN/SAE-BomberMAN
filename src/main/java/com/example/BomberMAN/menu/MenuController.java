@@ -3,6 +3,7 @@ package com.example.BomberMAN.menu;
 import com.example.BomberMAN.Game;
 import com.example.BomberMAN.GamePlay.Tile;
 import com.example.BomberMAN.mapEditor.MapEditor;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -19,6 +20,9 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.media.AudioClip;
 
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,6 +62,13 @@ public class MenuController {
 
     /** Bouton "Edit". */
     @FXML private Button btnEdit;
+
+    /** Boutons de sélection de cartes. */
+    @FXML private Button btnCh;
+
+    /** Liste des noms de cartes disponibles. */
+    private List<String> availableMaps;
+    private int currentMapIndex = 0;
 
     /** Bouton "Retour". */
     @FXML private Button btnR;
@@ -136,6 +147,9 @@ public class MenuController {
     /** Pane des crédits. */
     @FXML private StackPane creditsPane;
 
+    /** Indique la carte sélectonnée pour le jeu. */
+    private String selectedMap;
+
     /** Indique si le popup des règles est affiché. */
     private boolean rulesShown = false;
 
@@ -198,7 +212,7 @@ public class MenuController {
 
         // Initialisation des listes de boutons
         menuButtons = List.of(btnNP, btnSKIN, btnRules, btnCredits, btnOp, btnQ);
-        modeButtons = List.of(btnSolo, btnMulti, btnEdit, btnR);
+        modeButtons = List.of(btnSolo, btnMulti, btnEdit, btnCh, btnR);
 
         // Configuration des actions pour les boutons de sélection de mode
         btnSolo.setOnAction(e -> startGame(true));
@@ -213,6 +227,10 @@ public class MenuController {
 
         // Initialisation de la liste des boutons de thème
         themeButtons = List.of(btnThemeBomberMan, btnThemeManoir, btnThemeRetour);
+
+        availableMaps = loadAvailableMaps(); // À implémenter selon où sont stockées tes maps
+        currentMapIndex = 0;
+        updateMapLabel();
 
         // Charger toutes les textures au démarrage
         Tile.loadAllTextures();
@@ -327,6 +345,25 @@ public class MenuController {
                     selectedIndex = (selectedIndex + 1) % themeButtons.size();
                     sfxMove.play(); // Jouer l'effet sonore de déplacement
                     updateFocus(themeButtons); // Mettre à jour le focus
+                }
+                break;
+
+            case LEFT:
+                if (modeShown && modePane.isVisible()) {
+                    currentMapIndex = (currentMapIndex - 1 + availableMaps.size()) % availableMaps.size();
+                    updateMapLabel();
+                    selectedMap = availableMaps.get(currentMapIndex);
+                    sfxMove.play();
+                    event.consume();
+                }
+                break;
+            case RIGHT:
+                if (modeShown && modePane.isVisible()) {
+                    currentMapIndex = (currentMapIndex + 1) % availableMaps.size();
+                    updateMapLabel();
+                    selectedMap = availableMaps.get(currentMapIndex);
+                    sfxMove.play();
+                    event.consume();
                 }
                 break;
 
@@ -495,6 +532,45 @@ public class MenuController {
         ParallelTransition pt = new ParallelTransition(tt, ft);
         pt.setOnFinished(e -> rulesPane.setVisible(false));
         pt.play();
+    }
+
+    private List<String> loadAvailableMaps() {
+        List<String> maps = new ArrayList<>();
+
+        // 1. Maps dans le dossier niveau/ (développement)
+        File niveauDir = new File("niveau/");
+        if (niveauDir.exists() && niveauDir.isDirectory()) {
+            File[] files = niveauDir.listFiles((d, name) -> name.endsWith(".map"));
+            if (files != null) {
+                for (File file : files) {
+                    maps.add(file.getName());
+                }
+            }
+        }
+
+        // 2. Maps dans les ressources (texture_Maps)
+        try {
+            File nDir = new File("src/main/resources/com/example/BomberMAN/BomberMAN/texture_Maps/");
+            if (nDir.exists() && nDir.isDirectory()) {
+                File[] files = nDir.listFiles((d, name) -> name.endsWith(".map"));
+                if (files != null) {
+                    for (File file : files) {
+                        maps.add(file.getName());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return maps;
+    }
+
+    /**
+     * Charge la liste des cartes disponibles.
+     */
+    private void updateMapLabel() {
+        btnCh.setText(availableMaps.get(currentMapIndex));
     }
 
     /**
@@ -695,12 +771,12 @@ public class MenuController {
         Button selected = modeButtons.get(selectedIndex); // Obtenir le bouton sélectionné
         if (selected.getText().equals("Solo")) {
             startGame(true); // Lancer le jeu en mode solo
+        } else if (selected.getText().equals("Multi")) {
+            startGame(false); // Lancer le jeu en mode multijoueur
         } else if (selected.getText().equals("Editeur de carte")) {
             startMapEditor(); // Lancer l'éditeur de carte
         } else if (selected.getText().equals("Retour")) {
             handleRetour(); // Gérer le retour au menu principal
-        } else {
-            startGame(false); // Lancer le jeu en mode multijoueur
         }
     }
 
@@ -711,7 +787,7 @@ public class MenuController {
      */
     private void startGame(boolean isSolo) {
         mediaPlayer.stop(); // Arrêter la musique de fond
-        Game game = new Game(isSolo); // Créer une nouvelle instance du jeu
+        Game game = new Game(isSolo, selectedMap); // Créer une nouvelle instance du jeu
         // Passer le thème au jeu
         game.setCurrentThemes(currentTheme);
         game.start(primaryStage); // Démarrer le jeu sur la fenêtre principale

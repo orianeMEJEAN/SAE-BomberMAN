@@ -68,11 +68,8 @@
             <Button fx:id="btnSolo" text="Solo" styleClass="button"/>
             <Button fx:id="btnMulti" text="Multijoueur" styleClass="button"/>
             <Button fx:id="btnEdit" text="Editeur de carte" styleClass="button" />
-
-            <!-- Ajoute cette ComboBox ici -->
             <Label text="Choisissez une carte :" style="-fx-text-fill: white;"/>
-            <ComboBox fx:id="mapChoiceBox" prefWidth="300"/>
-
+            <Button fx:id="btnCh" text="Aucune carte" styleClass="button"/>
             <Button fx:id="btnR" text="Retour" styleClass="button"/>
         </VBox>
     </StackPane>

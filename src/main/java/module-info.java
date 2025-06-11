@@ -6,6 +6,7 @@ module com.example.BomberMAN {
     requires com.dlsc.formsfx;
     requires com.almasb.fxgl.all;
     requires javafx.media;
+    requires com.fasterxml.jackson.databind;
 
     opens com.example.BomberMAN to javafx.fxml;
     exports com.example.BomberMAN;
