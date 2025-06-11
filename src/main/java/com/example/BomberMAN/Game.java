@@ -4,7 +4,6 @@ import com.example.BomberMAN.GamePlay.Bot;
 import com.example.BomberMAN.GamePlay.Player;
 import com.example.BomberMAN.GamePlay.Tile;
 import com.example.BomberMAN.GamePlay.Bonus;
-import com.example.BomberMAN.Maps.MapLoader;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.Scene;
@@ -34,17 +33,17 @@ public class Game
 
     // === COMPOSANTS PRINCIPAUX ===
     private GridPane grid;                  /**< Conteneur JavaFX représentant la grille de jeu. */
-private Tile[][] tiles;                 /**< Tableau des tuiles du plateau. */
-private Player player;                  /**< Joueur principal. */
-private boolean isSoloMode;             /**< Mode solo activé ou non. */
-private Bot bot;                        /**< Bot contrôlé par l'IA en mode solo. */
+    private Tile[][] tiles;                 /**< Tableau des tuiles du plateau. */
+    private Player player;                  /**< Joueur principal. */
+    private boolean isSoloMode;             /**< Mode solo activé ou non. */
+    private Bot bot;                        /**< Bot contrôlé par l'IA en mode solo. */
 
-// === GESTION DES BONUS ===
-private List<Bonus> activeBonus;        /**< Liste des bonus actifs sur la carte. */
-private Timeline bonusCheckTimer;       /**< Timer pour vérifier la collecte des bonus. */
+    // === GESTION DES BONUS ===
+    private List<Bonus> activeBonus;        /**< Liste des bonus actifs sur la carte. */
+    private Timeline bonusCheckTimer;       /**< Timer pour vérifier la collecte des bonus. */
 
-// === CONSTANTES DE CONFIGURATION ===
-private static final double BONUS_CHECK_INTERVAL = 100.0; // millisecondes
+    // === CONSTANTES DE CONFIGURATION ===
+    private static final double BONUS_CHECK_INTERVAL = 100.0; // millisecondes
     private static final double INVINCIBILITY_DURATION = 5.0; // secondes
     private static final int SCENE_WIDTH = 536;
     private static final int SCENE_HEIGHT = 454;
@@ -519,71 +518,4 @@ private static final double BONUS_CHECK_INTERVAL = 100.0; // millisecondes
     {
         this.currentTheme = themeName;
     }
-
-    /**
-     * Définit le nom de la carte à charger.
-     * @param mapName Le nom du fichier de la carte (doit être un chemin valide).
-     */
-    public void setMapName(String mapName) {
-        this.mapName = mapName;
-    }
-
-    // === GETTERS ET SETTERS ===
-
-    /**
-     * Retourne la grille de jeu
-     */
-    public GridPane getGrid() {
-        return grid;
-    }
-
-    /**
-     * Retourne le tableau des tuiles
-     */
-    public Tile[][] getTiles() {
-        return tiles;
-    }
-
-    /**
-     * Retourne le joueur principal
-     */
-    public Player getPlayer() {
-        return player;
-    }
-
-    /**
-     * Retourne si le jeu est en mode solo
-     */
-    public boolean isSoloMode() {
-        return isSoloMode;
-    }
-
-    /**
-     * Retourne le bot (peut être null si pas en mode solo)
-     */
-    public Bot getBot() {
-        return bot;
-    }
-
-    /**
-     * Retourne la liste des bonus actifs (en lecture seule)
-     */
-    public List<Bonus> getActiveBonus() {
-        return new ArrayList<>(activeBonus);
-    }
-
-    /**
-     * Retourne le nombre de bonus actifs
-     */
-    public int getActiveBonusCount() {
-        return activeBonus.size();
-    }
-
-    /**
-     * Retourne la durée d'invincibilité configurée
-     */
-    public static double getInvincibilityDuration() {
-        return INVINCIBILITY_DURATION;
-    }
 }
-

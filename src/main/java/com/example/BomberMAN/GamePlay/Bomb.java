@@ -22,7 +22,6 @@ public class Bomb {
     private Game game; // Référence au jeu pour ajouter les bonus
 
     // Constantes d'explosion
-    private static final int EXPLOSION_RADIUS = 1; // Rayon d'explosion (croix de 3x3)
     private static final double EXPLOSION_DURATION = 0.5; // Durée d'affichage de l'explosion
     private static final double BOMB_TIMER = 2.0; // Temps avant explosion
 
@@ -44,13 +43,6 @@ public class Bomb {
         Timeline explosionDelay = new Timeline(new KeyFrame(Duration.seconds(2), ev -> explode(x, y)));
         explosionDelay.setCycleCount(1);
         explosionDelay.play();
-    }
-
-    /**
-     * Constructeur de compatibilité (sans game)
-     */
-    public Bomb(int x, int y, GridPane grid, Tile[][] tiles, Player player) {
-        this(x, y, grid, tiles, player, null);
     }
 
     /**

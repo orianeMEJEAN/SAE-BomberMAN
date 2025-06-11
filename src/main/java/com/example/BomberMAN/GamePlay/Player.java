@@ -82,8 +82,6 @@ public class Player
     private Timeline invincibilityTimerPlayer2;
     private boolean isInvinciblePlayer3 = false;
     private boolean isInvinciblePlayer4 = false;
-    private Timeline invincibilityTimerPlayer3;
-    private Timeline invincibilityTimerPlayer4;
 
     // Nouveau champ pour le thème actuel
     private String currentTheme;
@@ -500,8 +498,8 @@ public class Player
 
             grid.getChildren().remove(sprite4);
             grid.add(sprite4, x4, y4);
-            sprite4.setVisible(true); // Ensure sprite4 visibility is managed
-            unlockMovement4(); // Unlock movement for player 4
+            sprite4.setVisible(true);
+            unlockMovement4();
         }));
         waitGIF.setCycleCount(1);
         waitGIF.play();
@@ -569,22 +567,6 @@ public class Player
     }
 
     /**
-     * Augmente la limite de bombes du joueur 3
-     */
-    public void increaseBombLimitPlayer3()
-    {
-        maxBombsPlayer3++;
-    }
-
-    /**
-     * Augmente la limite de bombes du joueur 4
-     */
-    public void increaseBombLimitPlayer4()
-    {
-        maxBombsPlayer4++;
-    }
-
-    /**
      * Active l'invincibilité pour le joueur 1 pendant 5 secondes
      */
     public void activateInvincibilityPlayer1()
@@ -642,66 +624,6 @@ public class Player
         }));
         invincibilityTimerPlayer2.setCycleCount(1);
         invincibilityTimerPlayer2.play();
-    }
-
-    /**
-     * Active l'invincibilité pour le joueur 3 pendant 5 secondes
-     */
-    public void activateInvincibilityPlayer3()
-    {
-        // Si déjà invincible, arrêter le timer précédent
-        if (invincibilityTimerPlayer3 != null) {
-            invincibilityTimerPlayer3.stop();
-        }
-
-        isInvinciblePlayer3 = true;
-
-        // Effet visuel : faire clignoter le sprite
-        Timeline blinkTimer = new Timeline(
-                new KeyFrame(Duration.millis(200), e -> sprite3.setOpacity(0.3)),
-                new KeyFrame(Duration.millis(400), e -> sprite3.setOpacity(1.0))
-        );
-        blinkTimer.setCycleCount(25); // 5 secondes de clignotement
-        blinkTimer.play();
-
-        // Timer pour désactiver l'invincibilité après 5 secondes
-        invincibilityTimerPlayer3 = new Timeline(new KeyFrame(Duration.seconds(5), e -> {
-            isInvinciblePlayer3 = false;
-            sprite3.setOpacity(1.0); // S'assurer que l'opacité est normale
-            System.out.println("Joueur 3 n'est plus invincible");
-        }));
-        invincibilityTimerPlayer3.setCycleCount(1);
-        invincibilityTimerPlayer3.play();
-    }
-
-    /**
-     * Active l'invincibilité pour le joueur 4 pendant 5 secondes
-     */
-    public void activateInvincibilityPlayer4()
-    {
-        // Si déjà invincible, arrêter le timer précédent
-        if (invincibilityTimerPlayer4 != null) {
-            invincibilityTimerPlayer4.stop();
-        }
-
-        isInvinciblePlayer4 = true;
-
-        // Effet visuel : faire clignoter le sprite
-        Timeline blinkTimer = new Timeline(
-                new KeyFrame(Duration.millis(200), e -> sprite4.setOpacity(0.3)),
-                new KeyFrame(Duration.millis(400), e -> sprite4.setOpacity(1.0))
-        );
-        blinkTimer.setCycleCount(25); // 5 secondes de clignotement
-        blinkTimer.play();
-
-        // Timer pour désactiver l'invincibilité après 5 secondes
-        invincibilityTimerPlayer4 = new Timeline(new KeyFrame(Duration.seconds(5), e -> {
-            isInvinciblePlayer4 = false;
-            sprite4.setOpacity(1.0); // S'assurer que l'opacité est normale
-            System.out.println("Joueur 4 n'est plus invincible");
-        }));
-        invincibilityTimerPlayer4.setCycleCount(1);
-        invincibilityTimerPlayer4.play();
     }
 
     /**
@@ -919,37 +841,23 @@ public class Player
     public int getX3() { return x3; }
     public int getY3() { return y3; }
     public int getX4() { return x4; }
-    public int getY4() { return y4; } // Corrected: Added return for getY4()
+    public int getY4() { return y4; }
 
-    public int getCurrentBombsPlayer1() { return currentBombsPlayer1; }
-    public int getCurrentBombsPlayer2() { return currentBombsPlayer2; }
     public int getMaxBombsPlayer1() { return maxBombsPlayer1; }
     public int getMaxBombsPlayer2() { return maxBombsPlayer2; }
-    public boolean canPlaceBombPlayer1() { return currentBombsPlayer1 < maxBombsPlayer1; }
-    public boolean canPlaceBombPlayer2() { return currentBombsPlayer2 < maxBombsPlayer2; }
-
-    public int getCurrentBombsPlayer3() { return currentBombsPlayer3; }
-    public int getCurrentBombsPlayer4() { return currentBombsPlayer4; }
-    public int getMaxBombsPlayer3() { return maxBombsPlayer3; }
-    public int getMaxBombsPlayer4() { return maxBombsPlayer4; }
-    public boolean canPlaceBombPlayer3() { return currentBombsPlayer3 < maxBombsPlayer3; }
-    public boolean canPlaceBombPlayer4() { return currentBombsPlayer4 < maxBombsPlayer4; }
-
-
-    public int getPv1() { return pv1; }
-    public int getPv2() { return pv2; }
-    public void setPv1(int pv) { this.pv1 = pv; }
-    public void setPv2(int pv) { this.pv2 = pv; }
-    public int getPv3() { return pv3; }
-    public int getPv4() { return pv4; }
-    public void setPv3(int pv) { this.pv3 = pv; }
-    public void setPv4(int pv) { this.pv4 = pv; }
 
     // Getters pour l'invincibilité
     public boolean isInvinciblePlayer1() { return isInvinciblePlayer1; }
     public boolean isInvinciblePlayer2() { return isInvinciblePlayer2; }
     public boolean isInvinciblePlayer3() { return isInvinciblePlayer3; }
     public boolean isInvinciblePlayer4() { return isInvinciblePlayer4; }
+
+    public int getPv1() { return pv1; }
+    public int getPv2() { return pv2; }
+    public void setPv1(int pv) { this.pv1 = pv; }
+    public void setPv2(int pv) { this.pv2 = pv; }
+    public void setPv3(int pv) { this.pv3 = pv; }
+    public void setPv4(int pv) { this.pv4 = pv; }
 
     public boolean isObstacle(int x, int y)
     {

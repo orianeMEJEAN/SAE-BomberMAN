@@ -37,16 +37,6 @@ public class Tile {
     private int x, y;             /**< Position de la tuile sur la grille */
     private GridPane grid;        /**< Référence à la grille pour la gestion des bonus */
 
-    // Textures statiques (chargées une seule fois)
-    private static ImagePattern EMPTY_TEXTURE;
-    private static ImagePattern BREAKABLE_TEXTURE;
-    private static ImagePattern WALL_TEXTURE;
-    private static boolean texturesLoaded = false;
-
-    // Constantes pour l'affichage
-    private static final Color STROKE_COLOR = Color.GRAY;
-    private static final double STROKE_WIDTH = 0.5;
-
     // === STATIC TEXTURES BY THEME ===
     /**
      * Carte statique stockant les textures (ImagePattern) pour chaque type de tuile,
@@ -150,24 +140,6 @@ public class Tile {
     }
 
     /**
-     * Charge toutes les textures nécessaires pour les tuiles.
-     * Cette méthode doit être appelée avant de créer des tuiles.
-     * */
-    public static void loadTextures() {
-        if (texturesLoaded) return; // Éviter de recharger les textures
-
-        try {
-            EMPTY_TEXTURE = new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/MAP1/EMPTY.jpg"));
-            BREAKABLE_TEXTURE = new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/MAP1/BREAKABLE.jpg"));
-            WALL_TEXTURE = new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/MAP1/WALL.jpg"));
-            texturesLoaded = true;
-            System.out.println("Textures des tuiles chargées avec succès");
-        } catch (Exception e) {
-            System.err.println("Erreur lors du chargement des textures: " + e.getMessage());
-        }
-    }
-
-    /**
      * Constructeur de la classe Tile.
      * Crée une nouvelle tuile à la position spécifiée et initialise sa représentation graphique.
      * Par défaut, la tuile est de type EMPTY.
@@ -177,7 +149,7 @@ public class Tile {
      */
     public Tile(int x, int y, GridPane grid)
     {
-        // ✅ CORRECTION : Assigner les coordonnées et la grille
+        // Assigner les coordonnées et la grille
         this.x = x;
         this.y = y;
         this.grid = grid;
@@ -308,34 +280,7 @@ public class Tile {
         return bonus;
     }
 
-    /**
-     * Réinitialise la tuile à son état cassable (pour redémarrage de partie)
-     */
-    public void reset() {
-        destroyed = false;
-        setType(Type.BREAKABLE); // Ou le type souhaité
-    }
-
-    /**
-     * Vérifie si cette tuile bloque le mouvement des joueurs
-     *
-     * @return true si la tuile bloque le mouvement
-     */
-    public boolean blocksMovement() {
-        return !walkable;
-    }
-
-    /**
-     * Vérifie si cette tuile peut être affectée par une explosion
-     *
-     * @return true si l'explosion peut affecter cette tuile
-     */
-    public boolean canBeAffectedByExplosion() {
-        return breakable && !destroyed;
-    }
-
     // === GETTERS ===
-
     /**
      * Retourne le type de la tuile
      *
@@ -343,15 +288,6 @@ public class Tile {
      */
     public Type getType() {
         return type;
-    }
-
-    /**
-     * Retourne la position X de la tuile
-     *
-     * @return Position X
-     */
-    public int getX() {
-        return x;
     }
 
     /**
@@ -363,17 +299,7 @@ public class Tile {
         return y;
     }
 
-    /**
-     * Retourne la référence à la grille
-     *
-     * @return La grille JavaFX
-     */
-    public GridPane getGrid() {
-        return grid;
-    }
-
     // === MÉTHODES DE DEBUG ===
-
     /**
      * Retourne une représentation textuelle de la tuile
      *
@@ -389,14 +315,5 @@ public class Tile {
                 ", walkable=" + walkable +
                 ", destroyed=" + destroyed +
                 '}';
-    }
-
-    /**
-     * Vérifie si les textures sont chargées
-     *
-     * @return true si les textures sont chargées
-     */
-    public static boolean areTexturesLoaded() {
-        return texturesLoaded;
     }
 }

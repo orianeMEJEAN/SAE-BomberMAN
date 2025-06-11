@@ -26,7 +26,6 @@ public class Bonus {
         }
 
         public String getDescription() { return description; }
-        public Color getColor() { return color; }
     }
 
     private BonusType type;
