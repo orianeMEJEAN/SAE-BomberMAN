@@ -1,6 +1,8 @@
 package com.example.BomberMAN.mapEditor;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
@@ -293,9 +295,21 @@ public class mapEditorController {
 
     @FXML
     public void handleReturn() {
-        // Fermer la fenêtre de création de map
-        Stage stage = (Stage) mapGrid.getScene().getWindow();
-        stage.close();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/BomberMAN/menu/fxml/Menu-view.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) mapGrid.getScene().getWindow();
+            Scene scene = new Scene(root, 800, 800);
+            stage.setScene(scene);
+            stage.setTitle("Bomberman - Menu");
+            stage.setResizable(false);
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible de charger le menu.");
+        }
     }
 
     @FXML
