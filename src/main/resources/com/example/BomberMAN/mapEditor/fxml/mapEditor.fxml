@@ -14,15 +14,36 @@
     <top>
         <ToolBar>
             <Button text="Enregistrer" onAction="#handleSave"/>
-            <Button text="Charger" onAction="#handleLoad"/>
+            <Button fx:id="btnDelete" text="Supprimer" onAction="#handleDeleteMap" />
             <Button text="Retour" onAction="#handleReturn"/>
         </ToolBar>
     </top>
 
     <center>
-        <GridPane fx:id="mapGrid" hgap="2" vgap="2" alignment="CENTER">
+        <GridPane fx:id="mapGrid" hgap="2" vgap="2" alignment="CENTER"
+                  maxWidth="520" maxHeight="440" minWidth="520" minHeight="440">
             <!-- Les cellules de la map seront ajoutées dynamiquement -->
         </GridPane>
     </center>
+
+    <right>
+        <VBox alignment="TOP_CENTER" spacing="10" style="-fx-background-color: #f0f0f0; -fx-padding: 10;">
+            <Label text="Types de cellules" style="-fx-font-weight: bold;"/>
+            <Button text="Mur Incassable" onAction="#handleWallSelection" style="-fx-background-color: black; -fx-text-fill: white;"/>
+            <Button text="Espace Vide" onAction="#handleEmptySelection" style="-fx-background-color: white;"/>
+            <Button text="Mur Cassable" onAction="#handleBreakableWallSelection" style="-fx-background-color: gray;"/>
+        </VBox>
+    </right>
+
+    <left>
+        <VBox alignment="TOP_CENTER" spacing="10" style="-fx-background-color: #f9f9f9; -fx-padding: 10;">
+            <Label text="Carte" style="-fx-font-weight: bold;"/>
+            <TextField fx:id="descriptionField" promptText="Entrez le titre..."/>
+
+            <!-- Ajout de la liste des fichiers -->
+            <Label text="Cartes sauvegardées" style="-fx-font-weight: bold; -fx-padding: 10 0 0 0;"/>
+            <ListView fx:id="mapsListView" prefHeight="200" prefWidth="180"/>
+        </VBox>
+    </left>
 
 </BorderPane>
