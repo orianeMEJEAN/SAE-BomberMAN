@@ -104,7 +104,7 @@ private static final double BONUS_CHECK_INTERVAL = 100.0; // millisecondes
         populateGrid();
 
         // Création du joueur avec référence au jeu pour les bonus
-        player = new Player(1, 1, 11, 9, 9, 1,1, 11, grid, tiles, this, currentTheme);
+        player = new Player(1, 1, 11, 9, 11, 1,1, 9, grid, tiles, this, currentTheme);
 
         System.out.println("Composants du jeu initialisés");
     }
