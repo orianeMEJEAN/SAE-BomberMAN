@@ -5,31 +5,47 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.GridPane;
 
+import java.util.Objects;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
- * La classe Tile représente une seule tuile sur le plateau de jeu BomberMan.
- * Elle gère le type de tuile (vide, cassable, mur), son apparence graphique et ses propriétés de jeu.
+ * Représente une tuile du jeu avec gestion complète des bonus d'invincibilité.
+ * Gère l'affichage, la destruction et l'apparition de bonus.
  */
-public class Tile
-{
+public class Tile {
+
     /**
      * Énumération représentant les types de tuiles.
      */
-    public enum Type
-    {
+    public enum Type {
         EMPTY,      /**< Tuile vide, traversable */
         BREAKABLE,  /**< Tuile cassable, traversable si cassée */
         WALL        /**< Mur, non cassable et non traversable */
     }
 
-    private Rectangle rect;    /**< Représentation graphique de la tuile */
-    private Type type;         /**< Type de la tuile */
-    private boolean breakable; /**< Indique si la tuile est cassable */
-    private boolean walkable;  /**< Indique si la tuile est traversable */
+    // Composants de la tuile
+    private Rectangle rect;        /**< Représentation graphique de la tuile */
+    private Type type;            /**< Type de la tuile */
+    private boolean breakable;    /**< Indique si la tuile est cassable */
+    private boolean walkable;     /**< Indique si la tuile est traversable */
+    private boolean destroyed;    /**< Indique si la tuile a été détruite */
+
+    // Position et grille
+    private int x, y;             /**< Position de la tuile sur la grille */
+    private GridPane grid;        /**< Référence à la grille pour la gestion des bonus */
+
+    // Textures statiques (chargées une seule fois)
+    private static ImagePattern EMPTY_TEXTURE;
+    private static ImagePattern BREAKABLE_TEXTURE;
+    private static ImagePattern WALL_TEXTURE;
+    private static boolean texturesLoaded = false;
+
+    // Constantes pour l'affichage
+    private static final Color STROKE_COLOR = Color.GRAY;
+    private static final double STROKE_WIDTH = 0.5;
 
     // === STATIC TEXTURES BY THEME ===
     /**
@@ -133,6 +149,24 @@ public class Tile
     }
 
     /**
+     * Charge toutes les textures nécessaires pour les tuiles.
+     * Cette méthode doit être appelée avant de créer des tuiles.
+     * */
+    public static void loadTextures() {
+        if (texturesLoaded) return; // Éviter de recharger les textures
+
+        try {
+            EMPTY_TEXTURE = new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/MAP1/EMPTY.jpg"));
+            BREAKABLE_TEXTURE = new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/MAP1/BREAKABLE.jpg"));
+            WALL_TEXTURE = new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/MAP1/WALL.jpg"));
+            texturesLoaded = true;
+            System.out.println("Textures des tuiles chargées avec succès");
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement des textures: " + e.getMessage());
+        }
+    }
+
+    /**
      * Constructeur de la classe Tile.
      * Crée une nouvelle tuile à la position spécifiée et initialise sa représentation graphique.
      * Par défaut, la tuile est de type EMPTY.
@@ -150,22 +184,21 @@ public class Tile
     }
 
     /**
-     * Retourne la représentation graphique (Rectangle JavaFX) de cette tuile.
-     * Ce rectangle est utilisé pour l'affichage sur la scène JavaFX.
-     * @return Le Rectangle JavaFX associé à cette tuile.
+     * Retourne le rectangle associé à la tuile (utilisé pour l'affichage).
+     *
+     * @return Le rectangle JavaFX représentant cette tuile
      */
-    public Rectangle getRectangle()
-    {
+    public Rectangle getRectangle() {
         return rect;
     }
 
     /**
-     * Définit le type de la tuile et met à jour son apparence graphique ainsi que ses propriétés
-     * (cassable, traversable) en conséquence.
-     * @param type Le nouveau type à appliquer à la tuile (EMPTY, BREAKABLE, WALL).
+     * Définit le type de la tuile et met à jour son apparence et ses propriétés.
+     * Gère aussi la logique de bonus d'invincibilité.
+     *
+     * @param type Le type à appliquer à la tuile
      */
-    public void setType(Type type)
-    {
+    public void setType(Type type) {
         this.type = type;
         updateAppearance(); // Met à jour la texture ou la couleur de la tuile.
         updateProperties(); // Met à jour les drapeaux 'breakable' et 'walkable'.
@@ -215,52 +248,148 @@ public class Tile
         }
     }
 
+
     /**
-     * Force la mise à jour de l'apparence de cette tuile.
-     * Cette méthode est utile lorsque le thème global du jeu change et que toutes les tuiles
-     * doivent refléter la nouvelle esthétique sans changer leur type.
+     * Vérifie si la tuile est cassable.
+     *
+     * @return true si cassable, false sinon
      */
-    public void refreshAppearance()
-    {
-        updateAppearance();
+    public boolean isBreakable() {
+        return breakable && !destroyed;
     }
 
     /**
-     * Vérifie si la tuile est de type cassable et peut être détruite.
-     * @return true si la tuile est cassable, false sinon.
+     * Vérifie si la tuile est traversable.
+     *
+     * @return true si traversable, false sinon
      */
-    public boolean isBreakable()
-    {
-        return breakable;
-    }
-
-    /**
-     * Vérifie si la tuile est traversable par les joueurs ou d'autres entités.
-     * @return true si la tuile est traversable, false sinon.
-     */
-    public boolean isWalkable()
-    {
+    public boolean isWalkable() {
         return walkable;
     }
 
     /**
-     * Détruit la tuile si elle est de type cassable.
-     * Si la tuile est cassable, son type est changé en EMPTY (vide) et son apparence est mise à jour.
+     * Détruit la tuile et peut faire apparaître un bonus d'invincibilité ou autre.
+     * Cette méthode est appelée par les bombes lors de leur explosion.
+     *
+     * @return Le bonus créé (peut être null si aucun bonus n'apparaît)
      */
-    public void destroy()
-    {
-        if (breakable) // Vérifie si la tuile est actuellement cassable.
-        {
-            setType(Type.EMPTY); // Change le type de la tuile en EMPTY.
+    public Bonus destroy() {
+        // Vérifier si la tuile peut être détruite
+        if (!isBreakable()) {
+            return null;
         }
+
+        // Marquer la tuile comme détruite
+        destroyed = true;
+
+        // Transformer en tuile vide
+        setType(Type.EMPTY);
+
+        // Logging pour debug
+        System.out.println("Tuile cassable détruite en position (" + x + ", " + y + ")");
+
+        // Tenter de faire apparaître un bonus
+        Bonus bonus = null;
+        if (grid != null) {
+            bonus = Bonus.trySpawnBonus(x, y, grid);
+            if (bonus != null) {
+                System.out.println("Bonus " + bonus.getType().getDescription() +
+                        " généré en position (" + x + ", " + y + ")");
+            }
+        }
+
+        return bonus;
     }
 
     /**
-     * Récupère le type actuel de la tuile (WALL, BREAKABLE ou EMPTY).
-     * @return Le type de la tuile.
+     * Réinitialise la tuile à son état cassable (pour redémarrage de partie)
      */
-    public Type getType()
-    {
+    public void reset() {
+        destroyed = false;
+        setType(Type.BREAKABLE); // Ou le type souhaité
+    }
+
+    /**
+     * Vérifie si cette tuile bloque le mouvement des joueurs
+     *
+     * @return true si la tuile bloque le mouvement
+     */
+    public boolean blocksMovement() {
+        return !walkable;
+    }
+
+    /**
+     * Vérifie si cette tuile peut être affectée par une explosion
+     *
+     * @return true si l'explosion peut affecter cette tuile
+     */
+    public boolean canBeAffectedByExplosion() {
+        return breakable && !destroyed;
+    }
+
+    // === GETTERS ===
+
+    /**
+     * Retourne le type de la tuile
+     *
+     * @return Le type de la tuile
+     */
+    public Type getType() {
         return type;
+    }
+
+    /**
+     * Retourne la position X de la tuile
+     *
+     * @return Position X
+     */
+    public int getX() {
+        return x;
+    }
+
+    /**
+     * Retourne la position Y de la tuile
+     *
+     * @return Position Y
+     */
+    public int getY() {
+        return y;
+    }
+
+    /**
+     * Retourne la référence à la grille
+     *
+     * @return La grille JavaFX
+     */
+    public GridPane getGrid() {
+        return grid;
+    }
+
+    // === MÉTHODES DE DEBUG ===
+
+    /**
+     * Retourne une représentation textuelle de la tuile
+     *
+     * @return String décrivant la tuile
+     */
+    @Override
+    public String toString() {
+        return "Tile{" +
+                "type=" + type +
+                ", x=" + x +
+                ", y=" + y +
+                ", breakable=" + breakable +
+                ", walkable=" + walkable +
+                ", destroyed=" + destroyed +
+                '}';
+    }
+
+    /**
+     * Vérifie si les textures sont chargées
+     *
+     * @return true si les textures sont chargées
+     */
+    public static boolean areTexturesLoaded() {
+        return texturesLoaded;
     }
 }

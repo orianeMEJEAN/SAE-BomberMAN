@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.geometry.Pos;
 
+
 /**
  * Classe représentant les deux joueurs du jeu BomberMAN.
  * Gère le déplacement, la pose de bombes, la gestion des vies, et l'affichage de l'écran de fin.
@@ -30,7 +31,7 @@ public class Player
 
     // Points de vie des joueurs
     private int pv1 = 2, pv2 = 2;
-//    private int pv3 = 2, pv4 = 2;
+//  private int pv3 = 2, pv4 = 2;
 
     // Sprites des joueurs
     private ImageView sprite, sprite2;
@@ -58,23 +59,38 @@ public class Player
 //    private boolean canMove3 = true;
 //    private boolean canMove4 = true;
 
-    private boolean bombCooldown = false;
+    private boolean bombCooldownPlayer1 = false;
+    private boolean bombCooldownPlayer2 = false;
     private boolean isMoving = true;
+
+    // Contrôle des bombes - Système de bombes multiples
+    private int currentBombsPlayer1 = 0;
+    private int currentBombsPlayer2 = 0;
+    private int maxBombsPlayer1 = 1;
+    private int maxBombsPlayer2 = 1;
+
+    // Système d'invincibilité
+    private boolean isInvinciblePlayer1 = false;
+    private boolean isInvinciblePlayer2 = false;
+    private Timeline invincibilityTimerPlayer1;
+    private Timeline invincibilityTimerPlayer2;
 
     // Nouveau champ pour le thème actuel
     private String currentTheme;
+    private Game game;
 
     /**
      * Constructeur du joueur.
-     * @param x Position X initiale du joueur 1
-     * @param y Position Y initiale du joueur 1
-     * @param x2 Position X initiale du joueur 2
-     * @param y2 Position Y initiale du joueur 2
-     * @param grid Grille de jeu
+     *
+     * @param x     Position X initiale du joueur 1
+     * @param y     Position Y initiale du joueur 1
+     * @param x2    Position X initiale du joueur 2
+     * @param y2    Position Y initiale du joueur 2
+     * @param grid  Grille de jeu
      * @param tiles Carte des tuiles
-     * @param theme Le thème actuel pour les sprites des joueurs
+     * @param game
      */
-    public Player(int x, int y, int x2, int y2, GridPane grid, Tile[][] tiles, String theme)
+    public Player(int x, int y, int x2, int y2, GridPane grid, Tile[][] tiles, Game game, String theme)
     {
         this.x1 = x;
         this.y1 = y;
@@ -87,6 +103,7 @@ public class Player
 
         this.grid = grid;
         this.tiles = tiles;
+        this.game = game;
         this.currentTheme = theme;
 
         loadImages();
@@ -94,7 +111,7 @@ public class Player
     }
 
     /**
-     * Charge toutes les images nécessaires pour les joueurs en fonction du thème.
+     * Charge toutes les images nécessaires pour les joueurs
      */
     private void loadImages()
     {
@@ -115,20 +132,6 @@ public class Player
         imgDown2 = new Image(getClass().getResource(basePathJ2 + "Player2-down.png").toExternalForm());
         imgLeft2 = new Image(getClass().getResource(basePathJ2 + "Player2-left.png").toExternalForm());
         imgRight2 = new Image(getClass().getResource(basePathJ2 + "Player2-right.png").toExternalForm());
-
-//        // Chargement des images du joueur 3
-//        imgDefault3 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J3/...").toExternalForm());
-//        imgUp3 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J3/...").toExternalForm());
-//        imgDown3 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J3/...").toExternalForm());
-//        imgLeft3 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J3/...").toExternalForm());
-//        imgRight3 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J3/...").toExternalForm());
-//
-//        // Chargement des images du joueur 4
-//        imgDefault4 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J4/...").toExternalForm());
-//        imgUp4 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J4/...").toExternalForm());
-//        imgDown4 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J4/...").toExternalForm());
-//        imgLeft4 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J4/...").toExternalForm());
-//        imgRight4 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J4/...").toExternalForm());
     }
 
     /**
@@ -225,10 +228,11 @@ public class Player
      */
     public void placeBombPlayer1()
     {
-        if (!canMove1 || bombCooldown) return;
-        bombCooldown = true;
+        if (!canMove1 || bombCooldownPlayer1 ||currentBombsPlayer1 >= maxBombsPlayer1) return;
+        bombCooldownPlayer1 = true;
 
         lockMovement1();
+        currentBombsPlayer1++;
         final int bombX = x1;
         final int bombY = y1;
 
@@ -243,7 +247,10 @@ public class Player
 
         Timeline waitGIF = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             grid.getChildren().remove(gifView);
-            new Bomb(bombX, bombY, grid, tiles, this);
+
+            // NOUVEAU: Passer la référence du jeu à la bombe
+            new Bomb(bombX, bombY, grid, tiles, this, game);
+
             grid.getChildren().remove(sprite);
             grid.add(sprite, x1, y1);
             sprite.setVisible(true);
@@ -252,7 +259,7 @@ public class Player
         waitGIF.setCycleCount(1);
         waitGIF.play();
 
-        Timeline cd = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> bombCooldown = false));
+        Timeline cd = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> bombCooldownPlayer1 = false));
         cd.setCycleCount(1);
         cd.play();
     }
@@ -262,17 +269,18 @@ public class Player
      */
     public void placeBombPlayer2()
     {
-        if (!canMove2|| bombCooldown) return;
-        bombCooldown = true;
+        if (!canMove2|| bombCooldownPlayer2 || currentBombsPlayer2 >= maxBombsPlayer2) return;
+        bombCooldownPlayer2 = true;
 
         lockMovement2();
+        currentBombsPlayer2++;
         final int bombX = x2;
         final int bombY = y2;
 
         sprite2.setVisible(false);
 
         // Chemin de l'image GIF de la bombe du joueur 2 en fonction du thème
-        Image gif = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/" + currentTheme + "/BomberManP2V1.gif").toExternalForm());
+        Image gif = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/" + currentTheme + "/BomberManP2V1.gif").toExternalForm());
         ImageView gifView = new ImageView(gif);
         gifView.setFitWidth(40);
         gifView.setFitHeight(40);
@@ -280,7 +288,7 @@ public class Player
 
         Timeline waitGIF = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             grid.getChildren().remove(gifView);
-            new Bomb(bombX, bombY, grid, tiles, this);
+            new Bomb(bombX, bombY, grid, tiles, this, game);
             grid.getChildren().remove(sprite2);
             grid.add(sprite2, x2, y2);
             sprite2.setVisible(true);
@@ -289,9 +297,105 @@ public class Player
         waitGIF.setCycleCount(1);
         waitGIF.play();
 
-        Timeline cd = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> bombCooldown = false));
+        Timeline cd = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> bombCooldownPlayer2 = false));
         cd.setCycleCount(1);
         cd.play();
+    }
+
+    /**
+     * Appelée par la bombe quand elle explose pour libérer le joueur 1
+     */
+    public void releaseBombPlayer1()
+    {
+        if (currentBombsPlayer1 > 0) {
+            currentBombsPlayer1--;
+        }
+    }
+
+    /**
+     * Appelée par la bombe quand elle explose pour libérer le joueur 2
+     */
+    public void releaseBombPlayer2()
+    {
+        if (currentBombsPlayer2 > 0) {
+            currentBombsPlayer2--;
+        }
+    }
+
+    /**
+     * Augmente la limite de bombes du joueur 1
+     */
+    public void increaseBombLimitPlayer1()
+    {
+        maxBombsPlayer1++;
+    }
+
+    /**
+     * Augmente la limite de bombes du joueur 2
+     */
+    public void increaseBombLimitPlayer2()
+    {
+        maxBombsPlayer2++;
+    }
+
+    /**
+     * Active l'invincibilité pour le joueur 1 pendant 5 secondes
+     */
+    public void activateInvincibilityPlayer1()
+    {
+        // Si déjà invincible, arrêter le timer précédent
+        if (invincibilityTimerPlayer1 != null) {
+            invincibilityTimerPlayer1.stop();
+        }
+
+        isInvinciblePlayer1 = true;
+
+        // Effet visuel : faire clignoter le sprite
+        Timeline blinkTimer = new Timeline(
+                new KeyFrame(Duration.millis(200), e -> sprite.setOpacity(0.3)),
+                new KeyFrame(Duration.millis(400), e -> sprite.setOpacity(1.0))
+        );
+        blinkTimer.setCycleCount(25); // 5 secondes de clignotement
+        blinkTimer.play();
+
+        // Timer pour désactiver l'invincibilité après 5 secondes
+        invincibilityTimerPlayer1 = new Timeline(new KeyFrame(Duration.seconds(5), e -> {
+            isInvinciblePlayer1 = false;
+            sprite.setOpacity(1.0); // S'assurer que l'opacité est normale
+            System.out.println("Joueur 1 n'est plus invincible");
+        }));
+        invincibilityTimerPlayer1.setCycleCount(1);
+        invincibilityTimerPlayer1.play();
+    }
+
+    /**
+     * Active l'invincibilité pour le joueur 2 pendant 5 secondes
+     */
+    public void activateInvincibilityPlayer2()
+    {
+        // Si déjà invincible, arrêter le timer précédent
+        if (invincibilityTimerPlayer2 != null) {
+            invincibilityTimerPlayer2.stop();
+        }
+
+        isInvinciblePlayer2 = true;
+
+        // Effet visuel : faire clignoter le sprite
+        Timeline blinkTimer = new Timeline(
+                new KeyFrame(Duration.millis(200), e -> sprite2.setOpacity(0.3)),
+                new KeyFrame(Duration.millis(400), e -> sprite2.setOpacity(1.0))
+        );
+        blinkTimer.setCycleCount(25); // 5 secondes de clignotement
+        blinkTimer.play();
+
+        // Timer pour désactiver l'invincibilité après 5 secondes
+        invincibilityTimerPlayer2 = new Timeline(new KeyFrame(Duration.seconds(5), e -> {
+            isInvinciblePlayer2 = false;
+            sprite2.setOpacity(1.0); // S'assurer que l'opacité est normale
+            System.out.println("Joueur 2 n'est plus invincible");
+        }));
+        invincibilityTimerPlayer2.setCycleCount(1);
+        invincibilityTimerPlayer2.play();
     }
 
     /**
@@ -299,6 +403,12 @@ public class Player
      */
     public void deathJ1()
     {
+        // Si le joueur est invincible, il ne meurt pas
+        if (isInvinciblePlayer1) {
+            System.out.println("Joueur 1 est invincible ! Pas de dégâts.");
+            return;
+        }
+
         if (pv1 <= 0)
         {
             canMove1 = false;
@@ -313,6 +423,12 @@ public class Player
      */
     public void deathJ2()
     {
+        // Si le joueur est invincible, il ne meurt pas
+        if (isInvinciblePlayer2) {
+            System.out.println("Joueur 2 est invincible ! Pas de dégâts.");
+            return;
+        }
+
         if (pv2 <= 0)
         {
             canMove2 = false;
@@ -321,34 +437,6 @@ public class Player
             Platform.runLater(() -> showGameOverScreen("Le joueur 1 a gagné !"));
         }
     }
-
-//    /**
-//     * Gère la mort du joueur 3.
-//     */
-//    public void deathJ3()
-//    {
-//        if (pv3 <= 0)
-//        {
-//            canMove3 = false;
-//            sprite3.setVisible(false);
-//            System.out.println("Joueur 3 éliminé....");
-//            Platform.runLater(() -> showGameOverScreen("Le joueur x a gagné !"));
-//        }
-//    }
-//
-//    /**
-//     * Gère la mort du joueur 4.
-//     */
-//    public void deathJ4()
-//    {
-//        if (pv4 <= 0)
-//        {
-//            canMove4 = false;
-//            sprite4.setVisible(false);
-//            System.out.println("Joueur 4 éliminé....");
-//            Platform.runLater(() -> showGameOverScreen("Le joueur x a gagné !"));
-//        }
-//    }
 
     /**
      * Affiche l'écran de fin de jeu
@@ -409,7 +497,7 @@ public class Player
         try {
             System.out.println("Redémarrage du jeu...");
 
-            // Créer une nouvelle instance de Game et la démarrer avec le thème actuel
+            // Créer une nouvelle instance de Game et la démarrer
             Game newGame = new Game(true);
             newGame.setCurrentThemes(currentTheme);
             newGame.start(stage);
@@ -438,10 +526,17 @@ public class Player
     public int getY1() { return y1; }
     public int getX2() { return x2; }
     public int getY2() { return y2; }
-//    public int getX3() { return x3; }
+    //    public int getX3() { return x3; }
 //    public int getY3() { return y3; }
 //    public int getX4() { return x4; }
 //    public int getY4() { return y4; }
+    public int getCurrentBombsPlayer1() { return currentBombsPlayer1; }
+    public int getCurrentBombsPlayer2() { return currentBombsPlayer2; }
+    public int getMaxBombsPlayer1() { return maxBombsPlayer1; }
+    public int getMaxBombsPlayer2() { return maxBombsPlayer2; }
+    public boolean canPlaceBombPlayer1() { return currentBombsPlayer1 < maxBombsPlayer1; }
+    public boolean canPlaceBombPlayer2() { return currentBombsPlayer2 < maxBombsPlayer2; }
+
 
     public int getPv1() { return pv1; }
     public int getPv2() { return pv2; }
@@ -451,6 +546,10 @@ public class Player
 //    public int getPv4() { return pv4; }
 //    public void setPv3(int pv) { this.pv3 = pv; }
 //    public void setPv4(int pv) { this.pv4 = pv; }
+
+    // Getters pour l'invincibilité
+    public boolean isInvinciblePlayer1() { return isInvinciblePlayer1; }
+    public boolean isInvinciblePlayer2() { return isInvinciblePlayer2; }
 
     public boolean isObstacle(int x, int y)
     {
