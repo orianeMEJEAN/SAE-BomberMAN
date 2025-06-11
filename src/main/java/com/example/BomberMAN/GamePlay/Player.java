@@ -438,7 +438,7 @@ public class Player
         }
         else
         {
-            gifView.setFitWidth(50);
+            gifView.setFitWidth(40);
             gifView.setFitHeight(40);
         }
         grid.add(gifView, bombX, bombY);
@@ -480,8 +480,16 @@ public class Player
         // Chemin de l'image GIF de la bombe du joueur 4 en fonction du thème
         Image gif = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J4/" + currentTheme + "/p4_Gif.gif").toExternalForm());
         ImageView gifView = new ImageView(gif);
-        gifView.setFitWidth(40);
-        gifView.setFitHeight(40);
+        if (currentTheme == "Manoir")
+        {
+            gifView.setFitWidth(37);
+            gifView.setFitHeight(40);
+        }
+        else
+        {
+            gifView.setFitWidth(40);
+            gifView.setFitHeight(40);
+        }
         grid.add(gifView, bombX, bombY);
 
         Timeline waitGIF = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
