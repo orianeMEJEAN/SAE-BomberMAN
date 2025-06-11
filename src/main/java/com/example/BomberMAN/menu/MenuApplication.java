@@ -26,7 +26,14 @@ public class MenuApplication extends Application
     {
         // Chargement du fichier FXML
         FXMLLoader fxmlLoader = new FXMLLoader(MenuApplication.class.getResource("fxml/Menu-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 800, 800);
+        Scene scene;
+        // On détecte le mode solo/multi via une variable statique dans MenuController
+        boolean isSolo = MenuController.isSoloModeSelected();
+        if (isSolo) {
+            scene = new Scene(fxmlLoader.load(), 800, 800);
+        } else {
+            scene = new Scene(fxmlLoader.load(), 1000, 800);
+        }
 
         // Charger la police personnalisée (si utilisée dans le CSS ou les labels)
         Font.loadFont(MenuApplication.class.getResource("police/Jersey10.ttf").toExternalForm(), 10);

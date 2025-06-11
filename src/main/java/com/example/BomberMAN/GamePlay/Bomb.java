@@ -208,6 +208,18 @@ public class Bomb {
                 System.out.println("Bonus " + bonus.getType().getDescription() +
                         " apparu en position (" + x + ", " + y + ")");
             }
+
+            // Ajout du score au joueur qui a posé la bombe
+            if (game != null) {
+                if (game.isSoloMode()) {
+                    // En solo, seul le joueur 1 marque des points
+                    if (playerNumber == 1) {
+                        game.addScoreSolo(10);
+                    }
+                } else {
+                    game.addScoreMulti(playerNumber - 1, 10);
+                }
+            }
         }
     }
 

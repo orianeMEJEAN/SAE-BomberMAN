@@ -15,6 +15,7 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javafx.scene.layout.VBox;
 
 /**
  * Classe principale du jeu BomberMAN avec gestion complète des bonus d'invincibilité.
@@ -31,13 +32,15 @@ public class Game
     /** Hauteur de la grille (en nombre de tuiles). */
     public static final int GRID_HEIGHT = 11;
 
+
     // === COMPOSANTS PRINCIPAUX ===
     private GridPane grid;                  /**< Conteneur JavaFX représentant la grille de jeu. */
     private Tile[][] tiles;                 /**< Tableau des tuiles du plateau. */
     private Player player;                  /**< Joueur principal. */
     private boolean isSoloMode;             /**< Mode solo activé ou non. */
-    private Bot bot;                        /**< Bot contrôlé par l'IA en mode solo. */
+    private Bot bot;
 
+    /**< Bot contrôlé par l'IA en mode solo. */
     // === GESTION DES BONUS ===
     private List<Bonus> activeBonus;        /**< Liste des bonus actifs sur la carte. */
     private Timeline bonusCheckTimer;       /**< Timer pour vérifier la collecte des bonus. */
@@ -57,6 +60,12 @@ public class Game
     private Timeline gameTimer;            // Timer principal du jeu
     private int timeSeconds = 120;         // 2 minutes en secondes
     private BorderPane rootPane;           // Conteneur principal
+
+    // === SCORES ===
+    private int scoreSolo = 0; // Score pour le mode solo
+    private int[] scoreMulti = new int[4]; // Scores pour les 4 joueurs en mode multi
+    private Label scoreSoloLabel; // Affichage du score solo
+    private Label[] scoreMultiLabels = new Label[4]; // Affichage des scores multi
 
     /**
      * Constructeur de la classe Game.
@@ -107,13 +116,36 @@ public class Game
 
         // Timer en haut
         timerLabel = new Label("02:00");
-        timerLabel.setStyle("-fx-font-size: 28px; -fx-text-fill: #fff; -fx-font-weight: bold; -fx-padding: 15px; -fx-background-color: #222; -fx-alignment: center;");
+        timerLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #fff; -fx-font-weight: bold; -fx-padding: 7px; -fx-background-color: #222; -fx-alignment: center;");
         timerLabel.setMaxWidth(Double.MAX_VALUE);
-        timerLabel.setMinHeight(50);
+        timerLabel.setMinHeight(32);
         timerLabel.setAlignment(javafx.geometry.Pos.CENTER);
 
+        // Affichage horizontal du score à côté du timer
+        javafx.scene.layout.HBox topBar = new javafx.scene.layout.HBox();
+        topBar.setStyle("-fx-background-color: #222; -fx-padding: 0 5 0 0;");
+        topBar.setSpacing(10);
+        topBar.setMinHeight(32);
+        topBar.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        topBar.getChildren().add(timerLabel);
+        if (isSoloMode) {
+            scoreSoloLabel = new Label("Score : 0");
+            scoreSoloLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #fff; -fx-font-weight: bold; -fx-padding: 0 0 0 10px; -fx-background-color: #222;");
+            scoreSoloLabel.setMinHeight(32);
+            scoreSoloLabel.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            topBar.getChildren().add(scoreSoloLabel);
+        } else {
+            for (int i = 0; i < 4; i++) {
+                scoreMulti[i] = 0;
+                scoreMultiLabels[i] = new Label("Joueur " + (i+1) + " : 0");
+                scoreMultiLabels[i].setStyle("-fx-font-size: 10px; -fx-text-fill: #fff; -fx-font-weight: bold; -fx-padding: 0 0 0 10px; -fx-background-color: #222;");
+                scoreMultiLabels[i].setMinHeight(32);
+                scoreMultiLabels[i].setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                topBar.getChildren().add(scoreMultiLabels[i]);
+            }
+        }
         rootPane = new BorderPane();
-        rootPane.setTop(timerLabel);
+        rootPane.setTop(topBar);
         rootPane.setCenter(grid);
 
         // Tentative de chargement dans texture_Maps, sinon dans niveau
@@ -475,6 +507,22 @@ public class Game
         }
     }
 
+    // Méthodes pour mettre à jour les scores
+    public void addScoreSolo(int points) {
+        scoreSolo += points;
+        if (scoreSoloLabel != null) {
+            scoreSoloLabel.setText("Score : " + scoreSolo);
+        }
+    }
+    public void addScoreMulti(int playerIndex, int points) {
+        if (playerIndex >= 0 && playerIndex < 4) {
+            scoreMulti[playerIndex] += points;
+            if (scoreMultiLabels[playerIndex] != null) {
+                scoreMultiLabels[playerIndex].setText("Joueur " + (playerIndex+1) + " : " + scoreMulti[playerIndex]);
+            }
+        }
+    }
+
     // === MÉTHODES DE DEBUG ET MONITORING ===
 
     /**
@@ -517,5 +565,13 @@ public class Game
     public void setCurrentThemes(String themeName)
     {
         this.currentTheme = themeName;
+    }
+
+    /**
+     * Retourne le mode de jeu actuellement.
+     * @return Le mode de jeu actuellement.
+     */
+    public boolean isSoloMode() {
+        return isSoloMode;
     }
 }
