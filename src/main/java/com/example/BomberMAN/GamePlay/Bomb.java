@@ -235,6 +235,7 @@ public class Bomb {
                 System.out.println("Joueur 1 touché par explosion !");
                 player.setPv1(0);
                 player.deathJ1();
+                if (playerNumber != 1) player.addScore(playerNumber, 100);
             }
         }
 
@@ -246,6 +247,7 @@ public class Bomb {
                 System.out.println("Joueur 2 touché par explosion !");
                 player.setPv2(0);
                 player.deathJ2();
+                if (playerNumber != 2) player.addScore(playerNumber, 100);
             }
         }
 
@@ -257,6 +259,7 @@ public class Bomb {
                 System.out.println("Joueur 3 touché par explosion !");
                 player.setPv3(0);
                 player.deathJ3();
+                if (playerNumber != 3) player.addScore(playerNumber, 100);
             }
         }
 
@@ -268,6 +271,7 @@ public class Bomb {
                 System.out.println("Joueur 4 touché par explosion !");
                 player.setPv4(0);
                 player.deathJ4();
+                if (playerNumber != 4) player.addScore(playerNumber, 100);
             }
         }
     }

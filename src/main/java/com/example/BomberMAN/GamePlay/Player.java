@@ -88,6 +88,9 @@ public class Player
     private String mapName;
     private Game game;
 
+    // Attributs de score pour chaque joueur
+    private int score1 = 0, score2 = 0, score3 = 0, score4 = 0;
+
     /**
      * Constructeur du joueur.
      *
@@ -875,4 +878,24 @@ public class Player
             return true;
         }
     }
+
+    // Méthodes pour gérer le score
+    public int getScore(int playerNumber) {
+        switch (playerNumber) {
+            case 1: return score1;
+            case 2: return score2;
+            case 3: return score3;
+            case 4: return score4;
+            default: return 0;
+        }
+    }
+    public void addScore(int playerNumber, int points) {
+        switch (playerNumber) {
+            case 1: score1 += points; break;
+            case 2: score2 += points; break;
+            case 3: score3 += points; break;
+            case 4: score4 += points; break;
+        }
+    }
 }
+
