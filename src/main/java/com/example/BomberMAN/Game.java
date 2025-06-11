@@ -4,16 +4,18 @@ import com.example.BomberMAN.GamePlay.Bot;
 import com.example.BomberMAN.GamePlay.Player;
 import com.example.BomberMAN.GamePlay.Tile;
 import com.example.BomberMAN.GamePlay.Bonus;
-import com.example.BomberMAN.Maps.MapLoader;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javafx.scene.layout.VBox;
 
 /**
  * Classe principale du jeu BomberMAN avec gestion complète des bonus d'invincibilité.
@@ -30,13 +32,15 @@ public class Game
     /** Hauteur de la grille (en nombre de tuiles). */
     public static final int GRID_HEIGHT = 11;
 
+
     // === COMPOSANTS PRINCIPAUX ===
     private GridPane grid;                  /**< Conteneur JavaFX représentant la grille de jeu. */
     private Tile[][] tiles;                 /**< Tableau des tuiles du plateau. */
     private Player player;                  /**< Joueur principal. */
     private boolean isSoloMode;             /**< Mode solo activé ou non. */
-    private Bot bot;                        /**< Bot contrôlé par l'IA en mode solo. */
+    private Bot bot;
 
+    /**< Bot contrôlé par l'IA en mode solo. */
     // === GESTION DES BONUS ===
     private List<Bonus> activeBonus;        /**< Liste des bonus actifs sur la carte. */
     private Timeline bonusCheckTimer;       /**< Timer pour vérifier la collecte des bonus. */
@@ -50,6 +54,18 @@ public class Game
     /** Thème actuel pour les tuiles et les joueurs. */
     private String currentTheme = "BomberMan"; // Thème par défaut
     private String mapName; // Nom de la carte à charger
+
+    // === TIMER ===
+    private Label timerLabel;              // Label pour le timer
+    private Timeline gameTimer;            // Timer principal du jeu
+    private int timeSeconds = 120;         // 2 minutes en secondes
+    private BorderPane rootPane;           // Conteneur principal
+
+    // === SCORES ===
+    private int scoreSolo = 0; // Score pour le mode solo
+    private int[] scoreMulti = new int[4]; // Scores pour les 4 joueurs en mode multi
+    private Label scoreSoloLabel; // Affichage du score solo
+    private Label[] scoreMultiLabels = new Label[4]; // Affichage des scores multi
 
     /**
      * Constructeur de la classe Game.
@@ -98,6 +114,40 @@ public class Game
         Tile.loadAllTextures();
         Tile.setCurrentTheme(currentTheme);
 
+        // Timer en haut
+        timerLabel = new Label("02:00");
+        timerLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #fff; -fx-font-weight: bold; -fx-padding: 7px; -fx-background-color: #222; -fx-alignment: center;");
+        timerLabel.setMaxWidth(Double.MAX_VALUE);
+        timerLabel.setMinHeight(32);
+        timerLabel.setAlignment(javafx.geometry.Pos.CENTER);
+
+        // Affichage horizontal du score à côté du timer
+        javafx.scene.layout.HBox topBar = new javafx.scene.layout.HBox();
+        topBar.setStyle("-fx-background-color: #222; -fx-padding: 0 5 0 0;");
+        topBar.setSpacing(10);
+        topBar.setMinHeight(32);
+        topBar.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        topBar.getChildren().add(timerLabel);
+        if (isSoloMode) {
+            scoreSoloLabel = new Label("Score : 0");
+            scoreSoloLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #fff; -fx-font-weight: bold; -fx-padding: 0 0 0 10px; -fx-background-color: #222;");
+            scoreSoloLabel.setMinHeight(32);
+            scoreSoloLabel.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            topBar.getChildren().add(scoreSoloLabel);
+        } else {
+            for (int i = 0; i < 4; i++) {
+                scoreMulti[i] = 0;
+                scoreMultiLabels[i] = new Label("Joueur " + (i+1) + " : 0");
+                scoreMultiLabels[i].setStyle("-fx-font-size: 10px; -fx-text-fill: #fff; -fx-font-weight: bold; -fx-padding: 0 0 0 10px; -fx-background-color: #222;");
+                scoreMultiLabels[i].setMinHeight(32);
+                scoreMultiLabels[i].setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                topBar.getChildren().add(scoreMultiLabels[i]);
+            }
+        }
+        rootPane = new BorderPane();
+        rootPane.setTop(topBar);
+        rootPane.setCenter(grid);
+
         // Tentative de chargement dans texture_Maps, sinon dans niveau
         String mapPath = null;
         java.io.File resMap = new java.io.File("src/main/resources/com/example/BomberMAN/BomberMAN/texture_Maps/" + mapName);
@@ -141,12 +191,8 @@ public class Game
      */
     private void setupScene(Stage stage)
     {
-        Scene scene = new Scene(grid, SCENE_WIDTH, SCENE_HEIGHT);
-
-        // Configuration des contrôles clavier
+        Scene scene = new Scene(rootPane, SCENE_WIDTH, SCENE_HEIGHT + 50); // +50 pour le timer
         setupKeyboardControls(scene);
-
-        // Configuration de la fenêtre
         stage.setTitle("BomberMan - " + (isSoloMode ? "Solo" : "Multijoueur") + " [Invincibilité: " + INVINCIBILITY_DURATION + "s]");
         stage.setScene(scene);
         stage.setResizable(false);
@@ -277,6 +323,51 @@ public class Game
             bot = new Bot(player, tiles);
             System.out.println("Bot IA créé pour le mode solo");
         }
+
+        startTimer();
+    }
+
+    /**
+     * Démarre le timer de jeu qui compte à rebours.
+     * Affiche le temps restant dans le label du timer.
+     */
+    private void startTimer() {
+        updateTimerLabel();
+        gameTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            timeSeconds--;
+            updateTimerLabel();
+            if (timeSeconds <= 0) {
+                gameTimer.stop();
+                onTimerEnd();
+            }
+        }));
+        gameTimer.setCycleCount(timeSeconds);
+        gameTimer.play();
+    }
+
+
+    /**
+     * Met à jour le label du timer avec le temps restant.
+     * Format: MM:SS
+     */
+    private void updateTimerLabel() {
+        int min = timeSeconds / 60;
+        int sec = timeSeconds % 60;
+        timerLabel.setText(String.format("%02d:%02d", min, sec));
+    }
+
+    /**
+     * Gère la fin du timer : affiche un message et remplace la scène.
+     */
+    private void onTimerEnd() {
+        timerLabel.setText("Temps écoulé !");
+
+        BorderPane blackPane = new BorderPane();
+        Label endLabel = new Label("Temps écoulé !");
+        endLabel.setStyle("-fx-font-size: 48px; -fx-text-fill: white; -fx-font-weight: bold;");
+        blackPane.setStyle("-fx-background-color: black;");
+        blackPane.setCenter(endLabel);
+        rootPane.getScene().setRoot(blackPane);
     }
 
     /**
@@ -416,6 +507,22 @@ public class Game
         }
     }
 
+    // Méthodes pour mettre à jour les scores
+    public void addScoreSolo(int points) {
+        scoreSolo += points;
+        if (scoreSoloLabel != null) {
+            scoreSoloLabel.setText("Score : " + scoreSolo);
+        }
+    }
+    public void addScoreMulti(int playerIndex, int points) {
+        if (playerIndex >= 0 && playerIndex < 4) {
+            scoreMulti[playerIndex] += points;
+            if (scoreMultiLabels[playerIndex] != null) {
+                scoreMultiLabels[playerIndex].setText("Joueur " + (playerIndex+1) + " : " + scoreMulti[playerIndex]);
+            }
+        }
+    }
+
     // === MÉTHODES DE DEBUG ET MONITORING ===
 
     /**
@@ -461,68 +568,10 @@ public class Game
     }
 
     /**
-     * Définit le nom de la carte à charger.
-     * @param mapName Le nom du fichier de la carte (doit être un chemin valide).
-     */
-    public void setMapName(String mapName) {
-        this.mapName = mapName;
-    }
-
-    // === GETTERS ET SETTERS ===
-
-    /**
-     * Retourne la grille de jeu
-     */
-    public GridPane getGrid() {
-        return grid;
-    }
-
-    /**
-     * Retourne le tableau des tuiles
-     */
-    public Tile[][] getTiles() {
-        return tiles;
-    }
-
-    /**
-     * Retourne le joueur principal
-     */
-    public Player getPlayer() {
-        return player;
-    }
-
-    /**
-     * Retourne si le jeu est en mode solo
+     * Retourne le mode de jeu actuellement.
+     * @return Le mode de jeu actuellement.
      */
     public boolean isSoloMode() {
         return isSoloMode;
-    }
-
-    /**
-     * Retourne le bot (peut être null si pas en mode solo)
-     */
-    public Bot getBot() {
-        return bot;
-    }
-
-    /**
-     * Retourne la liste des bonus actifs (en lecture seule)
-     */
-    public List<Bonus> getActiveBonus() {
-        return new ArrayList<>(activeBonus);
-    }
-
-    /**
-     * Retourne le nombre de bonus actifs
-     */
-    public int getActiveBonusCount() {
-        return activeBonus.size();
-    }
-
-    /**
-     * Retourne la durée d'invincibilité configurée
-     */
-    public static double getInvincibilityDuration() {
-        return INVINCIBILITY_DURATION;
     }
 }

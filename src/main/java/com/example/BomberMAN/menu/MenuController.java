@@ -154,6 +154,15 @@ public class MenuController {
     /** Indique si le popup des crédits est affiché. */
     private boolean creditsShown = false;
 
+    // === Ajout pour le mode solo/multi ===
+    private static boolean soloModeSelected = true; // Par défaut solo
+    public static boolean isSoloModeSelected() {
+        return soloModeSelected;
+    }
+    public static void setSoloModeSelected(boolean solo) {
+        soloModeSelected = solo;
+    }
+
     /**
      * Définit la fenêtre principale pour le lancement du jeu.
      * @param stage La fenêtre JavaFX principale.
@@ -213,8 +222,14 @@ public class MenuController {
         modeButtons = List.of(btnSolo, btnMulti, btnEdit, btnCh, btnR);
 
         // Configuration des actions pour les boutons de sélection de mode
-        btnSolo.setOnAction(e -> startGame(true));
-        btnMulti.setOnAction(e -> startGame(false));
+        btnSolo.setOnAction(e -> {
+            setSoloModeSelected(true);
+            startGame(true);
+        });
+        btnMulti.setOnAction(e -> {
+            setSoloModeSelected(false);
+            startGame(false);
+        });
         btnEdit.setOnAction(e -> startMapEditor());
         btnR.setOnAction(e -> handleRetour());
 

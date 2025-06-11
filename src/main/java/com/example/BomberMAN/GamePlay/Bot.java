@@ -14,9 +14,8 @@ public class Bot
     private Random random;
     private Timeline timeline;
 
-    // Use maps to store independent bomb state for each bot
     private Map<Integer, Boolean> hasPlacedBombMap;
-    private Map<Integer, int[]> bombCoordinatesMap; // Stores int[]{x, y} for each bot
+    private Map<Integer, int[]> bombCoordinatesMap;
 
     private Tile[][] tiles;
 
@@ -26,11 +25,9 @@ public class Bot
         this.tiles = tiles;
         random = new Random();
 
-        // Initialize maps for each bot
         hasPlacedBombMap = new HashMap<>();
         bombCoordinatesMap = new HashMap<>();
 
-        // Assuming player.getPlayerNumber() returns 2, 3, or 4 for your bots
         hasPlacedBombMap.put(2, false);
         hasPlacedBombMap.put(3, false);
         hasPlacedBombMap.put(4, false);
@@ -40,37 +37,31 @@ public class Bot
         bombCoordinatesMap.put(4, new int[]{0, 0});
 
         timeline = new Timeline(new KeyFrame(Duration.millis(500), e -> {
-            // Logic for Player 2
             handleBotLogic(2, player.getX2(), player.getY2());
 
-            // Logic for Player 3
             handleBotLogic(3, player.getX3(), player.getY3());
 
-            // Logic for Player 4
             handleBotLogic(4, player.getX4(), player.getY4());
         }));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
 
-    // Helper method to encapsulate bot logic for each player
     private void handleBotLogic(int playerNum, int currentX, int currentY) {
         boolean currentHasPlacedBomb = hasPlacedBombMap.get(playerNum);
         int[] currentBombCoords = bombCoordinatesMap.get(playerNum);
         int bombX = currentBombCoords[0];
         int bombY = currentBombCoords[1];
 
-        // Adjust isInBombRange to use the correct bomb coordinates for the current bot
         if (isInBombRange(currentX, currentY, bombX, bombY))
         {
             System.out.println("Perimettre bomb (Player " + playerNum + ")");
-            startBombTimer(playerNum); // Pass playerNum to timer
+            startBombTimer(playerNum);
             escapeFromBomb(playerNum);
         }
         else
         {
             System.out.println("direction joueur (Player " + playerNum + ")");
-            // Move towards player 1 based on current bot's player number
             switch (playerNum) {
                 case 2:
                     moveTowardsPlayer2();

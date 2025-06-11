@@ -22,7 +22,6 @@ public class Bomb {
     private Game game; // Référence au jeu pour ajouter les bonus
 
     // Constantes d'explosion
-    private static final int EXPLOSION_RADIUS = 1; // Rayon d'explosion (croix de 3x3)
     private static final double EXPLOSION_DURATION = 0.5; // Durée d'affichage de l'explosion
     private static final double BOMB_TIMER = 2.0; // Temps avant explosion
 
@@ -44,13 +43,6 @@ public class Bomb {
         Timeline explosionDelay = new Timeline(new KeyFrame(Duration.seconds(2), ev -> explode(x, y)));
         explosionDelay.setCycleCount(1);
         explosionDelay.play();
-    }
-
-    /**
-     * Constructeur de compatibilité (sans game)
-     */
-    public Bomb(int x, int y, GridPane grid, Tile[][] tiles, Player player) {
-        this(x, y, grid, tiles, player, null);
     }
 
     /**
@@ -216,6 +208,18 @@ public class Bomb {
                 System.out.println("Bonus " + bonus.getType().getDescription() +
                         " apparu en position (" + x + ", " + y + ")");
             }
+
+            // Ajout du score au joueur qui a posé la bombe
+            if (game != null) {
+                if (game.isSoloMode()) {
+                    // En solo, seul le joueur 1 marque des points
+                    if (playerNumber == 1) {
+                        game.addScoreSolo(10);
+                    }
+                } else {
+                    game.addScoreMulti(playerNumber - 1, 10);
+                }
+            }
         }
     }
 
@@ -231,6 +235,7 @@ public class Bomb {
                 System.out.println("Joueur 1 touché par explosion !");
                 player.setPv1(0);
                 player.deathJ1();
+                if (playerNumber != 1) player.addScore(playerNumber, 100);
             }
         }
 
@@ -242,6 +247,7 @@ public class Bomb {
                 System.out.println("Joueur 2 touché par explosion !");
                 player.setPv2(0);
                 player.deathJ2();
+                if (playerNumber != 2) player.addScore(playerNumber, 100);
             }
         }
 
@@ -253,6 +259,7 @@ public class Bomb {
                 System.out.println("Joueur 3 touché par explosion !");
                 player.setPv3(0);
                 player.deathJ3();
+                if (playerNumber != 3) player.addScore(playerNumber, 100);
             }
         }
 
@@ -264,6 +271,7 @@ public class Bomb {
                 System.out.println("Joueur 4 touché par explosion !");
                 player.setPv4(0);
                 player.deathJ4();
+                if (playerNumber != 4) player.addScore(playerNumber, 100);
             }
         }
     }
