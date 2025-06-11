@@ -771,7 +771,7 @@ public class MenuController {
         Button selected = modeButtons.get(selectedIndex); // Obtenir le bouton sélectionné
         if (selected.getText().equals("Solo")) {
             startGame(true); // Lancer le jeu en mode solo
-        } else if (selected.getText().equals("Multi")) {
+        } else if (selected.getText().equals("Multijoueur")) {
             startGame(false); // Lancer le jeu en mode multijoueur
         } else if (selected.getText().equals("Editeur de carte")) {
             startMapEditor(); // Lancer l'éditeur de carte
