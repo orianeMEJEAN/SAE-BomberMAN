@@ -106,7 +106,7 @@ public class Player
      * @param game  Référence à l'instance de Game
      * @param theme Thème actuel du jeu
      */
-    public Player(int x, int y, int x2, int y2, int x3, int y3, int x4, int y4, GridPane grid, Tile[][] tiles, Game game, String theme)
+    public Player(int x, int y, int x2, int y2, int x3, int y3, int x4, int y4, GridPane grid, Tile[][] tiles, Game game, String theme, String mapName)
     {
         this.x1 = x;
         this.y1 = y;
