@@ -32,17 +32,17 @@ public class Game
 
     // === COMPOSANTS PRINCIPAUX ===
     private GridPane grid;                  /**< Conteneur JavaFX représentant la grille de jeu. */
-    private Tile[][] tiles;                 /**< Tableau des tuiles du plateau. */
-    private Player player;                  /**< Joueur principal. */
-    private boolean isSoloMode;             /**< Mode solo activé ou non. */
-    private Bot bot;                        /**< Bot contrôlé par l'IA en mode solo. */
+private Tile[][] tiles;                 /**< Tableau des tuiles du plateau. */
+private Player player;                  /**< Joueur principal. */
+private boolean isSoloMode;             /**< Mode solo activé ou non. */
+private Bot bot;                        /**< Bot contrôlé par l'IA en mode solo. */
 
-    // === GESTION DES BONUS ===
-    private List<Bonus> activeBonus;        /**< Liste des bonus actifs sur la carte. */
-    private Timeline bonusCheckTimer;       /**< Timer pour vérifier la collecte des bonus. */
+// === GESTION DES BONUS ===
+private List<Bonus> activeBonus;        /**< Liste des bonus actifs sur la carte. */
+private Timeline bonusCheckTimer;       /**< Timer pour vérifier la collecte des bonus. */
 
-    // === CONSTANTES DE CONFIGURATION ===
-    private static final double BONUS_CHECK_INTERVAL = 100.0; // millisecondes
+// === CONSTANTES DE CONFIGURATION ===
+private static final double BONUS_CHECK_INTERVAL = 100.0; // millisecondes
     private static final double INVINCIBILITY_DURATION = 5.0; // secondes
     private static final int SCENE_WIDTH = 536;
     private static final int SCENE_HEIGHT = 454;
@@ -98,14 +98,15 @@ public class Game
         Tile.loadAllTextures(); // Charger toutes les textures nécessaires pour les tuiles.
         // Définir le thème pour les tuiles
         Tile.setCurrentTheme(currentTheme);
-
-        tiles = MapLoader.loadMap("src/main/resources/com/example/BomberMAN/BomberMAN/texture_Maps/map1.map", grid);
+        tiles = MapLoader.loadMap("src/main/resources/com/example/BomberMAN/BomberMAN/texture_Maps/map1.map");
 
         // Ajout des tuiles à la grille
         populateGrid();
 
         // Création du joueur avec référence au jeu pour les bonus
-        player = new Player(1, 1, 11, 9, grid, tiles, this, currentTheme);
+        player = new Player(1, 1, 11, 9, 11, 1,1, 9, grid, tiles, this, currentTheme);
+
+        System.out.println("Composants du jeu initialisés");
     }
 
     /**
@@ -175,25 +176,69 @@ public class Game
                 {
                     switch (e.getCode())
                     {
-                        case UP -> {
+                        case I -> {
                             player.movePlayer2(0, -1);
                             checkBonusCollectionImmediate();
                         }
-                        case DOWN -> {
+                        case K -> {
                             player.movePlayer2(0, 1);
                             checkBonusCollectionImmediate();
                         }
-                        case LEFT -> {
+                        case J -> {
                             player.movePlayer2(-1, 0);
                             checkBonusCollectionImmediate();
                         }
-                        case RIGHT -> {
+                        case L -> {
                             player.movePlayer2(1, 0);
                             checkBonusCollectionImmediate();
                         }
-                        case CONTROL -> player.placeBombPlayer2();
+                        case EXCLAMATION_MARK -> player.placeBombPlayer2();
+                    }
+
+                    switch (e.getCode())
+                    {
+                        case UP -> {
+                            player.movePlayer3(0, -1);
+                            checkBonusCollectionImmediate();
+                        }
+                        case DOWN -> {
+                            player.movePlayer3(0, 1);
+                            checkBonusCollectionImmediate();
+                        }
+                        case LEFT -> {
+                            player.movePlayer3(-1, 0);
+                            checkBonusCollectionImmediate();
+                        }
+                        case RIGHT -> {
+                            player.movePlayer3(1, 0);
+                            checkBonusCollectionImmediate();
+                        }
+                        case CONTROL -> player.placeBombPlayer3();
+                    }
+
+                    switch (e.getCode())
+                    {
+                        case NUMPAD8 -> {
+                            player.movePlayer4(0, -1);
+                            checkBonusCollectionImmediate();
+                        }
+                        case NUMPAD5 -> {
+                            player.movePlayer4(0, 1);
+                            checkBonusCollectionImmediate();
+                        }
+                        case NUMPAD4 -> {
+                            player.movePlayer4(-1, 0);
+                            checkBonusCollectionImmediate();
+                        }
+                        case NUMPAD6 -> {
+                            player.movePlayer4(1, 0);
+                            checkBonusCollectionImmediate();
+                        }
+                        case NUMPAD0 -> player.placeBombPlayer4();
                     }
                 }
+
+
 
                 // === TOUCHES DE DEBUG (optionnel) ===
                 switch (e.getCode()) {
