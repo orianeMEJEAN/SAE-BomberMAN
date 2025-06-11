@@ -389,6 +389,7 @@ public class MenuController {
                 // Si aucun popup n'est affiché et que les options ne sont pas visibles, afficher le popup principal
                 if (!popupShown && !optionsPane.isVisible() && !rulesShown && !creditsShown) {
                     showPopup();
+                    selectedMap = availableMaps.get(currentMapIndex);
                     popupShown = true;
                     selectedIndex = 0;
                     updateFocus(menuButtons);
