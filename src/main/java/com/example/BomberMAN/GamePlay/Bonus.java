@@ -104,22 +104,35 @@ public class Bonus {
      */
     public boolean checkAndApplyBonus(Player player) {
         boolean collected = false;
-
+        int collectedBy = 0;
         // Vérifier le joueur 1
         if (player.getX1() == x && player.getY1() == y) {
             applyBonusToPlayer(player, 1);
             collected = true;
+            collectedBy = 1;
         }
         // Vérifier le joueur 2
         else if (player.getX2() == x && player.getY2() == y) {
             applyBonusToPlayer(player, 2);
             collected = true;
+            collectedBy = 2;
         }
+        // ...ajouter ici pour joueurs 3 et 4 si besoin...
 
         if (collected) {
             removeFromGrid();
+            // Ajout du score : 50 points pour le joueur qui ramasse le bonus
+            if (player.getGame() != null) {
+                if (player.getGame().isSoloMode()) {
+                    // En solo, seul le joueur humain marque des points
+                    if (collectedBy == 1) {
+                        player.getGame().addScoreSolo(50);
+                    }
+                } else {
+                    player.getGame().addScoreMulti(collectedBy - 1, 50);
+                }
+            }
         }
-
         return collected;
     }
 

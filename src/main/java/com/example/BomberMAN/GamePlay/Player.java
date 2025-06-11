@@ -859,6 +859,10 @@ public class Player
     public void setPv3(int pv) { this.pv3 = pv; }
     public void setPv4(int pv) { this.pv4 = pv; }
 
+    public Game getGame() {
+        return this.game;
+    }
+
     public boolean isObstacle(int x, int y)
     {
         Tile cases = tiles[y][x];
