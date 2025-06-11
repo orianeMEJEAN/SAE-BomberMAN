@@ -289,20 +289,44 @@ public class MenuController {
                 break;
 
             case UP:
-                if (popupShown && !modeShown && !themeShown && !optionsPane.isVisible() && !rulesShown && !creditsShown) // Add !rulesShown && !creditsShown
+                if (popupShown && !modeShown && !themeShown && !optionsPane.isVisible())
                 {
                     selectedIndex = (selectedIndex - 1 + menuButtons.size()) % menuButtons.size();
                     sfxMove.play(); // Jouer l'effet sonore de déplacement
                     updateFocus(menuButtons); // Mettre à jour le focus
                 }
+                else if (modeShown)
+                {
+                    selectedIndex = (selectedIndex - 1 + modeButtons.size()) % modeButtons.size();
+                    sfxMove.play(); // Jouer l'effet sonore de déplacement
+                    updateFocus(modeButtons); // Mettre à jour le focus
+                }
+                else if (themeShown)
+                {
+                    selectedIndex = (selectedIndex - 1 + themeButtons.size()) % themeButtons.size();
+                    sfxMove.play(); // Jouer l'effet sonore de déplacement
+                    updateFocus(themeButtons); // Mettre à jour le focus
+                }
                 break;
 
             case DOWN:
-                if (popupShown && !modeShown && !themeShown && !optionsPane.isVisible() && !rulesShown && !creditsShown) // Add !rulesShown && !creditsShown
+                if (popupShown && !modeShown && !themeShown && !optionsPane.isVisible())
                 {
                     selectedIndex = (selectedIndex + 1) % menuButtons.size();
                     sfxMove.play(); // Jouer l'effet sonore de déplacement
                     updateFocus(menuButtons); // Mettre à jour le focus
+                }
+                else if (modeShown)
+                {
+                    selectedIndex = (selectedIndex + 1) % modeButtons.size();
+                    sfxMove.play(); // Jouer l'effet sonore de déplacement
+                    updateFocus(modeButtons); // Mettre à jour le focus
+                }
+                else if (themeShown)
+                {
+                    selectedIndex = (selectedIndex + 1) % themeButtons.size();
+                    sfxMove.play(); // Jouer l'effet sonore de déplacement
+                    updateFocus(themeButtons); // Mettre à jour le focus
                 }
                 break;
 
