@@ -1,10 +1,7 @@
-/**
- * Contrôleur du menu principal du jeu BomberMAN.
- * Gère les animations, les interactions clavier, les effets visuels et la navigation vers le jeu.
- */
 package com.example.BomberMAN.menu;
 
 import com.example.BomberMAN.Game;
+import com.example.BomberMAN.GamePlay.Tile;
 import com.example.BomberMAN.mapEditor.MapEditor;
 import javafx.animation.*;
 import javafx.application.Platform;
@@ -12,7 +9,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
-import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
@@ -57,6 +53,9 @@ public class MenuController {
     /** Bouton "Multi". */
     @FXML private Button btnMulti;
 
+    /** Bouton Thème */
+    @FXML private Button btnSKIN;
+
     /** Bouton "Edit". */
     @FXML private Button btnEdit;
 
@@ -84,10 +83,10 @@ public class MenuController {
     /** Lecteur média pour l'annonce du titre de fond. */
     private MediaPlayer bomberName;
 
-    /** Lecteur média pour sound effect */
+    /** Lecteur média pour sound effect de déplacement. */
     private AudioClip sfxMove;
 
-    /** Lecteur média pour sound effect */
+    /** Lecteur média pour sound effect d'utilisation. */
     private AudioClip sfxUse;
 
     /** Pane des options */
@@ -106,6 +105,25 @@ public class MenuController {
     /** Référence à la fenêtre principale. */
     private Stage primaryStage;
 
+    /** Pane de sélection de thème. */
+    @FXML private StackPane themePane;
+    /** Bouton pour sélectionner le thème BomberMan. */
+    @FXML private Button btnThemeBomberMan;
+    /** Bouton pour sélectionner le thème Manoir. */
+    @FXML private Button btnThemeManoir;
+    /** Bouton pour retourner du menu des thèmes. */
+    @FXML private Button btnThemeRetour;
+
+    /** Indique si le popup de sélection de thème est affiché. */
+    private boolean themeShown = false;
+
+    /** Thème actuellement sélectionné. */
+    private String currentTheme = "BomberMan"; // Thème par défaut
+    /** Liste des boutons de sélection de thème. */
+    private List<Button> themeButtons;
+    /** ImageView affichant l'image de fond du menu. */
+    @FXML private ImageView backgroundImageView;
+
     /**
      * Définit la fenêtre principale pour le lancement du jeu.
      * @param stage La fenêtre JavaFX principale.
@@ -116,6 +134,7 @@ public class MenuController {
 
     /**
      * Initialise le menu, configure les effets et les événements clavier.
+     * Cette méthode est automatiquement appelée après le chargement du FXML.
      */
     @FXML
     public void initialize() {
@@ -144,35 +163,50 @@ public class MenuController {
         bomberName.setVolume(0.4);
         bomberName.play();
 
-        // Chargement et lecture du sound effect
+        // Chargement et lecture du sound effect de déplacement
         String moveSoundPath = getClass().getResource("sound/switch.mp3").toExternalForm();
         sfxMove = new AudioClip(moveSoundPath);
 
-        // Chargement et lecture du sound effect
+        // Chargement et lecture du sound effect d'utilisation
         String useSoundPath = getClass().getResource("sound/click.mp3").toExternalForm();
-        sfxUse = new AudioClip(useSoundPath);;
+        sfxUse = new AudioClip(useSoundPath);
         sfxUse.setVolume(1.8);
 
-        // Binding entre le volume et le slider
+        // Binding entre le volume du lecteur média et le slider
         volumeSlider.setValue(mediaPlayer.getVolume());
         volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             mediaPlayer.setVolume(newVal.doubleValue());
         });
 
-        menuButtons = List.of(btnNP, btnOp, btnQ);
+        // Initialisation des listes de boutons
+        menuButtons = List.of(btnNP, btnSKIN, btnOp, btnQ);
         modeButtons = List.of(btnSolo, btnMulti, btnEdit, btnR);
 
+        // Configuration des actions pour les boutons de sélection de mode
         btnSolo.setOnAction(e -> startGame(true));
         btnMulti.setOnAction(e -> startGame(false));
         btnEdit.setOnAction(e -> startMapEditor());
         btnR.setOnAction(e -> handleRetour());
+
+        // Configuration des actions pour les boutons de sélection de thème
+        btnThemeBomberMan.setOnAction(e -> selectTheme("BomberMan"));
+        btnThemeManoir.setOnAction(e -> selectTheme("Manoir"));
+        btnThemeRetour.setOnAction(e -> handleRetourTheme());
+
+        // Initialisation de la liste des boutons de thème
+        themeButtons = List.of(btnThemeBomberMan, btnThemeManoir, btnThemeRetour);
+
+        // Charger toutes les textures au démarrage
+        Tile.loadAllTextures();
     }
 
     /**
      * Gère les événements clavier (navigation, validation, retour).
+     * Cette méthode est appelée lorsqu'une touche est pressée.
      * @param event L'événement clavier.
      */
     private void handleKeyPress(KeyEvent event) {
+        // Si le panneau d'options est visible, gérer les interactions spécifiques au volume
         if (optionsPane.isVisible()) {
             switch (event.getCode()) {
                 case LEFT -> {
@@ -180,84 +214,122 @@ public class MenuController {
                     if (newVal < volumeSlider.getMin()) newVal = volumeSlider.getMin();
                     volumeSlider.setValue(newVal);
                     mediaPlayer.setVolume(newVal);
-                    event.consume();
+                    event.consume(); // Consommer l'événement pour éviter qu'il ne soit traité ailleurs
                 }
                 case RIGHT -> {
                     double newVal = volumeSlider.getValue() + volumeSlider.getBlockIncrement();
                     if (newVal > volumeSlider.getMax()) newVal = volumeSlider.getMax();
                     volumeSlider.setValue(newVal);
                     mediaPlayer.setVolume(newVal);
-                    event.consume();
+                    event.consume(); // Consommer l'événement
                 }
                 case ESCAPE -> {
-                    handleRetourOptions();
-                    event.consume();
+                    handleRetourOptions(); // Gérer le retour des options
+                    event.consume(); // Consommer l'événement
                 }
-                default -> {}
+                default -> {} // Ne rien faire pour les autres touches
             }
-            return; // On stoppe ici car options active
+            return; // Sortir de la méthode car les options sont actives
         }
 
-        switch (event.getCode()) {
+        // Gérer les événements clavier en fonction de l'état des popups
+        switch (event.getCode())
+        {
             case ESCAPE:
-                if (optionsPane.isVisible()) {
+                if (optionsPane.isVisible())
+                {
                     hideOptionsPane();
-                    togglePopup();
-                } else if (modeShown) {
-                    hideModePopup();
+                    togglePopup(); // Désactiver le flou
+                }
+                else if (themeShown)
+                {
+                    handleRetourTheme(); // Retourner du menu des thèmes
+                }
+                else if (modeShown)
+                {
+                    hideModePopup(); // Cacher le popup de mode
                     modeShown = false;
                     popupShown = true;
                     selectedIndex = 0;
-                    updateFocus(menuButtons);
-                    togglePopup();
-                } else if (popupShown) {
-                    hidePopup();
+                    updateFocus(menuButtons); // Mettre à jour le focus sur les boutons du menu principal
+                    togglePopup(); // Désactiver le flou
+                }
+                else if (popupShown)
+                {
+                    hidePopup(); // Cacher le popup principal
                     popupShown = false;
-                    togglePopup();
+                    togglePopup(); // Désactiver le flou
                 }
                 break;
 
             case UP:
-                if (popupShown && !modeShown && !optionsPane.isVisible()) {
+                if (popupShown && !modeShown && !themeShown && !optionsPane.isVisible())
+                {
                     selectedIndex = (selectedIndex - 1 + menuButtons.size()) % menuButtons.size();
-                    sfxMove.play();
-                    updateFocus(menuButtons);
-                } else if (modeShown) {
+                    sfxMove.play(); // Jouer l'effet sonore de déplacement
+                    updateFocus(menuButtons); // Mettre à jour le focus
+                }
+                else if (modeShown)
+                {
                     selectedIndex = (selectedIndex - 1 + modeButtons.size()) % modeButtons.size();
-                    sfxMove.play();
-                    updateFocus(modeButtons);
+                    sfxMove.play(); // Jouer l'effet sonore de déplacement
+                    updateFocus(modeButtons); // Mettre à jour le focus
+                }
+                else if (themeShown)
+                {
+                    selectedIndex = (selectedIndex - 1 + themeButtons.size()) % themeButtons.size();
+                    sfxMove.play(); // Jouer l'effet sonore de déplacement
+                    updateFocus(themeButtons); // Mettre à jour le focus
                 }
                 break;
 
             case DOWN:
-                if (popupShown && !modeShown && !optionsPane.isVisible()) {
+                if (popupShown && !modeShown && !themeShown && !optionsPane.isVisible())
+                {
                     selectedIndex = (selectedIndex + 1) % menuButtons.size();
-                    sfxMove.play();
-                    updateFocus(menuButtons);
-                } else if (modeShown) {
+                    sfxMove.play(); // Jouer l'effet sonore de déplacement
+                    updateFocus(menuButtons); // Mettre à jour le focus
+                }
+                else if (modeShown)
+                {
                     selectedIndex = (selectedIndex + 1) % modeButtons.size();
-                    sfxMove.play();
-                    updateFocus(modeButtons);
+                    sfxMove.play(); // Jouer l'effet sonore de déplacement
+                    updateFocus(modeButtons); // Mettre à jour le focus
+                }
+                else if (themeShown)
+                {
+                    selectedIndex = (selectedIndex + 1) % themeButtons.size();
+                    sfxMove.play(); // Jouer l'effet sonore de déplacement
+                    updateFocus(themeButtons); // Mettre à jour le focus
                 }
                 break;
 
             case ENTER:
-                if (modeShown) {
-                    executeModeSelected();
-                    sfxUse.play();
-                } else if (popupShown) {
-                    executeSelected();
-                    sfxUse.play();
+                if (themeShown)
+                {
+                    executeThemeSelected(); // Exécuter l'action du thème sélectionné
+                    sfxUse.play(); // Jouer l'effet sonore d'utilisation
+                }
+                else if (modeShown)
+                {
+                    executeModeSelected(); // Exécuter l'action du mode sélectionné
+                    sfxUse.play(); // Jouer l'effet sonore d'utilisation
+                }
+                else if (popupShown)
+                {
+                    executeSelected(); // Exécuter l'action du menu principal sélectionné
+                    sfxUse.play(); // Jouer l'effet sonore d'utilisation
                 }
                 break;
 
             default:
+                // Si aucun popup n'est affiché et que les options ne sont pas visibles, afficher le popup principal
                 if (!popupShown && !optionsPane.isVisible()) {
                     showPopup();
                     popupShown = true;
                     selectedIndex = 0;
                     updateFocus(menuButtons);
-                    togglePopup();
+                    togglePopup(); // Activer le flou
                 }
                 break;
         }
@@ -268,20 +340,20 @@ public class MenuController {
      */
     private void showPopup() {
         popupPane.setVisible(true);
-        popupPane.setTranslateY(600);
+        popupPane.setTranslateY(600); // Position initiale en dehors de l'écran
 
         TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), popupPane);
         tt.setFromY(600);
-        tt.setToY(0);
-        tt.setInterpolator(Interpolator.EASE_OUT);
+        tt.setToY(0); // Position finale au centre
+        tt.setInterpolator(Interpolator.EASE_OUT); // Interpolation pour un mouvement fluide
 
         FadeTransition ft = new FadeTransition(Duration.seconds(0.5), popupPane);
-        ft.setFromValue(0);
-        ft.setToValue(1);
+        ft.setFromValue(0); // Début de l'opacité à 0
+        ft.setToValue(1); // Fin de l'opacité à 1
 
-        new ParallelTransition(tt, ft).play();
+        new ParallelTransition(tt, ft).play(); // Jouer les deux animations en parallèle
 
-        Platform.runLater(() -> rootPane.requestFocus());
+        Platform.runLater(() -> rootPane.requestFocus()); // Demander le focus au panneau racine
     }
 
     /**
@@ -290,15 +362,15 @@ public class MenuController {
     private void hidePopup() {
         TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), popupPane);
         tt.setFromY(0);
-        tt.setToY(600);
-        tt.setInterpolator(Interpolator.EASE_IN);
+        tt.setToY(600); // Déplacer vers le bas de l'écran
+        tt.setInterpolator(Interpolator.EASE_IN); // Interpolation pour un mouvement fluide
 
         FadeTransition ft = new FadeTransition(Duration.seconds(0.5), popupPane);
         ft.setFromValue(1);
-        ft.setToValue(0);
+        ft.setToValue(0); // Diminuer l'opacité à 0
 
         ParallelTransition pt = new ParallelTransition(tt, ft);
-        pt.setOnFinished(e -> popupPane.setVisible(false));
+        pt.setOnFinished(e -> popupPane.setVisible(false)); // Cacher le panneau une fois l'animation terminée
         pt.play();
     }
 
@@ -306,13 +378,13 @@ public class MenuController {
      * Affiche la sélection du mode de jeu avec animation.
      */
     private void showModePopup() {
-        popupPane.setVisible(false);
+        popupPane.setVisible(false); // Cacher le popup principal
         modePane.setVisible(true);
         modePane.setOpacity(0);
         modePane.setTranslateY(600);
 
         selectedIndex = 0;
-        updateFocus(modeButtons);
+        updateFocus(modeButtons); // Mettre à jour le focus sur les boutons de mode
 
         TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), modePane);
         tt.setFromY(600);
@@ -327,7 +399,36 @@ public class MenuController {
     }
 
     /**
-     * Cache le panneau de sélection du mode de jeu.
+     * Affiche le panneau de sélection de thème avec animation.
+     */
+    public void showThemePopup()
+    {
+        popupPane.setVisible(false); // Cacher le popup principal
+        themePane.setVisible(true);
+        themePane.setOpacity(0);
+        themePane.setTranslateY(600);
+
+        selectedIndex = 0;
+        updateFocus(themeButtons); // Mettre à jour le focus sur les boutons de thème
+        themeShown = true; // Indiquer que le menu des thèmes est affiché
+        popupShown = false; // Indiquer que le menu principal est caché
+
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), themePane);
+        tt.setFromY(600);
+        tt.setToY(0);
+        tt.setInterpolator(Interpolator.EASE_OUT);
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(0.5), themePane);
+        ft.setFromValue(0);
+        ft.setToValue(1);
+
+        new ParallelTransition(tt, ft).play();
+
+        Platform.runLater(() -> rootPane.requestFocus()); // Demander le focus au panneau racine
+    }
+
+    /**
+     * Cache le panneau de sélection du mode de jeu avec animation.
      */
     private void hideModePopup() {
         TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), modePane);
@@ -340,10 +441,13 @@ public class MenuController {
         ft.setToValue(0);
 
         ParallelTransition pt = new ParallelTransition(tt, ft);
-        pt.setOnFinished(e -> modePane.setVisible(false));
+        pt.setOnFinished(e -> modePane.setVisible(false)); // Cacher le panneau une fois l'animation terminée
         pt.play();
     }
 
+    /**
+     * Cache le panneau des options avec animation.
+     */
     private void hideOptionsPane() {
         TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), optionsPane);
         tt.setFromY(0);
@@ -356,106 +460,144 @@ public class MenuController {
 
         ParallelTransition pt = new ParallelTransition(tt, ft);
         pt.setOnFinished(e -> {
-            optionsPane.setVisible(false);
-            popupShown = true;
-            selectedIndex = 0;
-            updateFocus(menuButtons);
-            showPopup();
+            optionsPane.setVisible(false); // Cacher le panneau une fois l'animation terminée
+            popupShown = true; // Rendre le popup principal visible logiquement
+            selectedIndex = 0; // Réinitialiser l'index de sélection
+            updateFocus(menuButtons); // Mettre à jour le focus sur les boutons du menu principal
+            showPopup(); // Afficher le popup principal
         });
         pt.play();
     }
 
     /**
-     * Applique un effect de flou Gaussian.
+     * Cache le panneau de sélection de thème avec animation.
+     */
+    private void hideThemePopup()
+    {
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), themePane);
+        tt.setFromY(0);
+        tt.setToY(600);
+        tt.setInterpolator(Interpolator.EASE_IN);
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(0.5), themePane);
+        ft.setFromValue(1);
+        ft.setToValue(0);
+
+        ParallelTransition pt = new ParallelTransition(tt, ft);
+        pt.setOnFinished(e -> themePane.setVisible(false)); // Cacher le panneau une fois l'animation terminée
+        pt.play();
+    }
+
+    /**
+     * Active ou désactive un effet de flou (overlay) sur l'écran.
+     * Cet overlay est utilisé pour simuler un flou lorsque des popups sont affichés.
      */
     private void togglePopup() {
-        isOverlayVisible = !isOverlayVisible;
-        overlay.setVisible(isOverlayVisible);
-        overlay.setOpacity(isOverlayVisible ? 0.5 : 0);
+        isOverlayVisible = !isOverlayVisible; // Inverser l'état de visibilité
+        overlay.setVisible(isOverlayVisible); // Rendre l'overlay visible ou invisible
+        overlay.setOpacity(isOverlayVisible ? 0.5 : 0); // Définir l'opacité (0.5 pour le flou, 0 pour transparent)
     }
-    
+
     /**
-     * Met à jour le style du bouton sélectionné.
-     * @param buttons La liste de boutons concernés.
+     * Met à jour le style du bouton actuellement sélectionné dans une liste de boutons.
+     * Supprime le style de tous les boutons et applique un style de bordure blanche au bouton sélectionné.
+     * @param buttons La liste de boutons concernés (menu principal, modes de jeu, ou thèmes).
      */
     private void updateFocus(List<Button> buttons) {
         for (int i = 0; i < buttons.size(); i++) {
-            buttons.get(i).setStyle("");
+            buttons.get(i).setStyle(""); // Supprimer le style de tous les boutons
         }
-        buttons.get(selectedIndex).setStyle("-fx-border-color: white; -fx-border-width: 2;");
+        buttons.get(selectedIndex).setStyle("-fx-border-color: white; -fx-border-width: 2;"); // Appliquer le style au bouton sélectionné
     }
 
     /**
      * Exécute l'action associée au bouton actuellement sélectionné du menu principal.
+     * Cette méthode est appelée lorsque la touche "Entrée" est pressée dans le menu principal.
      */
     private void executeSelected() {
-        Button selected = menuButtons.get(selectedIndex);
+        Button selected = menuButtons.get(selectedIndex); // Obtenir le bouton sélectionné
         switch (selected.getText()) {
             case "Nouvelle Partie" -> {
-                selectedIndex = 0;
-                updateFocus(modeButtons);
-                showModePopup();
-                modeShown = true;
+                selectedIndex = 0; // Réinitialiser l'index de sélection
+                updateFocus(modeButtons); // Mettre à jour le focus sur les boutons de mode
+                showModePopup(); // Afficher le popup de sélection de mode
+                modeShown = true; // Indiquer que le menu de mode est affiché
+                popupShown = false; // Indiquer que le menu principal est caché
+            }
+            case "Thèmes" -> {
+                selectedIndex = 0; // Réinitialiser l'index de sélection
+                updateFocus(themeButtons); // Mettre à jour le focus sur les boutons de thème
+                showThemePopup(); // Afficher le popup de sélection de thème
+                themeShown = true; // Indiquer que le menu des thèmes est affiché
+                popupShown = false; // Indiquer que le menu principal est caché
             }
             case "Options" -> {
-                showOptionsPane();
-                popupShown = false;
+                showOptionsPane(); // Afficher le panneau des options
+                popupShown = false; // Indiquer que le menu principal est caché
             }
-            case "Quitter" -> Platform.exit();
+            case "Quitter" -> Platform.exit(); // Quitter l'application
         }
     }
 
     /**
-     * Exécute le démarrage du jeu selon le mode sélectionné (solo ou multijoueur).
+     * Exécute le démarrage du jeu selon le mode sélectionné (solo ou multijoueur) ou l'éditeur de carte.
+     * Cette méthode est appelée lorsque la touche "Entrée" est pressée dans le menu de sélection de mode.
      */
     private void executeModeSelected() {
-        Button selected = modeButtons.get(selectedIndex);
+        Button selected = modeButtons.get(selectedIndex); // Obtenir le bouton sélectionné
         if (selected.getText().equals("Solo")) {
-            startGame(true);
+            startGame(true); // Lancer le jeu en mode solo
         } else if (selected.getText().equals("Editeur de carte")) {
-            startMapEditor();
+            startMapEditor(); // Lancer l'éditeur de carte
         } else if (selected.getText().equals("Retour")) {
-            handleRetour();
+            handleRetour(); // Gérer le retour au menu principal
         } else {
-            startGame(false);
+            startGame(false); // Lancer le jeu en mode multijoueur
         }
     }
 
     /**
      * Lance le jeu en mode solo ou multijoueur.
+     * Arrête la musique de fond et initialise une nouvelle instance du jeu.
      * @param isSolo true pour le mode solo, false pour multijoueur.
      */
     private void startGame(boolean isSolo) {
-        mediaPlayer.stop();
-        Game game = new Game(isSolo);
-        game.start(primaryStage);
+        mediaPlayer.stop(); // Arrêter la musique de fond
+        Game game = new Game(isSolo); // Créer une nouvelle instance du jeu
+        // Passer le thème au jeu
+        game.setCurrentThemes(currentTheme);
+        game.start(primaryStage); // Démarrer le jeu sur la fenêtre principale
     }
-
 
     /**
      * Lance l'éditeur de carte.
+     * Crée une nouvelle instance de MapEditor et l'affiche.
      */
     @FXML
     private void startMapEditor() {
         MapEditor editor = new MapEditor();
-        Stage stage = (Stage) rootPane.getScene().getWindow();
-        editor.start(stage);
-    }
-
-    private void handleRetour() {
-        hideModePopup();
-        showPopup();
-        modeShown = false;
-        popupShown = true;
-        selectedIndex = 0;
-        updateFocus(menuButtons);
+        Stage stage = (Stage) rootPane.getScene().getWindow(); // Obtenir la fenêtre actuelle
+        editor.start(stage); // Démarrer l'éditeur de carte
     }
 
     /**
-     * Execute l'affiche des options
+     * Gère l'action de retour depuis le menu de sélection de mode vers le menu principal.
+     * Cache le popup de mode et réaffiche le popup principal.
+     */
+    private void handleRetour() {
+        hideModePopup(); // Cacher le popup de mode
+        showPopup(); // Afficher le popup principal
+        modeShown = false; // Indiquer que le menu de mode est caché
+        popupShown = true; // Indiquer que le menu principal est affiché
+        selectedIndex = 0; // Réinitialiser l'index de sélection
+        updateFocus(menuButtons); // Mettre à jour le focus sur les boutons du menu principal
+    }
+
+    /**
+     * Affiche le panneau des options avec animation.
      */
     private void showOptionsPane() {
-        popupPane.setVisible(false);
+        popupPane.setVisible(false); // Cacher le popup principal
         optionsPane.setVisible(true);
         optionsPane.setOpacity(0);
         optionsPane.setTranslateY(600);
@@ -471,9 +613,13 @@ public class MenuController {
 
         new ParallelTransition(tt, ft).play();
 
-        Platform.runLater(() -> optionsPane.requestFocus());
+        Platform.runLater(() -> optionsPane.requestFocus()); // Demander le focus au panneau des options
     }
 
+    /**
+     * Gère l'action de retour depuis le panneau des options vers le menu principal.
+     * Cache le panneau des options et réaffiche le popup principal.
+     */
     @FXML
     private void handleRetourOptions() {
         TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), optionsPane);
@@ -487,19 +633,114 @@ public class MenuController {
 
         ParallelTransition pt = new ParallelTransition(tt, ft);
         pt.setOnFinished(e -> {
-            optionsPane.setVisible(false);
-            showPopup();
-            popupShown = true;
+            optionsPane.setVisible(false); // Cacher le panneau des options
+            showPopup(); // Afficher le popup principal
+            popupShown = true; // Indiquer que le menu principal est affiché
         });
         pt.play();
     }
 
-    /** Gère le clic sur le bouton Nouvelle Partie (FXML). */
+    /** Gère le clic sur le bouton "Nouvelle Partie" (méthode FXML). */
     @FXML private void handleNP() { showModePopup(); }
 
-    /** Gère le clic sur le bouton Options (FXML). */
-    @FXML private void handleOp() { System.out.println("Options sélectionnées"); }
+    /** Gère le clic sur le bouton "Thèmes" (méthode FXML). */
+    @FXML private void handleSkin()
+    {
+        showThemePopup();
+    }
 
-    /** Gère le clic sur le bouton Quitter (FXML). */
+    /** Gère le clic sur le bouton "Options" (méthode FXML). */
+    @FXML private void handleOp() { System.out.println("Options sélectionnées"); /* showOptionsPane(); est géré par handleKeyPress */ }
+
+    /** Gère le clic sur le bouton "Quitter" (méthode FXML). */
     @FXML private void handleQ() { Platform.exit(); }
+
+    /**
+     * Sélectionne un thème et applique les changements visuels.
+     * Joue un effet sonore de confirmation et affiche un message dans la console.
+     * Retourne ensuite au menu principal.
+     * @param themeName Le nom du thème à appliquer ("BomberMan" ou "Manoir").
+     */
+    private void selectTheme(String themeName)
+    {
+        currentTheme = themeName; // Mettre à jour le thème actuel
+        applyTheme(themeName); // Appliquer les changements visuels du thème
+
+        // Jouer un son de confirmation
+        sfxUse.play();
+
+        // Afficher un feedback visuel (optionnel)
+        System.out.println("Thème sélectionné : " + themeName);
+
+        // Retourner au menu principal après sélection
+        handleRetourTheme();
+    }
+
+    /**
+     * Applique le thème sélectionné à l'interface en changeant l'image de fond.
+     * @param themeName Le nom du thème à appliquer.
+     */
+    private void applyTheme(String themeName)
+    {
+        switch (themeName) {
+            case "BomberMan" -> {
+                backgroundImageView.setImage(new javafx.scene.image.Image(getClass().getResource("/com/example/BomberMAN/menu/image/FondMenu1.png").toExternalForm()));
+            }
+            case "Manoir" -> {
+                backgroundImageView.setImage(new javafx.scene.image.Image(getClass().getResource("/com/example/BomberMAN/menu/image/FondMenuManoir.png").toExternalForm()));
+            }
+            default -> {
+                // Thème par défaut si non reconnu
+                backgroundImageView.setImage(new javafx.scene.image.Image(
+                        getClass().getResource("/com/example/BomberMAN/menu/image/FondMenu1.png").toExternalForm()));
+                updateButtonsTheme("#FF6B35", "#FFFFFF"); // Appliquer un style de bouton par défaut
+            }
+        }
+    }
+
+    /**
+     * Cette méthode est actuellement appelée uniquement par le cas 'default' dans applyTheme,
+     * mais pourrait être étendue pour des thèmes plus complexes.
+     * @param primaryColor Couleur primaire du thème en format hexadécimal (ex: "#FF6B35").
+     * @param textColor Couleur du texte des boutons en format hexadécimal (ex: "#FFFFFF").
+     */
+    private void updateButtonsTheme(String primaryColor, String textColor)
+    {
+        String buttonStyle = String.format(
+                "-fx-background-color: %s; -fx-text-fill: %s; -fx-background-radius: 5;",
+                primaryColor, textColor
+        );
+
+        // Appliquer le style à tous les boutons des différents menus
+        menuButtons.forEach(button -> button.setStyle(buttonStyle));
+        modeButtons.forEach(button -> button.setStyle(buttonStyle));
+        themeButtons.forEach(button -> button.setStyle(buttonStyle));
+    }
+
+    /**
+     * Cache le panneau de sélection de thème et retourne au menu principal.
+     * Réinitialise l'état des drapeaux et le focus.
+     */
+    private void handleRetourTheme()
+    {
+        hideThemePopup(); // Cacher le popup de thème
+        themeShown = false; // Indiquer que le menu des thèmes est caché
+        popupShown = true; // Indiquer que le menu principal est affiché
+        selectedIndex = 0; // Réinitialiser l'index de sélection
+        updateFocus(menuButtons); // Mettre à jour le focus sur les boutons du menu principal
+        showPopup(); // Afficher le popup principal
+    }
+
+    /**
+     * Exécute l'action associée au bouton de thème actuellement sélectionné.
+     * Cette méthode est appelée lorsque la touche "Entrée" est pressée dans le menu des thèmes.
+     */
+    private void executeThemeSelected() {
+        Button selected = themeButtons.get(selectedIndex); // Obtenir le bouton sélectionné
+        switch (selected.getText()) {
+            case "BomberMan" -> selectTheme("BomberMan"); // Sélectionner le thème BomberMan
+            case "Manoir" -> selectTheme("Manoir"); // Sélectionner le thème Manoir
+            case "Retour" -> handleRetourTheme(); // Retourner au menu principal
+        }
+    }
 }
