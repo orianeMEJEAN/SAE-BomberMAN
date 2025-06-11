@@ -32,20 +32,23 @@ public class Game
 
     // === COMPOSANTS PRINCIPAUX ===
     private GridPane grid;                  /**< Conteneur JavaFX représentant la grille de jeu. */
-private Tile[][] tiles;                 /**< Tableau des tuiles du plateau. */
-private Player player;                  /**< Joueur principal. */
-private boolean isSoloMode;             /**< Mode solo activé ou non. */
-private Bot bot;                        /**< Bot contrôlé par l'IA en mode solo. */
+    private Tile[][] tiles;                 /**< Tableau des tuiles du plateau. */
+    private Player player;                  /**< Joueur principal. */
+    private boolean isSoloMode;             /**< Mode solo activé ou non. */
+    private Bot bot;                        /**< Bot contrôlé par l'IA en mode solo. */
 
-// === GESTION DES BONUS ===
-private List<Bonus> activeBonus;        /**< Liste des bonus actifs sur la carte. */
-private Timeline bonusCheckTimer;       /**< Timer pour vérifier la collecte des bonus. */
+    // === GESTION DES BONUS ===
+    private List<Bonus> activeBonus;        /**< Liste des bonus actifs sur la carte. */
+    private Timeline bonusCheckTimer;       /**< Timer pour vérifier la collecte des bonus. */
 
-// === CONSTANTES DE CONFIGURATION ===
-private static final double BONUS_CHECK_INTERVAL = 100.0; // millisecondes
+    // === CONSTANTES DE CONFIGURATION ===
+    private static final double BONUS_CHECK_INTERVAL = 100.0; // millisecondes
     private static final double INVINCIBILITY_DURATION = 5.0; // secondes
     private static final int SCENE_WIDTH = 536;
     private static final int SCENE_HEIGHT = 454;
+
+    /** Thème actuel pour les tuiles et les joueurs. */
+    private String currentTheme = "BomberMan"; // Thème par défaut
 
     /**
      * Constructeur de la classe Game.
@@ -92,14 +95,16 @@ private static final double BONUS_CHECK_INTERVAL = 100.0; // millisecondes
         grid.setStyle("-fx-background-color: #2c3e50;");
 
         // Chargement des textures et de la carte
-        Tile.loadTextures();
-        tiles = MapLoader.loadMap("src/main/resources/com/example/BomberMAN/BomberMAN/texture_Maps/map1.map", grid);
+        Tile.loadAllTextures(); // Charger toutes les textures nécessaires pour les tuiles.
+        // Définir le thème pour les tuiles
+        Tile.setCurrentTheme(currentTheme);
+        tiles = MapLoader.loadMap("src/main/resources/com/example/BomberMAN/BomberMAN/texture_Maps/map1.map");
 
         // Ajout des tuiles à la grille
         populateGrid();
 
         // Création du joueur avec référence au jeu pour les bonus
-        player = new Player(1, 1, 11, 9, grid, tiles, this);
+        player = new Player(1, 1, 11, 9, grid, tiles, this, currentTheme);
 
         System.out.println("Composants du jeu initialisés");
     }
@@ -388,6 +393,16 @@ private static final double BONUS_CHECK_INTERVAL = 100.0; // millisecondes
 
         System.out.println("Système de collecte: " + (bonusCheckTimer != null && bonusCheckTimer.getStatus() == Timeline.Status.RUNNING ? "ACTIF" : "INACTIF"));
         System.out.println("========================");
+    }
+
+    /**
+     * Définit le thème actuel pour les tuiles du jeu.
+     * Cette méthode est utilisée pour appliquer un thème visuel au jeu.
+     * @param themeName Le nom du thème à définir (par exemple, "BomberMan" ou "Manoir").
+     */
+    public void setCurrentThemes(String themeName)
+    {
+        this.currentTheme = themeName;
     }
 
     // === GETTERS ET SETTERS ===

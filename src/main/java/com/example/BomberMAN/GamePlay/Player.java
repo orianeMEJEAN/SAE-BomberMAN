@@ -26,12 +26,16 @@ public class Player
     // Position des deux joueurs
     private int x1, y1; // Joueur 1
     private int x2, y2; // Joueur 2
+//    private int x3, y3; // Joueur 3
+//    private int x4, y4; // Joueur 4
 
     // Points de vie des joueurs
-    private int pv1 = 1, pv2 = 1;
+    private int pv1 = 2, pv2 = 2;
+//  private int pv3 = 2, pv4 = 2;
 
     // Sprites des joueurs
-    private ImageView sprite, sprite2, sprite3, sprite4;
+    private ImageView sprite, sprite2;
+//    private ImageView sprite3, sprite4;
 
     // Grille du jeu et carte des tuiles
     private GridPane grid;
@@ -43,9 +47,17 @@ public class Player
     // Images pour les directions du joueur 2
     private Image imgUp2, imgDown2, imgLeft2, imgRight2, imgDefault2;
 
+//    // Images pour les directions du joueur 3
+//    private Image imgUp3, imgDown3, imgLeft3, imgRight3, imgDefault3;
+//
+//    // Images pour les directions du joueur 4
+//    private Image imgUp4, imgDown4, imgLeft4, imgRight4, imgDefault4;
+
     // Contrôle des mouvements
     private boolean canMove1 = true;
     private boolean canMove2 = true;
+//    private boolean canMove3 = true;
+//    private boolean canMove4 = true;
 
     private boolean bombCooldownPlayer1 = false;
     private boolean bombCooldownPlayer2 = false;
@@ -63,6 +75,8 @@ public class Player
     private Timeline invincibilityTimerPlayer1;
     private Timeline invincibilityTimerPlayer2;
 
+    // Nouveau champ pour le thème actuel
+    private String currentTheme;
     private Game game;
 
     /**
@@ -76,16 +90,21 @@ public class Player
      * @param tiles Carte des tuiles
      * @param game
      */
-    public Player(int x, int y, int x2, int y2, GridPane grid, Tile[][] tiles, Game game)
+    public Player(int x, int y, int x2, int y2, GridPane grid, Tile[][] tiles, Game game, String theme)
     {
         this.x1 = x;
         this.y1 = y;
         this.x2 = x2;
         this.y2 = y2;
+//        this.x3 = x3;
+//        this.y3 = y3;
+//        this.x4 = x4;
+//        this.y4 = y4;
 
         this.grid = grid;
         this.tiles = tiles;
         this.game = game;
+        this.currentTheme = theme;
 
         loadImages();
         createSprites();
@@ -96,19 +115,23 @@ public class Player
      */
     private void loadImages()
     {
+        // Chemin de base pour les ressources des joueurs
+        String basePathJ1 = "/com/example/BomberMAN/BomberMAN/J1/" + currentTheme + "/";
+        String basePathJ2 = "/com/example/BomberMAN/BomberMAN/J2/" + currentTheme + "/";
+
         // Chargement des images du joueur 1
-        imgDefault = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player.png").toExternalForm());
-        imgUp = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player_up.png").toExternalForm());
-        imgDown = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player_down.png").toExternalForm());
-        imgLeft = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player_left.png").toExternalForm());
-        imgRight = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/player_right.png").toExternalForm());
+        imgDefault = new Image(getClass().getResource(basePathJ1 + "player.png").toExternalForm());
+        imgUp = new Image(getClass().getResource(basePathJ1 + "player_up.png").toExternalForm());
+        imgDown = new Image(getClass().getResource(basePathJ1 + "player_down.png").toExternalForm());
+        imgLeft = new Image(getClass().getResource(basePathJ1 + "player_left.png").toExternalForm());
+        imgRight = new Image(getClass().getResource(basePathJ1 + "player_right.png").toExternalForm());
 
         // Chargement des images du joueur 2
-        imgDefault2 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/Player2-default.png").toExternalForm());
-        imgUp2 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/Player2-up.png").toExternalForm());
-        imgDown2 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/Player2-down.png").toExternalForm());
-        imgLeft2 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/Player2-left.png").toExternalForm());
-        imgRight2 = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/Player2-right.png").toExternalForm());
+        imgDefault2 = new Image(getClass().getResource(basePathJ2 + "Player2-default.png").toExternalForm());
+        imgUp2 = new Image(getClass().getResource(basePathJ2 + "Player2-up.png").toExternalForm());
+        imgDown2 = new Image(getClass().getResource(basePathJ2 + "Player2-down.png").toExternalForm());
+        imgLeft2 = new Image(getClass().getResource(basePathJ2 + "Player2-left.png").toExternalForm());
+        imgRight2 = new Image(getClass().getResource(basePathJ2 + "Player2-right.png").toExternalForm());
     }
 
     /**
@@ -116,17 +139,34 @@ public class Player
      */
     private void createSprites()
     {
-        // Sprite du joueur 1
-        sprite = new ImageView(imgDefault);
-        sprite.setFitWidth(40);
-        sprite.setFitHeight(40);
-        grid.add(sprite, x1, y1);
+        if(currentTheme == "Manoir")
+        {
+            // Sprite du joueur 1
+            sprite = new ImageView(imgDefault);
+            sprite.setFitWidth(25);
+            sprite.setFitHeight(40);
+            grid.add(sprite, x1, y1);
 
-        // Sprite du joueur 2
-        sprite2 = new ImageView(imgDefault2);
-        sprite2.setFitWidth(40);
-        sprite2.setFitHeight(40);
-        grid.add(sprite2, x2, y2);
+            // Sprite du joueur 2
+            sprite2 = new ImageView(imgDefault2);
+            sprite2.setFitWidth(25);
+            sprite2.setFitHeight(40);
+            grid.add(sprite2, x2, y2);
+        }
+        else
+        {
+            // Sprite du joueur 1
+            sprite = new ImageView(imgDefault);
+            sprite.setFitWidth(40);
+            sprite.setFitHeight(40);
+            grid.add(sprite, x1, y1);
+
+            // Sprite du joueur 2
+            sprite2 = new ImageView(imgDefault2);
+            sprite2.setFitWidth(40);
+            sprite2.setFitHeight(40);
+            grid.add(sprite2, x2, y2);
+        }
     }
 
     /**
@@ -198,7 +238,8 @@ public class Player
 
         sprite.setVisible(false);
 
-        Image gif = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/BomberManV2.gif").toExternalForm());
+        // Chemin de l'image GIF de la bombe du joueur 1 en fonction du thème
+        Image gif = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/" + currentTheme + "/BomberManV2.gif").toExternalForm());
         ImageView gifView = new ImageView(gif);
         gifView.setFitWidth(40);
         gifView.setFitHeight(40);
@@ -238,7 +279,8 @@ public class Player
 
         sprite2.setVisible(false);
 
-        Image gif = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J2/BomberManP2V1.gif").toExternalForm());
+        // Chemin de l'image GIF de la bombe du joueur 2 en fonction du thème
+        Image gif = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/J1/" + currentTheme + "/BomberManP2V1.gif").toExternalForm());
         ImageView gifView = new ImageView(gif);
         gifView.setFitWidth(40);
         gifView.setFitHeight(40);
@@ -457,6 +499,7 @@ public class Player
 
             // Créer une nouvelle instance de Game et la démarrer
             Game newGame = new Game(true);
+            newGame.setCurrentThemes(currentTheme);
             newGame.start(stage);
 
             System.out.println("Nouveau jeu démarré avec succès !");
@@ -473,12 +516,20 @@ public class Player
     public void unlockMovement1() { canMove1 = true; }
     public void lockMovement2() { canMove2 = false; }
     public void unlockMovement2() { canMove2 = true; }
+//    public void lockMovement3() { canMove3 = false; }
+//    public void unlockMovement3() { canMove3 = true; }
+//    public void lockMovement4() { canMove4 = false; }
+//    public void unlockMovement4() { canMove4 = true; }
 
     // Getters / Setters
     public int getX1() { return x1; }
     public int getY1() { return y1; }
     public int getX2() { return x2; }
     public int getY2() { return y2; }
+//    public int getX3() { return x3; }
+//    public int getY3() { return y3; }
+//    public int getX4() { return x4; }
+//    public int getY4() { return y4; }
     public int getCurrentBombsPlayer1() { return currentBombsPlayer1; }
     public int getCurrentBombsPlayer2() { return currentBombsPlayer2; }
     public int getMaxBombsPlayer1() { return maxBombsPlayer1; }
@@ -486,10 +537,15 @@ public class Player
     public boolean canPlaceBombPlayer1() { return currentBombsPlayer1 < maxBombsPlayer1; }
     public boolean canPlaceBombPlayer2() { return currentBombsPlayer2 < maxBombsPlayer2; }
 
+
     public int getPv1() { return pv1; }
     public int getPv2() { return pv2; }
     public void setPv1(int pv) { this.pv1 = pv; }
     public void setPv2(int pv) { this.pv2 = pv; }
+//    public int getPv3() { return pv3; }
+//    public int getPv4() { return pv4; }
+//    public void setPv3(int pv) { this.pv3 = pv; }
+//    public void setPv4(int pv) { this.pv4 = pv; }
 
     // Getters pour l'invincibilité
     public boolean isInvinciblePlayer1() { return isInvinciblePlayer1; }

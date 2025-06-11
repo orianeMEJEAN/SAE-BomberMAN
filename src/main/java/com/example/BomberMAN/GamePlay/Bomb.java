@@ -35,6 +35,21 @@ public class Bomb {
         this.player = player;
         this.game = game;
 
+        if(Tile.getCurrentTheme() == "Manoir")
+        {
+            Image bombImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/bomb_Manoir.png").toExternalForm());
+            bombSprite = new ImageView(bombImage);
+            bombSprite.setFitWidth(20);
+            bombSprite.setFitHeight(20);
+        }
+        else
+        {
+            Image bombImage = new Image(getClass().getResource("/com/example/BomberMAN/BomberMAN/bomb.png").toExternalForm());
+            bombSprite = new ImageView(bombImage);
+            bombSprite.setFitWidth(Game.TILE_SIZE);
+            bombSprite.setFitHeight(Game.TILE_SIZE);
+        }
+
         // Déterminer quel joueur a posé la bombe
         if (x == player.getX1() && y == player.getY1()) {
             this.playerNumber = 1;
@@ -44,6 +59,11 @@ public class Bomb {
 
         createBombSprite(x, y);
         startExplosionTimer(x, y);
+        grid.add(bombSprite, x, y);
+
+        Timeline explosionDelay = new Timeline(new KeyFrame(Duration.seconds(2), ev -> explode(x, y)));
+        explosionDelay.setCycleCount(1);
+        explosionDelay.play();
     }
 
     /**

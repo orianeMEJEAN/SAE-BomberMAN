@@ -8,6 +8,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.layout.GridPane;
 
 import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Représente une tuile du jeu avec gestion complète des bonus d'invincibilité.
@@ -45,10 +47,111 @@ public class Tile {
     private static final Color STROKE_COLOR = Color.GRAY;
     private static final double STROKE_WIDTH = 0.5;
 
+    // === STATIC TEXTURES BY THEME ===
+    /**
+     * Carte statique stockant les textures (ImagePattern) pour chaque type de tuile,
+     * organisées par nom de thème. La clé externe est le nom du thème (String),
+     * et la clé interne est le Type de la tuile.
+     */
+    private static Map<String, Map<Type, ImagePattern>> THEME_TEXTURES = new HashMap<>();
+    /** Le nom du thème actuellement sélectionné pour l'affichage des tuiles. Initialisé à "BomberMan". */
+    private static String currentTheme = "BomberMan"; // Thème par défaut
+
+    /**
+     * Charge toutes les textures pour tous les thèmes disponibles.
+     */
+    public static void loadAllTextures()
+    {
+        loadTexturesForTheme("BomberMan");
+        loadTexturesForTheme("Manoir");
+    }
+
+    /**
+     * Charge les textures pour un thème spécifique.
+     */
+    private static void loadTexturesForTheme(String theme)
+    {
+        Map<Type, ImagePattern> textures = new HashMap<>();
+
+        try
+        {
+            switch (theme)
+            {
+                case "BomberMan" -> {
+                    textures.put(Type.EMPTY, new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/Theme_BomberMan/EMPTY.jpg")));
+                    textures.put(Type.BREAKABLE, new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/Theme_BomberMan/BREAKABLE.jpg")));
+                    textures.put(Type.WALL, new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/Theme_BomberMan/WALL.jpg")));
+                }
+                case "Manoir" -> {
+                    textures.put(Type.EMPTY, new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/Theme_Manoir/EMPTY.png")));
+                    textures.put(Type.BREAKABLE, new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/Theme_Manoir/BREAKABLE.png")));
+                    textures.put(Type.WALL, new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/Theme_Manoir/WALL.png")));
+                }
+                default -> { // Fallback au thème BomberMan si le thème spécifié n'est pas reconnu
+                    textures.put(Type.EMPTY, new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/Theme_BomberMan/EMPTY.jpg")));
+                    textures.put(Type.BREAKABLE, new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/Theme_BomberMan/BREAKABLE.jpg")));
+                    textures.put(Type.WALL, new ImagePattern(loadImage("/com/example/BomberMAN/BomberMAN/texture_Maps/Theme_BomberMan/WALL.jpg")));
+                }
+            }
+            THEME_TEXTURES.put(theme, textures); // Stocke les textures chargées pour ce thème
+        }
+        catch (Exception e)
+        {
+            System.err.println("Erreur lors du chargement des textures pour le thème " + theme + ": " + e.getMessage());
+            // Si le chargement échoue et que ce n'est pas déjà le thème BomberMan, essayer de charger BomberMan
+            if (!theme.equals("BomberMan"))
+            {
+                loadTexturesForTheme("BomberMan");
+            }
+        }
+    }
+
+    /**
+     * Change le thème actuel et met à jour toutes les tuiles existantes.
+     */
+    public static void setCurrentTheme(String theme)
+    {
+        if (THEME_TEXTURES.containsKey(theme)) {
+            currentTheme = theme;
+            // Notifier que le thème a changé (pour déclencher la mise à jour des tuiles)
+            System.out.println("Thème des textures changé vers : " + theme);
+        } else {
+            System.err.println("Thème inconnu : " + theme + ". Le thème actuel reste : " + currentTheme);
+        }
+    }
+
+    /**
+     * Retourne le nom du thème actuellement utilisé pour l'affichage des tuiles.
+     * @return Le nom du thème courant.
+     */
+    public static String getCurrentTheme()
+    {
+        return currentTheme;
+    }
+
+    /**
+     * Charge une image à partir d'un chemin de ressource donné.
+     * Gère les exceptions si l'image ne peut pas être chargée et affiche un message d'erreur.
+     * @param path Le chemin d'accès à l'image (par exemple, "/images/my_image.png").
+     * @return L'objet Image chargé, ou null si le chargement échoue.
+     */
+    private static Image loadImage(String path)
+    {
+        try
+        {
+            return new Image(Objects.requireNonNull(Tile.class.getResourceAsStream(path)));
+        }
+        catch (Exception e)
+        {
+            System.err.println("Impossible de charger l'image : " + path + ". Erreur: " + e.getMessage());
+            return null;
+        }
+    }
+
     /**
      * Charge toutes les textures nécessaires pour les tuiles.
      * Cette méthode doit être appelée avant de créer des tuiles.
-     */
+     * */
     public static void loadTextures() {
         if (texturesLoaded) return; // Éviter de recharger les textures
 
@@ -64,41 +167,20 @@ public class Tile {
     }
 
     /**
-     * Charge une image depuis les ressources
+     * Constructeur de la classe Tile.
+     * Crée une nouvelle tuile à la position spécifiée et initialise sa représentation graphique.
+     * Par défaut, la tuile est de type EMPTY.
+     * @param x La coordonnée X de la tuile dans la grille.
+     * @param y La coordonnée Y de la tuile dans la grille.
      */
-    private static Image loadImage(String path) {
-        try {
-            return new Image(Objects.requireNonNull(Tile.class.getResourceAsStream(path)));
-        } catch (Exception e) {
-            System.err.println("Impossible de charger l'image: " + path);
-            throw new RuntimeException("Erreur de chargement d'image", e);
-        }
-    }
-
-    /**
-     * Constructeur principal d'une tuile
-     *
-     * @param x Position X sur la grille
-     * @param y Position Y sur la grille
-     * @param grid Référence à la grille JavaFX
-     */
-    public Tile(int x, int y, GridPane grid) {
-        this.x = x;
-        this.y = y;
-        this.grid = grid;
-        this.destroyed = false;
-
-        initializeRectangle();
-        setType(Type.EMPTY); // Type par défaut
-    }
-
-    /**
-     * Initialise le rectangle graphique de la tuile
-     */
-    private void initializeRectangle() {
+    public Tile(int x, int y)
+    {
+        // Initialise le Rectangle graphique avec la taille de tuile définie dans la classe Game.
         rect = new Rectangle(Game.TILE_SIZE, Game.TILE_SIZE);
-        rect.setStroke(STROKE_COLOR);
-        rect.setStrokeWidth(STROKE_WIDTH);
+        // Définit une bordure grise pour le rectangle.
+        rect.setStroke(Color.GRAY);
+        // Définit le type initial de la tuile comme vide.
+        setType(Type.EMPTY);
     }
 
     /**
@@ -118,48 +200,54 @@ public class Tile {
      */
     public void setType(Type type) {
         this.type = type;
-        updateTileProperties(type);
-        updateTileAppearance(type);
+        updateAppearance(); // Met à jour la texture ou la couleur de la tuile.
+        updateProperties(); // Met à jour les drapeaux 'breakable' et 'walkable'.
     }
 
     /**
-     * Met à jour les propriétés de la tuile selon son type
+     * Met à jour l'apparence visuelle de la tuile (remplissage du Rectangle)
+     * en fonction de son type actuel et du thème sélectionné.
+     * Si les textures du thème ne sont pas disponibles, des couleurs par défaut sont utilisées.
      */
-    private void updateTileProperties(Type type) {
-        switch (type) {
+    private void updateAppearance()
+    {
+        Map<Type, ImagePattern> currentTextures = THEME_TEXTURES.get(currentTheme);
+
+        if (currentTextures != null && currentTextures.containsKey(type)) {
+            rect.setFill(currentTextures.get(type)); // Applique la texture du thème.
+        } else {
+            // Fallback vers des couleurs par défaut si les textures ne sont pas disponibles
+            switch (type) {
+                case EMPTY -> rect.setFill(Color.LIGHTGRAY);
+                case BREAKABLE -> rect.setFill(Color.BROWN);
+                case WALL -> rect.setFill(Color.DARKGRAY);
+            }
+        }
+    }
+
+    /**
+     * Met à jour les propriétés internes de la tuile (breakable, walkable)
+     * en fonction de son type actuel.
+     */
+    private void updateProperties()
+    {
+        switch (type)
+        {
             case EMPTY -> {
-                breakable = false;
-                walkable = true;
-                destroyed = false;
+                breakable = false; // Une tuile vide n'est pas cassable.
+                walkable = true;   // Une tuile vide est traversable.
             }
             case BREAKABLE -> {
-                breakable = true;
-                walkable = false;
-                destroyed = false;
+                breakable = true;  // Une tuile cassable est, par définition, cassable.
+                walkable = false;  // Une tuile cassable n'est pas traversable avant d'être cassée.
             }
             case WALL -> {
-                breakable = false;
-                walkable = false;
-                destroyed = false;
+                breakable = false; // Un mur n'est pas cassable.
+                walkable = false;  // Un mur n'est pas traversable.
             }
         }
     }
 
-    /**
-     * Met à jour l'apparence visuelle de la tuile
-     */
-    private void updateTileAppearance(Type type) {
-        if (!texturesLoaded) {
-            System.err.println("Attention: Les textures ne sont pas chargées !");
-            return;
-        }
-
-        switch (type) {
-            case EMPTY -> rect.setFill(EMPTY_TEXTURE);
-            case BREAKABLE -> rect.setFill(BREAKABLE_TEXTURE);
-            case WALL -> rect.setFill(WALL_TEXTURE);
-        }
-    }
 
     /**
      * Vérifie si la tuile est cassable.
@@ -177,15 +265,6 @@ public class Tile {
      */
     public boolean isWalkable() {
         return walkable;
-    }
-
-    /**
-     * Vérifie si la tuile a été détruite
-     *
-     * @return true si détruite, false sinon
-     */
-    public boolean isDestroyed() {
-        return destroyed;
     }
 
     /**
