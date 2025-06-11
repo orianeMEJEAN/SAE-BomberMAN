@@ -8,6 +8,8 @@ import com.example.BomberMAN.Maps.MapLoader;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -32,17 +34,17 @@ public class Game
 
     // === COMPOSANTS PRINCIPAUX ===
     private GridPane grid;                  /**< Conteneur JavaFX représentant la grille de jeu. */
-    private Tile[][] tiles;                 /**< Tableau des tuiles du plateau. */
-    private Player player;                  /**< Joueur principal. */
-    private boolean isSoloMode;             /**< Mode solo activé ou non. */
-    private Bot bot;                        /**< Bot contrôlé par l'IA en mode solo. */
+private Tile[][] tiles;                 /**< Tableau des tuiles du plateau. */
+private Player player;                  /**< Joueur principal. */
+private boolean isSoloMode;             /**< Mode solo activé ou non. */
+private Bot bot;                        /**< Bot contrôlé par l'IA en mode solo. */
 
-    // === GESTION DES BONUS ===
-    private List<Bonus> activeBonus;        /**< Liste des bonus actifs sur la carte. */
-    private Timeline bonusCheckTimer;       /**< Timer pour vérifier la collecte des bonus. */
+// === GESTION DES BONUS ===
+private List<Bonus> activeBonus;        /**< Liste des bonus actifs sur la carte. */
+private Timeline bonusCheckTimer;       /**< Timer pour vérifier la collecte des bonus. */
 
-    // === CONSTANTES DE CONFIGURATION ===
-    private static final double BONUS_CHECK_INTERVAL = 100.0; // millisecondes
+// === CONSTANTES DE CONFIGURATION ===
+private static final double BONUS_CHECK_INTERVAL = 100.0; // millisecondes
     private static final double INVINCIBILITY_DURATION = 5.0; // secondes
     private static final int SCENE_WIDTH = 536;
     private static final int SCENE_HEIGHT = 454;
@@ -50,6 +52,12 @@ public class Game
     /** Thème actuel pour les tuiles et les joueurs. */
     private String currentTheme = "BomberMan"; // Thème par défaut
     private String mapName; // Nom de la carte à charger
+
+    // === TIMER ===
+    private Label timerLabel;              // Label pour le timer
+    private Timeline gameTimer;            // Timer principal du jeu
+    private int timeSeconds = 120;         // 2 minutes en secondes
+    private BorderPane rootPane;           // Conteneur principal
 
     /**
      * Constructeur de la classe Game.
@@ -98,6 +106,17 @@ public class Game
         Tile.loadAllTextures();
         Tile.setCurrentTheme(currentTheme);
 
+        // Timer en haut
+        timerLabel = new Label("02:00");
+        timerLabel.setStyle("-fx-font-size: 28px; -fx-text-fill: #fff; -fx-font-weight: bold; -fx-padding: 15px; -fx-background-color: #222; -fx-alignment: center;");
+        timerLabel.setMaxWidth(Double.MAX_VALUE);
+        timerLabel.setMinHeight(50);
+        timerLabel.setAlignment(javafx.geometry.Pos.CENTER);
+
+        rootPane = new BorderPane();
+        rootPane.setTop(timerLabel);
+        rootPane.setCenter(grid);
+
         // Tentative de chargement dans texture_Maps, sinon dans niveau
         String mapPath = null;
         java.io.File resMap = new java.io.File("src/main/resources/com/example/BomberMAN/BomberMAN/texture_Maps/" + mapName);
@@ -141,12 +160,8 @@ public class Game
      */
     private void setupScene(Stage stage)
     {
-        Scene scene = new Scene(grid, SCENE_WIDTH, SCENE_HEIGHT);
-
-        // Configuration des contrôles clavier
+        Scene scene = new Scene(rootPane, SCENE_WIDTH, SCENE_HEIGHT + 50); // +50 pour le timer
         setupKeyboardControls(scene);
-
-        // Configuration de la fenêtre
         stage.setTitle("BomberMan - " + (isSoloMode ? "Solo" : "Multijoueur") + " [Invincibilité: " + INVINCIBILITY_DURATION + "s]");
         stage.setScene(scene);
         stage.setResizable(false);
@@ -277,6 +292,51 @@ public class Game
             bot = new Bot(player, tiles);
             System.out.println("Bot IA créé pour le mode solo");
         }
+
+        startTimer();
+    }
+
+    /**
+     * Démarre le timer de jeu qui compte à rebours.
+     * Affiche le temps restant dans le label du timer.
+     */
+    private void startTimer() {
+        updateTimerLabel();
+        gameTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            timeSeconds--;
+            updateTimerLabel();
+            if (timeSeconds <= 0) {
+                gameTimer.stop();
+                onTimerEnd();
+            }
+        }));
+        gameTimer.setCycleCount(timeSeconds);
+        gameTimer.play();
+    }
+
+
+    /**
+     * Met à jour le label du timer avec le temps restant.
+     * Format: MM:SS
+     */
+    private void updateTimerLabel() {
+        int min = timeSeconds / 60;
+        int sec = timeSeconds % 60;
+        timerLabel.setText(String.format("%02d:%02d", min, sec));
+    }
+
+    /**
+     * Gère la fin du timer : affiche un message et remplace la scène.
+     */
+    private void onTimerEnd() {
+        timerLabel.setText("Temps écoulé !");
+
+        BorderPane blackPane = new BorderPane();
+        Label endLabel = new Label("Temps écoulé !");
+        endLabel.setStyle("-fx-font-size: 48px; -fx-text-fill: white; -fx-font-weight: bold;");
+        blackPane.setStyle("-fx-background-color: black;");
+        blackPane.setCenter(endLabel);
+        rootPane.getScene().setRoot(blackPane);
     }
 
     /**
@@ -526,3 +586,4 @@ public class Game
         return INVINCIBILITY_DURATION;
     }
 }
+
