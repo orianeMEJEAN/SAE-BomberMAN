@@ -124,6 +124,24 @@ public class MenuController {
     /** ImageView affichant l'image de fond du menu. */
     @FXML private ImageView backgroundImageView;
 
+    /** Bouton "Règles". */
+    @FXML private Button btnRules;
+
+    /** Bouton "Crédits". */
+    @FXML private Button btnCredits;
+
+    /** Pane des règles. */
+    @FXML private StackPane rulesPane;
+
+    /** Pane des crédits. */
+    @FXML private StackPane creditsPane;
+
+    /** Indique si le popup des règles est affiché. */
+    private boolean rulesShown = false;
+
+    /** Indique si le popup des crédits est affiché. */
+    private boolean creditsShown = false;
+
     /**
      * Définit la fenêtre principale pour le lancement du jeu.
      * @param stage La fenêtre JavaFX principale.
@@ -179,7 +197,7 @@ public class MenuController {
         });
 
         // Initialisation des listes de boutons
-        menuButtons = List.of(btnNP, btnSKIN, btnOp, btnQ);
+        menuButtons = List.of(btnNP, btnSKIN, btnRules, btnCredits, btnOp, btnQ);
         modeButtons = List.of(btnSolo, btnMulti, btnEdit, btnR);
 
         // Configuration des actions pour les boutons de sélection de mode
@@ -241,6 +259,14 @@ public class MenuController {
                     hideOptionsPane();
                     togglePopup(); // Désactiver le flou
                 }
+                else if (rulesShown)
+                {
+                    handleRetourRules();
+                }
+                else if (creditsShown)
+                {
+                    handleRetourCredits();
+                }
                 else if (themeShown)
                 {
                     handleRetourTheme(); // Retourner du menu des thèmes
@@ -263,44 +289,20 @@ public class MenuController {
                 break;
 
             case UP:
-                if (popupShown && !modeShown && !themeShown && !optionsPane.isVisible())
+                if (popupShown && !modeShown && !themeShown && !optionsPane.isVisible() && !rulesShown && !creditsShown) // Add !rulesShown && !creditsShown
                 {
                     selectedIndex = (selectedIndex - 1 + menuButtons.size()) % menuButtons.size();
                     sfxMove.play(); // Jouer l'effet sonore de déplacement
                     updateFocus(menuButtons); // Mettre à jour le focus
                 }
-                else if (modeShown)
-                {
-                    selectedIndex = (selectedIndex - 1 + modeButtons.size()) % modeButtons.size();
-                    sfxMove.play(); // Jouer l'effet sonore de déplacement
-                    updateFocus(modeButtons); // Mettre à jour le focus
-                }
-                else if (themeShown)
-                {
-                    selectedIndex = (selectedIndex - 1 + themeButtons.size()) % themeButtons.size();
-                    sfxMove.play(); // Jouer l'effet sonore de déplacement
-                    updateFocus(themeButtons); // Mettre à jour le focus
-                }
                 break;
 
             case DOWN:
-                if (popupShown && !modeShown && !themeShown && !optionsPane.isVisible())
+                if (popupShown && !modeShown && !themeShown && !optionsPane.isVisible() && !rulesShown && !creditsShown) // Add !rulesShown && !creditsShown
                 {
                     selectedIndex = (selectedIndex + 1) % menuButtons.size();
                     sfxMove.play(); // Jouer l'effet sonore de déplacement
                     updateFocus(menuButtons); // Mettre à jour le focus
-                }
-                else if (modeShown)
-                {
-                    selectedIndex = (selectedIndex + 1) % modeButtons.size();
-                    sfxMove.play(); // Jouer l'effet sonore de déplacement
-                    updateFocus(modeButtons); // Mettre à jour le focus
-                }
-                else if (themeShown)
-                {
-                    selectedIndex = (selectedIndex + 1) % themeButtons.size();
-                    sfxMove.play(); // Jouer l'effet sonore de déplacement
-                    updateFocus(themeButtons); // Mettre à jour le focus
                 }
                 break;
 
@@ -324,7 +326,7 @@ public class MenuController {
 
             default:
                 // Si aucun popup n'est affiché et que les options ne sont pas visibles, afficher le popup principal
-                if (!popupShown && !optionsPane.isVisible()) {
+                if (!popupShown && !optionsPane.isVisible() && !rulesShown && !creditsShown) {
                     showPopup();
                     popupShown = true;
                     selectedIndex = 0;
@@ -425,6 +427,122 @@ public class MenuController {
         new ParallelTransition(tt, ft).play();
 
         Platform.runLater(() -> rootPane.requestFocus()); // Demander le focus au panneau racine
+    }
+
+    /**
+     * Affiche le panneau des règles avec animation.
+     */
+    public void showRulesPane() {
+        popupPane.setVisible(false); // Cacher le popup principal
+        rulesPane.setVisible(true);
+        rulesPane.setOpacity(0);
+        rulesPane.setTranslateY(600);
+
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), rulesPane);
+        tt.setFromY(600);
+        tt.setToY(0);
+        tt.setInterpolator(Interpolator.EASE_OUT);
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(0.5), rulesPane);
+        ft.setFromValue(0);
+        ft.setToValue(1);
+
+        new ParallelTransition(tt, ft).play();
+
+        rulesShown = true;
+        popupShown = false;
+        togglePopup(); // Activer le flou
+        Platform.runLater(() -> rootPane.requestFocus()); // Demander le focus au panneau racine
+    }
+
+    /**
+     * Cache le panneau des règles avec animation.
+     */
+    private void hideRulesPane() {
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), rulesPane);
+        tt.setFromY(0);
+        tt.setToY(600);
+        tt.setInterpolator(Interpolator.EASE_IN);
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(0.5), rulesPane);
+        ft.setFromValue(1);
+        ft.setToValue(0);
+
+        ParallelTransition pt = new ParallelTransition(tt, ft);
+        pt.setOnFinished(e -> rulesPane.setVisible(false));
+        pt.play();
+    }
+
+    /**
+     * Gère l'action de retour depuis le panneau des règles vers le menu principal.
+     */
+    @FXML
+    private void handleRetourRules() {
+        hideRulesPane();
+        rulesShown = false;
+        popupShown = true;
+        selectedIndex = 0;
+        updateFocus(menuButtons);
+        togglePopup(); // Désactiver le flou
+        showPopup();
+    }
+
+    /**
+     * Affiche le panneau des crédits avec animation.
+     */
+    public void showCreditsPane() {
+        popupPane.setVisible(false); // Cacher le popup principal
+        creditsPane.setVisible(true);
+        creditsPane.setOpacity(0);
+        creditsPane.setTranslateY(600);
+
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), creditsPane);
+        tt.setFromY(600);
+        tt.setToY(0);
+        tt.setInterpolator(Interpolator.EASE_OUT);
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(0.5), creditsPane);
+        ft.setFromValue(0);
+        ft.setToValue(1);
+
+        new ParallelTransition(tt, ft).play();
+
+        creditsShown = true;
+        popupShown = false;
+        togglePopup(); // Activer le flou
+        Platform.runLater(() -> rootPane.requestFocus()); // Demander le focus au panneau racine
+    }
+
+    /**
+     * Cache le panneau des crédits avec animation.
+     */
+    private void hideCreditsPane() {
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(0.5), creditsPane);
+        tt.setFromY(0);
+        tt.setToY(600);
+        tt.setInterpolator(Interpolator.EASE_IN);
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(0.5), creditsPane);
+        ft.setFromValue(1);
+        ft.setToValue(0);
+
+        ParallelTransition pt = new ParallelTransition(tt, ft);
+        pt.setOnFinished(e -> creditsPane.setVisible(false));
+        pt.play();
+    }
+
+    /**
+     * Gère l'action de retour depuis le panneau des crédits vers le menu principal.
+     */
+    @FXML
+    private void handleRetourCredits() {
+        hideCreditsPane();
+        creditsShown = false;
+        popupShown = true;
+        selectedIndex = 0;
+        updateFocus(menuButtons);
+        togglePopup(); // Désactiver le flou
+        showPopup();
     }
 
     /**
@@ -530,6 +648,12 @@ public class MenuController {
                 showThemePopup(); // Afficher le popup de sélection de thème
                 themeShown = true; // Indiquer que le menu des thèmes est affiché
                 popupShown = false; // Indiquer que le menu principal est caché
+            }
+            case "Règles" -> {
+                showRulesPane();
+            }
+            case "Crédits" -> {
+                showCreditsPane();
             }
             case "Options" -> {
                 showOptionsPane(); // Afficher le panneau des options
@@ -654,6 +778,12 @@ public class MenuController {
 
     /** Gère le clic sur le bouton "Quitter" (méthode FXML). */
     @FXML private void handleQ() { Platform.exit(); }
+
+    /** Gère le clic sur le bouton "Règles" (méthode FXML). */
+    @FXML private void handleRules() { showRulesPane(); }
+
+    /** Gère le clic sur le bouton "Crédits" (méthode FXML). */
+    @FXML private void handleCredits() { showCreditsPane(); }
 
     /**
      * Sélectionne un thème et applique les changements visuels.

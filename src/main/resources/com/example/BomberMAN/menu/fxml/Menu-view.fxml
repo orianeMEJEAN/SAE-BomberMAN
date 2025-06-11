@@ -47,6 +47,8 @@
             <Label text="Menu Principal" styleClass="jersey-font"/>
             <Button fx:id="btnNP" text="Nouvelle Partie" styleClass="button" onAction="#handleNP"/>
             <Button fx:id="btnSKIN" text="Thèmes" styleClass="button" onAction="#handleSkin"/>
+            <Button fx:id="btnRules" text="Règles" styleClass="button" onAction="#handleRules"/>
+            <Button fx:id="btnCredits" text="Crédits" styleClass="button" onAction="#handleCredits"/>
             <Button fx:id="btnOp" text="Options" styleClass="button" onAction="#handleOp"/>
             <Button fx:id="btnQ" text="Quitter" styleClass="button" onAction="#handleQ"/>
         </VBox>
@@ -98,6 +100,49 @@
             <Button fx:id="btnThemeBomberMan" text="BomberMan" styleClass="button"/>
             <Button fx:id="btnThemeManoir" text="Manoir" styleClass="button"/>
             <Button fx:id="btnThemeRetour" text="Retour" styleClass="button"/>
+        </VBox>
+    </StackPane>
+
+    <StackPane fx:id="rulesPane" visible="false" opacity="0">
+        <VBox spacing="20" alignment="CENTER_LEFT"
+              style="-fx-background-color: rgba(0, 0, 0, 0.8);
+                 -fx-font-size: 24px;
+                 -fx-padding: 20;
+                 -fx-background-radius: 10;"
+              maxWidth="600" maxHeight="400">
+            <Label text="Règles du Jeu" styleClass="jersey-font" style="-fx-font-size: 36px;"/>
+            <Label text="L’objectif de ce jeu est d’éliminer ses adversaires en les éliminant grâce à des bombes habilement placées. Lorsqu’il ne reste qu’un seul joueur en vie, il sera désigné gagnant de la partie. Le terrain possède deux types de mur : les murs incassables, comme ceux entourant le terrain, et les murs cassables qui peuvent être détruits avec des bombes placées devant." wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="Pour aider les joueurs, différents bonus peuvent apparaître quand un bloc est cassé : " wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="• « Bombe posable + » (le joueur peut posé plus de bombe)" wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="• « Invincibilité » (le joueur deveint invincible temporairement) (~5 seconde)" wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="Il y a aussi une proposition de terrain à disposition, généré aléatoirement, soumis à quelque règle pour le rendre jouable." wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="Si vous êtes seul, un mode de jeu avec des ordinateurs existe pour permettre de profiter à tout instant." wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="Commande : " wrapText="true" style="-fx-text-fill: white;"/>
+
+            <Label text="Joueur | Haut | Bas | Droite | Gauche | Bombarder" wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="   J1    |   z   |     s      |     q      |      d      |  espace" wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="  J2   |  i   |  k  |   l    |   j    |    !" wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="  J3   |  ↑   |  ↓  |   →    |   ←    | ctrl-droit" wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="  J4   |  8   |  5  |   4    |   6    |    +" wrapText="true" style="-fx-text-fill: white;"/>
+
+            <Button text="Retour" styleClass="button" onAction="#handleRetourRules"/>
+        </VBox>
+    </StackPane>
+
+    <StackPane fx:id="creditsPane" visible="false" opacity="0">
+        <VBox spacing="20" alignment="CENTER_LEFT"
+              style="-fx-background-color: rgba(0, 0, 0, 0.8);
+                 -fx-font-size: 24px;
+                 -fx-padding: 20;
+                 -fx-background-radius: 10;"
+              maxWidth="600" maxHeight="400">
+            <Label text="Crédits" styleClass="jersey-font" style="-fx-font-size: 36px;"/>
+            <Label text="Oriane : Développeur, Animation, Design UI" wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="Lucas : Développeur, Design Interface" wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="Hamza : Développeur, Debugage, Design UI" wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="Adam : Développeur, Design UI, Sound Maker" wrapText="true" style="-fx-text-fill: white;"/>
+            <Label text="Inspiré par : BomberMAN" wrapText="true" style="-fx-text-fill: white;"/>
+            <Button text="Retour" styleClass="button" onAction="#handleRetourCredits"/>
         </VBox>
     </StackPane>
 </StackPane>
