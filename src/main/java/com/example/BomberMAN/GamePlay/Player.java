@@ -725,7 +725,6 @@ public class Player
             canMove1 = false;
             sprite.setVisible(false);
             System.out.println("Joueur 1 éliminé....");
-            // Determine winner based on remaining players
             if (pv2 <= 0 && pv3 <= 0 && pv4 <= 0) {
                 Platform.runLater(() -> showGameOverScreen("Tous les joueurs ont perdu... Match nul !"));
             } else if (pv2 > 0 && pv3 <= 0 && pv4 <= 0) {
@@ -958,17 +957,6 @@ public class Player
         else
         {
             return true;
-        }
-    }
-
-    // Méthodes pour gérer le score
-    public int getScore(int playerNumber) {
-        switch (playerNumber) {
-            case 1: return score1;
-            case 2: return score2;
-            case 3: return score3;
-            case 4: return score4;
-            default: return 0;
         }
     }
 
