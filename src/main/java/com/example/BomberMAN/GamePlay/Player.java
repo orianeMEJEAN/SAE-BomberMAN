@@ -78,10 +78,13 @@ public class Player
     // Système d'invincibilité
     private boolean isInvinciblePlayer1 = false;
     private boolean isInvinciblePlayer2 = false;
-    private Timeline invincibilityTimerPlayer1;
-    private Timeline invincibilityTimerPlayer2;
     private boolean isInvinciblePlayer3 = false;
     private boolean isInvinciblePlayer4 = false;
+
+    private Timeline invincibilityTimerPlayer1;
+    private Timeline invincibilityTimerPlayer2;
+    private Timeline invincibilityTimerPlayer3;
+    private Timeline invincibilityTimerPlayer4;
 
     // Nouveau champ pour le thème actuel
     private String currentTheme;
@@ -570,6 +573,22 @@ public class Player
     }
 
     /**
+     * Augmente la limite de bombes du joueur 3
+     */
+    public void increaseBombLimitPlayer3()
+    {
+        maxBombsPlayer3++;
+    }
+
+    /**
+     * Augmente la limite de bombes du joueur 4
+     */
+    public void increaseBombLimitPlayer4()
+    {
+        maxBombsPlayer4++;
+    }
+
+    /**
      * Active l'invincibilité pour le joueur 1 pendant 5 secondes
      */
     public void activateInvincibilityPlayer1()
@@ -627,6 +646,67 @@ public class Player
         }));
         invincibilityTimerPlayer2.setCycleCount(1);
         invincibilityTimerPlayer2.play();
+    }
+
+
+    /**
+     * Active l'invincibilité pour le joueur 3 pendant 5 secondes
+     */
+    public void activateInvincibilityPlayer3()
+    {
+        // Si déjà invincible, arrêter le timer précédent
+        if (invincibilityTimerPlayer3 != null) {
+            invincibilityTimerPlayer3.stop();
+        }
+
+        isInvinciblePlayer3 = true;
+
+        // Effet visuel : faire clignoter le sprite
+        Timeline blinkTimer = new Timeline(
+                new KeyFrame(Duration.millis(200), e -> sprite3.setOpacity(0.3)),
+                new KeyFrame(Duration.millis(400), e -> sprite3.setOpacity(1.0))
+        );
+        blinkTimer.setCycleCount(25); // 5 secondes de clignotement
+        blinkTimer.play();
+
+        // Timer pour désactiver l'invincibilité après 5 secondes
+        invincibilityTimerPlayer3 = new Timeline(new KeyFrame(Duration.seconds(5), e -> {
+            isInvinciblePlayer3 = false;
+            sprite3.setOpacity(1.0); // S'assurer que l'opacité est normale
+            System.out.println("Joueur 3 n'est plus invincible");
+        }));
+        invincibilityTimerPlayer3.setCycleCount(1);
+        invincibilityTimerPlayer3.play();
+    }
+
+    /**
+     * Active l'invincibilité pour le joueur 4 pendant 5 secondes
+     */
+    public void activateInvincibilityPlayer4()
+    {
+        // Si déjà invincible, arrêter le timer précédent
+        if (invincibilityTimerPlayer4 != null) {
+            invincibilityTimerPlayer4.stop();
+        }
+
+        isInvinciblePlayer4 = true;
+
+        // Effet visuel : faire clignoter le sprite
+        Timeline blinkTimer = new Timeline(
+                new KeyFrame(Duration.millis(200), e -> sprite4.setOpacity(0.3)),
+                new KeyFrame(Duration.millis(400), e -> sprite4.setOpacity(1.0))
+        );
+        blinkTimer.setCycleCount(25); // 5 secondes de clignotement
+        blinkTimer.play();
+
+        // Timer pour désactiver l'invincibilité après 5 secondes
+        invincibilityTimerPlayer4 = new Timeline(new KeyFrame(Duration.seconds(5), e -> {
+            isInvinciblePlayer4 = false;
+            sprite4.setOpacity(1.0); // S'assurer que l'opacité est normale
+            System.out.println("Joueur 4 n'est plus invincible");
+        }));
+        invincibilityTimerPlayer4.setCycleCount(1);
+        invincibilityTimerPlayer4.play();
     }
 
     /**
@@ -848,6 +928,8 @@ public class Player
 
     public int getMaxBombsPlayer1() { return maxBombsPlayer1; }
     public int getMaxBombsPlayer2() { return maxBombsPlayer2; }
+    public int getMaxBombsPlayer3() { return maxBombsPlayer3; }
+    public int getMaxBombsPlayer4() { return maxBombsPlayer4; }
 
     // Getters pour l'invincibilité
     public boolean isInvinciblePlayer1() { return isInvinciblePlayer1; }
@@ -889,6 +971,7 @@ public class Player
             default: return 0;
         }
     }
+
     public void addScore(int playerNumber, int points) {
         switch (playerNumber) {
             case 1: score1 += points; break;

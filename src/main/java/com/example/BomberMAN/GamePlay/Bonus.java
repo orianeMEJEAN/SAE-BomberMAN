@@ -117,7 +117,18 @@ public class Bonus {
             collected = true;
             collectedBy = 2;
         }
-        // ...ajouter ici pour joueurs 3 et 4 si besoin...
+        // Vérifier le joueur 3
+        else if (player.getX3() == x && player.getY3() == y) {
+            applyBonusToPlayer(player, 3);
+            collected = true;
+            collectedBy = 3;
+        }
+        // Vérifier le joueur 4
+        else if (player.getX4() == x && player.getY4() == y) {
+            applyBonusToPlayer(player, 4);
+            collected = true;
+            collectedBy = 4;
+        }
 
         if (collected) {
             removeFromGrid();
@@ -146,10 +157,22 @@ public class Bonus {
                     player.increaseBombLimitPlayer1();
                     System.out.println("Joueur 1 a ramassé un bonus : " + type.getDescription() +
                             " (Bombes max: " + player.getMaxBombsPlayer1() + ")");
-                } else {
+                } else if (playerNumber == 2) {
                     player.increaseBombLimitPlayer2();
                     System.out.println("Joueur 2 a ramassé un bonus : " + type.getDescription() +
                             " (Bombes max: " + player.getMaxBombsPlayer2() + ")");
+                }
+                else if (playerNumber == 3)
+                {
+                    player.increaseBombLimitPlayer3();
+                    System.out.println("Joueur 3 a ramassé un bonus : " + type.getDescription() +
+                            " (Bombes max: " + player.getMaxBombsPlayer3() + ")");
+                }
+                else if (playerNumber == 4)
+                {
+                    player.increaseBombLimitPlayer4();
+                    System.out.println("Joueur 4 a ramassé un bonus : " + type.getDescription() +
+                            " (Bombes max: " + player.getMaxBombsPlayer4() + ")");
                 }
                 break;
 
@@ -157,9 +180,19 @@ public class Bonus {
                 if (playerNumber == 1) {
                     player.activateInvincibilityPlayer1();
                     System.out.println("Joueur 1 a ramassé un bonus : " + type.getDescription() + " (5 secondes)");
-                } else {
+                } else if (playerNumber == 2) {
                     player.activateInvincibilityPlayer2();
                     System.out.println("Joueur 2 a ramassé un bonus : " + type.getDescription() + " (5 secondes)");
+                }
+                else if (playerNumber == 3)
+                {
+                    player.activateInvincibilityPlayer3();
+                    System.out.println("Joueur 3 a ramassé un bonus : " + type.getDescription() + " (5 secondes)");
+                }
+                else if (playerNumber == 4)
+                {
+                    player.activateInvincibilityPlayer4();
+                    System.out.println("Joueur 4 a ramassé un bonus : " + type.getDescription() + " (5 secondes)");
                 }
                 break;
         }
